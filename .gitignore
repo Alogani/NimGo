@@ -1,0 +1,4 @@
+nimcache/
+nimblecache/
+tests/*
+!tests/*.nim*
