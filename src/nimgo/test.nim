@@ -1,15 +1,20 @@
-import aloganimisc/fasttest
-import ./coroutines {.all.}
+import ./private/coroutinepool {.all.}
+import ./coroutines
+import ./eventdispatcher
 
-proc coroutineMain() =
-    discard 1 + 1
 
-var coro = newCoroutine(coroutineMain)
+proc main() =
+    var fd = registerHandle(0, {Event.Read})
+    echo "Suspend until stdin"
+    suspendUntilRead(fd)
+    echo "suspend until timer"
+    var coro = getCurrentCoroutine()
+    resumeOnTimer(coro, 400)
+    coro.suspend()
+    echo "waken up"
 
-runBench("Create"):
-    let coro = newCoroutine(coroutineMain)
-    coro.resume()
-
-runBench("Reinit"):
-    coro.reinit(coroutineMain)
-    coro.resume()
+withEventLoop:
+    var coro = newCoroutine(main)
+    resumeSoon(coro)
+    
+echo "done"
