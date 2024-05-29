@@ -3,48 +3,48 @@ import std/math
 
 type
     HistoryLog = object
-        ## Helper object to compute discounted max over 400 historic values with minimal cpu time
-        ## Complexity time around O(sqrt(n)) where O function is optimized with a sliding window
-        data*: array[20, int]
+        ## Helper object to compute discounted max over a period of time in a dynamic way
+        data: array[20, int]
         dataIdx: int
-        chunk*: array[20, int]
-        chunkIdx: int
+        averageMax: int
+        recentMax: int
+        elapsedCycles: int
 
     CoroutinePool* = ref object
         ## An object to lend resource
         activeCount: int
-        inactives*: seq[Coroutine]
+        inactives: seq[Coroutine]
         log*: HistoryLog
 
-proc addVal(log: var HistoryLog, val: int) =
-    log.chunkIdx += 1
-    if log.chunkIdx == static(len(log.chunk)):
-        log.chunkIdx = 0
-        log.data[log.dataIdx] = max(log.chunk)
-        log.dataIdx += 1
-        if log.dataIdx == static(len(log.data)):
-            log.dataIdx = 0
-    log.chunk[log.chunkIdx] = val
+func computeAverageMax(log: var HistoryLog): int =
+    const LogDataLen = len(log.data)
+    var total: int
+    var j = 1 # The first value is also discounted, because it is not as recent as log.recentMax
+    for i in countdown(log.dataIdx, 0):
+        total = max(total, log.data[i] * (LogDataLen * 3 div 2 - j)) # discount
+        j += 1
+    for i in countdown(static(LogDataLen - 1), log.dataIdx + 1):
+        total = max(total, log.data[i] * (LogDataLen * 3 div 2 - j)) # discount
+        j += 1
+    return ceilDiv(total, LogDataLen * 3 div 2)
 
-func computeMaxDiscountedVal*(log: HistoryLog): int =
-    ## Naive implementation of dynamic sizing estimation
-    ## And apply to them a discount when they are old
-    const LogDataLen = len(log.data) + 1
-    var agregate: array[LogDataLen, int]
-    var j: int
-    agregate[j] = max(log.chunk[0..log.chunkIdx])
-    j += 1
-    for i in log.dataIdx..<static(LogDataLen - 1):
-        agregate[j] = log.data[i] * (LogDataLen - j) # discount
-        j += 1
-    for i in 0..<log.dataIdx:
-        agregate[j] = log.data[i] * (LogDataLen - j) # discount
-        j += 1
-    let (q, r) = divmod(max(agregate), LogDataLen)
-    if r > 0:
-        return q + 1
-    else:
-        return q
+proc addVal(log: var HistoryLog, val: int) =
+    log.elapsedCycles += 1
+    if log.elapsedCycles < max(10, log.averageMax div 8):
+        if val > log.recentMax:
+            log.recentMax = val
+        return
+    log.elapsedCycles = 0
+    log.dataIdx += 1
+    if log.dataIdx == static(len(log.data)):
+        log.dataIdx = 0
+    log.data[log.dataIdx] = log.recentMax
+    log.recentMax = val
+    log.averageMax = log.computeAverageMax()
+
+func getAverageMax(log: HistoryLog): int =
+    max(log.recentMax, log.averageMax) * 12 div 10
+
 
 proc acquireCoroutineImpl[T](pool: CoroutinePool, entryFn: EntryFn[T]): Coroutine =
     pool.activeCount += 1
@@ -62,10 +62,9 @@ proc acquireCoro*(pool: CoroutinePool, entryFn: EntryFn[void]): Coroutine =
     ## release should be called afterward to avoid memory leaks
     acquireCoroutineImpl[void](pool, entryFn)
 
-var totalRelease*: int
 proc releaseCoro*(pool: CoroutinePool, coro: Coroutine) =
     ## double releasing is not checked
-    var maxInactives = pool.log.computeMaxDiscountedVal()
+    var maxInactives = pool.log.getAverageMax() - pool.activeCount
     let actualLen = pool.inactives.len()
     pool.activeCount -= 1
     pool.log.addVal(pool.activeCount)
@@ -75,8 +74,7 @@ proc releaseCoro*(pool: CoroutinePool, coro: Coroutine) =
     if actualLen < maxInactives:
         pool.inactives.add coro
     elif actualLen == maxInactives:
-        totalRelease += 1
+        discard
     else:
-        totalRelease += actualLen + 1 - maxInactives
         pool.inactives.setLen(maxInactives)
     
