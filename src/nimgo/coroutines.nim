@@ -111,7 +111,7 @@ type
         CsFinished
         CsDead ## Finished with an error
     
-    EntryFn[T] = proc(): T
+    EntryFn*[T] = proc(): T
         ## Supports at least closure and nimcall calling convention
     
     CoroutineObj = object
@@ -119,7 +119,6 @@ type
         returnedVal: pointer
         mcoCoroutine: ptr McoCoroutine
         exception: ptr Exception
-
     Coroutine* = ref CoroutineObj
         ## Basic coroutine object
         ## Thread safety: unstarted coroutine can be moved between threads
@@ -177,7 +176,6 @@ proc reinit*(coro: Coroutine, entryFn: EntryFn[void]) =
     reinitImpl[void](coro, entryFn)
 
 proc newCoroutineImpl[T](entryFn: EntryFn[T], stacksize: int): Coroutine =
-    ## Using Coroutine() constructor result in a "nil" coroutine `isNil() == true`
     result = Coroutine(
         entryFn: cast[SafeContainer[void]](entryFn.pushIntoContainer()),
     )
