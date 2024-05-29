@@ -1,20 +1,18 @@
-import ./private/coroutinepool {.all.}
-import ./coroutines
+import ./public/gotasks {.all.}
 import ./eventdispatcher
+import ./private/coroutinepool
 
+import std/monotimes, times
 
 proc main() =
-    var fd = registerHandle(0, {Event.Read})
-    echo "Suspend until stdin"
-    suspendUntilRead(fd)
-    echo "suspend until timer"
-    var coro = getCurrentCoroutine()
-    resumeOnTimer(coro, 400)
-    coro.suspend()
-    echo "waken up"
+    echo "in"
+    return
 
-withEventLoop:
-    var coro = newCoroutine(main)
-    resumeSoon(coro)
+withEventLoop():
+    var task = goAsync main()
+    echo "here"
+    let t0 = getMonotime()
+    discard task.wait()
+    echo "Timetaken=", inMicroseconds(getMonotime() - t0)
     
 echo "done"

@@ -236,6 +236,10 @@ proc raiseException*(coro: Coroutine) =
     if exception != nil:
         raise exception
 
+proc finished*(coro: Coroutine): bool =
+    ## Finished either with error or success
+    coro[].mcoCoroutine.getState() == McoCsFinished
+
 proc getState*(coro: Coroutine): CoroState =
     case coro[].mcoCoroutine.getState():
     of McoCsFinished:

@@ -1,6 +1,8 @@
 import ../coroutines
 import std/math
 
+export coroutines
+
 type
     HistoryLog = object
         ## Helper object to compute discounted max over a period of time in a dynamic way

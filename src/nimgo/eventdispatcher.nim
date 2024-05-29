@@ -24,12 +24,9 @@ import std/[times, monotimes]
 
 export Event
 
-
-const EvDispatcherTimeoutMs {.intdefine.} = 50 # We don't block on poll phase if new coros were registered
-const SleepMsIfInactive = 20 # to avoid busy waiting. When selector is not empty, but events triggered with no associated coroutines
-const SleepMsIfEmpty = 40 # to avoid busy waiting. When the event loop is empty
-const CoroLimitByPhase = 30 # To avoid starving the coros inside the poll
-
+const EvDispatcherTimeoutMs {.intdefine.} = 20 # We don't block on poll phase if new coros were registered
+const SleepMsIfInactive = 5 # to avoid busy waiting. When selector is not empty, but events triggered with no associated coroutines
+const CoroLimitByPhase = 50 # To avoid starving the coros inside the poll
 
 type
     AsyncData = object
@@ -141,7 +138,7 @@ proc processTimers(coroLimitForTimer: var int, timeout: TimeOutWatcher) =
         if not hasResumed:
             break
 
-proc runOnce*(timeoutMs: int) =
+proc runOnce*(timeoutMs = -1) =
     ## Run the event loop. The poll phase is done only once
     ## Timeout is a thresold and can be taken in account lately
     let timeout = TimeOutWatcher.init(timeoutMs)
@@ -239,17 +236,17 @@ proc runEventLoop*(
         while not timeout.expired:
             if dispatcher.isDispatcherEmpty():
                 break
-            else:
-                sleep(SleepMsIfEmpty)
             runOnce(timeout.getRemainingMs())
     finally:
         dispatcher[].running = false
         ActiveDispatcher = oldDispatcher
 
 template withEventLoop*(body: untyped) =
-    let dispatcher = newDispatcher()
+    let oldDispatcher = ActiveDispatcher
+    ActiveDispatcher = newDispatcher()
     `body`
-    runEventLoop(dispatcher)
+    runEventLoop()
+    ActiveDispatcher = oldDispatcher
 
 proc running*(dispatcher = ActiveDispatcher): bool =
     dispatcher[].running
