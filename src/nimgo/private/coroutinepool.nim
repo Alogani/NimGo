@@ -14,19 +14,19 @@ type
         ## An object to lend resource
         activeCount: int
         inactives: seq[Coroutine]
-        log*: HistoryLog
+        log: HistoryLog
 
 func computeAverageMax(log: var HistoryLog): int =
     const LogDataLen = len(log.data)
     var total: int
     var j = 1 # The first value is also discounted, because it is not as recent as log.recentMax
     for i in countdown(log.dataIdx, 0):
-        total = max(total, log.data[i] * (LogDataLen * 3 div 2 - j)) # discount
+        total = max(total, log.data[i] * (LogDataLen * 7 div 5 - j)) # discount
         j += 1
     for i in countdown(static(LogDataLen - 1), log.dataIdx + 1):
-        total = max(total, log.data[i] * (LogDataLen * 3 div 2 - j)) # discount
+        total = max(total, log.data[i] * (LogDataLen * 7 div 5 - j)) # discount
         j += 1
-    return ceilDiv(total, LogDataLen * 3 div 2)
+    return ceilDiv(total, LogDataLen * 7 div 5)
 
 proc addVal(log: var HistoryLog, val: int) =
     log.elapsedCycles += 1
@@ -40,10 +40,10 @@ proc addVal(log: var HistoryLog, val: int) =
         log.dataIdx = 0
     log.data[log.dataIdx] = log.recentMax
     log.recentMax = val
-    log.averageMax = log.computeAverageMax()
+    log.averageMax = log.computeAverageMax() * 12 div 10
 
 func getAverageMax(log: HistoryLog): int =
-    max(log.recentMax, log.averageMax) * 12 div 10
+    max(log.recentMax, log.averageMax)
 
 
 proc acquireCoroutineImpl[T](pool: CoroutinePool, entryFn: EntryFn[T]): Coroutine =
