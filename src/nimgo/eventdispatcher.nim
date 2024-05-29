@@ -40,7 +40,10 @@ type
     PollFd* = distinct int
         ## Reprensents a descriptor registered in the EventDispatcher: file handle, signal, timer, etc.
     
-    CoroutineWithTimer = tuple[finishAt: MonoTime, coro: Coroutine]
+    ConsummableCoroutine* = ref object
+        coro: Coroutine
+
+    CoroutineWithTimer = tuple[finishAt: MonoTime, coro: ConsummableCoroutine]
 
     EvDispatcherObj = object
         running: bool
@@ -49,6 +52,7 @@ type
         selector: Selector[AsyncData]
         onNextTickCoros: Deque[Coroutine]
         timers: HeapQueue[CoroutineWithTimer] # Thresold and not exact time
+        timersCancelledCountInQueue: int
         pendingCoros: Deque[Coroutine]
         checkCoros: Deque[Coroutine]
         closeCoros: Deque[Coroutine]
@@ -56,17 +60,45 @@ type
         ## Cannot be shared or moved around threads
 
 var ActiveDispatcher {.threadvar.}: EvDispatcher
-proc newDispatcher*(): EvDispatcher
-ActiveDispatcher = newDispatcher()
 
+
+#[ *** CancellableCoroutine API *** ]#
 
 proc `<`(a, b: CoroutineWithTimer): bool =
     a.finishAt < b.finishAt
 
+proc initConsummableCoro*(coro: Coroutine): ConsummableCoroutine =
+    ConsummableCoroutine(
+        coro: coro
+    )
+
+proc consumeAndGet*(consummable: ConsummableCoroutine): Coroutine =
+    result = consummable.coro
+    if result != nil:
+        ActiveDispatcher.timersCancelledCountInQueue += 1
+        consummable.coro = nil
+
+proc consumeAndResume*(consummable: ConsummableCoroutine) =
+    ## Will prevent any further resumes. Don't resume if already consumed
+    ## Notify the event loop that the coroutine is consummed and shall not be waited
+    let coro = consummable.consumeAndGet()
+    if coro != nil:
+        resume(coro)
+
+proc consumeAndResumeInsideEv(consummable: ConsummableCoroutine) =
+    ##  Will prevent any further resumes. Don't resume if already consumed
+    let coro = consummable.coro
+    if coro == nil:
+        ActiveDispatcher.timersCancelledCountInQueue -= 1
+    else:
+        consummable.coro = nil
+        resume(coro)
 
 #[ *** Dispatcher API *** ]#
 
 proc setCurrentThreadDispatcher*(dispatcher: EvDispatcher) =
+    ## A dispatcher cannot be shared between threads
+    ## But there could be one different dispatcher by threads
     ActiveDispatcher = dispatcher
 
 proc getCurrentThreadDispatcher*(): EvDispatcher =
@@ -102,7 +134,7 @@ proc processTimers(coroLimitForTimer: var int, timeout: TimeOutWatcher) =
         if ActiveDispatcher[].timers.len() != 0:
             if monoTimeNow > ActiveDispatcher[].timers[0].finishAt:
                 hasResumed = true
-                ActiveDispatcher[].timers.pop().coro.resume()
+                ActiveDispatcher[].timers.pop().coro.consumeAndResumeInsideEv()
                 processNextTickCoros(timeout)
                 coroLimitForTimer += 1
                 #monoTimeNow = getMonoTime()
@@ -201,7 +233,7 @@ proc runEventLoop*(
         raise newException(ValueError, "Cannot run the same event loop twice")
     let oldDispatcher = ActiveDispatcher
     ActiveDispatcher = dispatcher
-    dispatcher[].running = true
+    dispatcher.running = true
     try:
         let timeout = TimeOutWatcher.init(timeoutMs)
         while not timeout.expired:
@@ -215,8 +247,9 @@ proc runEventLoop*(
         ActiveDispatcher = oldDispatcher
 
 template withEventLoop*(body: untyped) =
+    let dispatcher = newDispatcher()
     `body`
-    runEventLoop()
+    runEventLoop(dispatcher)
 
 proc running*(dispatcher = ActiveDispatcher): bool =
     dispatcher[].running
@@ -228,11 +261,13 @@ proc resumeSoon*(coro: Coroutine) =
     ## Will register in the "pending phase"
     ActiveDispatcher[].pendingCoros.addLast coro
 
-proc resumeOnTimer*(coro: Coroutine, timeoutMs: int) =
+proc resumeOnTimer*(coro: Coroutine, timeoutMs: int): ConsummableCoroutine {.discardable.} =
     ## Equivalent to a sleep directly handled by the dispatcher
+    ## Returns an optional consummable object
+    result = initConsummableCoro(coro)
     ActiveDispatcher[].timers.push(
         (getMonoTime() + initDuration(milliseconds = timeoutMs),
-        coro)
+        result)
     )
 
 proc resumeOnNextTick*(coro: Coroutine) =
