@@ -181,7 +181,7 @@ proc runOnce*(timeoutMs = -1) =
         if readyKeyList.len() == 0:
             break # timeout expired
         for readyKey in readyKeyList:
-            var asyncData = getData(ActiveDispatcher[].selector, readyKey.fd)
+            var asyncData = getData(ActiveDispatcher[].selector, readyKey.fd) 
             var writeList: seq[Coroutine]
             var readList: seq[Coroutine]
             if Event.Write in readyKey.events:
