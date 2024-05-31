@@ -124,16 +124,13 @@ type
         ## Thread safety: unstarted coroutine can be moved between threads
         ## Moving started coroutine, using resume/suspend are completely thread unsafe in ORC (and maybe ARC too)
 
-template hasReturnVal[T](fn: proc(): T): bool = true
-template hasReturnVal(fn: proc()): bool = false
-
 proc coroutineMain[T](mcoCoroutine: ptr McoCoroutine) {.cdecl.} =
     ## Start point of the coroutine.
     let coroPtr = cast[ptr CoroutineObj](mcoCoroutine.getUserData())
     try:
         # Peek only, otherwise GC will happily free our captured variables right now if we are in another thread
-        let entryFn = cast[SafeContainer[T]](coroPtr[].entryFn).popFromContainer()
-        when hasReturnVal(entryFn):
+        let entryFn = cast[SafeContainer[EntryFn[T]]](coroPtr[].entryFn).popFromContainer()
+        when T isnot void:
             let res = entryFn()
             coroPtr[].returnedVal = allocAndSet(res.pushIntoContainer())
         else:
@@ -163,7 +160,7 @@ proc `=destroy`*(coroObj: CoroutineObj) =
 proc reinitImpl[T](coro: Coroutine, entryFn: EntryFn[T]) =
     checkMcoReturnCode uninitMcoCoroutine(coro.mcoCoroutine)
     coro.entryFn = cast[SafeContainer[void]](entryFn.pushIntoContainer())
-    var mcoCoroDescriptor = initMcoDescriptor(coroutineMain[typeof EntryFn[T]], coro.mcoCoroutine[].stack_size)
+    var mcoCoroDescriptor = initMcoDescriptor(coroutineMain[T], coro.mcoCoroutine[].stack_size)
     mcoCoroDescriptor.user_data = cast[ptr CoroutineObj](coro)
     checkMcoReturnCode initMcoCoroutine(coro.mcoCoroutine, addr mcoCoroDescriptor)
 
@@ -179,9 +176,9 @@ proc newCoroutineImpl[T](entryFn: EntryFn[T], stacksize: int): Coroutine =
     result = Coroutine(
         entryFn: cast[SafeContainer[void]](entryFn.pushIntoContainer()),
     )
-    var mcoCoroDescriptor = initMcoDescriptor(coroutineMain[typeof EntryFn[T]], stacksize.uint)
+    var mcoCoroDescriptor = initMcoDescriptor(coroutineMain[T], stacksize.uint)
     mcoCoroDescriptor.user_data = cast[ptr CoroutineObj](result)
-    checkMcoReturnCode createMcoCoroutine(addr(result[].mcoCoroutine), addr mcoCoroDescriptor)
+    checkMcoReturnCode createMcoCoroutine(addr(result.mcoCoroutine), addr mcoCoroDescriptor)
 
 proc newCoroutine*[T](entryFn: EntryFn[T], stacksize = DefaultStackSize): Coroutine =
     newCoroutineImpl[T](entryFn, stacksize)
@@ -192,10 +189,10 @@ proc newCoroutine*(entryFn: EntryFn[void], stacksize = DefaultStackSize): Corout
 proc resume*(coro: Coroutine, noraise = false) =
     ## Will resume the coroutine where it stopped (or start it)
     ## If noraise == true, won't try to resume finished or suspended coroutines
-    if noraise and getState(coro[].mcoCoroutine) in {McoCsFinished, McoCsSuspended}:
+    if noraise and getState(coro.mcoCoroutine) in {McoCsFinished, McoCsSuspended}:
         return
     let frame = getFrameState()
-    checkMcoReturnCode resume(coro[].mcoCoroutine)
+    checkMcoReturnCode resume(coro.mcoCoroutine)
     setFrameState(frame)
 
 proc suspend*() =
@@ -208,7 +205,7 @@ proc suspend*(coro: Coroutine) =
     ## Optimization to avoid calling getRunningMco() twice which has some overhead
     ## Never use if coro is different than current coroutine
     let frame = getFrameState()
-    checkMcoReturnCode suspend(coro[].mcoCoroutine)
+    checkMcoReturnCode suspend(coro.mcoCoroutine)
     setFrameState(frame)
 
 proc getCurrentCoroutine*(): Coroutine =
@@ -217,11 +214,11 @@ proc getCurrentCoroutine*(): Coroutine =
     return cast[Coroutine](getRunningMco().getUserData())
 
 proc getReturnVal*[T](coro: Coroutine): T =
-    if coro[].returnedVal == nil:
+    if coro.returnedVal == nil:
         raise newException(ValueError, "Coroutine don't have a return value or is not finished")
-    result = cast[ptr SafeContainer[T]](coro[].returnedVal)[].popFromContainer()
-    deallocShared(coro[].returnedVal)
-    coro[].returnedVal = nil
+    result = cast[ptr SafeContainer[T]](coro.returnedVal)[].popFromContainer()
+    deallocShared(coro.returnedVal)
+    coro.returnedVal = nil
 
 proc getException*(coro: Coroutine): ref Exception =
     ## nil if state is different than CsDead
@@ -230,7 +227,7 @@ proc getException*(coro: Coroutine): ref Exception =
         Gc_unref(result)
 
 proc raiseException*(coro: Coroutine) =
-    if coro[].mcoCoroutine.getState() != McoCsFinished:
+    if coro.mcoCoroutine.getState() != McoCsFinished:
         raise newException(ValueError, "Can't reraise unfinished coroutines")
     let exception = coro.getException()
     if exception != nil:
@@ -238,12 +235,12 @@ proc raiseException*(coro: Coroutine) =
 
 proc finished*(coro: Coroutine): bool =
     ## Finished either with error or success
-    coro[].mcoCoroutine.getState() == McoCsFinished
+    coro.mcoCoroutine.getState() == McoCsFinished
 
 proc getState*(coro: Coroutine): CoroState =
-    case coro[].mcoCoroutine.getState():
+    case coro.mcoCoroutine.getState():
     of McoCsFinished:
-        if coro[].exception == nil:
+        if coro.exception == nil:
             CsFinished
         else:
             CsDead
