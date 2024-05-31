@@ -29,29 +29,36 @@ const SleepMsIfInactive = 5 # to avoid busy waiting. When selector is not empty,
 const CoroLimitByPhase = 50 # To avoid starving the coros inside the poll
 
 type
+    OneShotCoroutine* = ref object
+        ## Coroutine that can only be resumed once inside a dispatcher
+        coro: Coroutine
+        next: Coroutine
+        activeCorosInsideSelector: ptr int
+        refCountInsideSelector: int
+        activeCorosOutsideSelector: ptr int
+        cancelled: bool
+        cancelledByTimer: bool
+
     AsyncData = object
-        readList: seq[Coroutine] # Also stores all other event kind
-        writeList: seq[Coroutine]
-        wasReadReady: ref bool # Useful for sync waiters
-        wasWriteReady: ref bool # Useful for sync waiters
+        readList: seq[OneShotCoroutine] # Also stores all other event kind
+        writeList: seq[OneShotCoroutine]
         unregisterWhenTriggered: bool
+        isTimer: bool
 
     PollFd* = distinct int
         ## Reprensents a descriptor registered in the EventDispatcher: file handle, signal, timer, etc.
-    
-    ConsummableCoroutine* = ref object
-        coro: Coroutine
 
-    CoroutineWithTimer = tuple[finishAt: MonoTime, coro: ConsummableCoroutine]
+    CoroutineWithTimer = tuple[finishAt: MonoTime, coro: OneShotCoroutine]
 
     EvDispatcherObj = object
         running: bool
         ## Phases
-        corosCountInSelector: int
+        activeCorosInsideSelector: int
+        activeCorosOutsideSelector: int
+        consumeEvent: bool ## To avoid data race when multiple coro are waked up for same event !!!
         selector: Selector[AsyncData]
         onNextTickCoros: Deque[Coroutine]
         timers: HeapQueue[CoroutineWithTimer] # Thresold and not exact time
-        timersCancelledCountInQueue: int
         pendingCoros: Deque[Coroutine]
         checkCoros: Deque[Coroutine]
         closeCoros: Deque[Coroutine]
@@ -61,37 +68,93 @@ type
 var ActiveDispatcher {.threadvar.}: EvDispatcher
 
 
-#[ *** CancellableCoroutine API *** ]#
+#[ *** OneShotCoroutineCoroutine API *** ]#
 
 proc `<`(a, b: CoroutineWithTimer): bool =
     a.finishAt < b.finishAt
 
-proc initConsummableCoro*(coro: Coroutine): ConsummableCoroutine =
-    ConsummableCoroutine(
-        coro: coro
+proc toOneShot*(coro: Coroutine, next: Coroutine = nil): OneShotCoroutine =
+    OneShotCoroutine(
+        coro: coro,
+        next: next,
     )
 
-proc consumeAndGet*(consummable: ConsummableCoroutine): Coroutine =
-    result = consummable.coro
-    if result != nil:
-        ActiveDispatcher.timersCancelledCountInQueue += 1
-        consummable.coro = nil
-
-proc consumeAndResume*(consummable: ConsummableCoroutine) =
-    ## Will prevent any further resumes. Don't resume if already consumed
-    ## Notify the event loop that the coroutine is consummed and shall not be waited
-    let coro = consummable.consumeAndGet()
-    if coro != nil:
-        resume(coro)
-
-proc consumeAndResumeInsideEv(consummable: ConsummableCoroutine) =
-    ##  Will prevent any further resumes. Don't resume if already consumed
-    let coro = consummable.coro
-    if coro == nil:
-        ActiveDispatcher.timersCancelledCountInQueue -= 1
+proc notifyRegistration(oneShotCoro: OneShotCoroutine, dispatcher: EvDispatcher, insideSelector: bool) =
+    if oneShotCoro.cancelled:
+        return
+    if insideSelector:
+        oneShotCoro.refCountInsideSelector.inc()
+        if oneShotCoro.activeCorosInsideSelector != nil:
+            return
+        dispatcher.activeCorosInsideSelector.inc()
+        oneShotCoro.activeCorosInsideSelector = addr(dispatcher.activeCorosInsideSelector)
     else:
-        consummable.coro = nil
-        resume(coro)
+        if oneShotCoro.activeCorosOutsideSelector != nil:
+            return
+        dispatcher.activeCorosOutsideSelector.inc()
+        oneShotCoro.activeCorosOutsideSelector = addr(dispatcher.activeCorosOutsideSelector)
+
+
+proc cancelled*(oneShotCoro: OneShotCoroutine): bool =
+    oneShotCoro.cancelled
+
+proc consumeOnly*(oneShotCoro: OneShotCoroutine, byTimer: bool) =
+    ## Eventual next coroutine will be ignored
+    if oneShotCoro.activeCorosInsideSelector != nil:
+        oneShotCoro.activeCorosInsideSelector[].dec()
+    if oneShotCoro.activeCorosOutsideSelector != nil:
+        oneShotCoro.activeCorosOutsideSelector[].dec()
+    oneShotCoro.coro = nil
+    oneShotCoro.cancelled = true
+    if byTimer:
+        oneShotCoro.cancelledByTimer = true
+
+proc removeFromSelector*(oneShotCoro: OneShotCoroutine, byTimer: bool) =
+    ## Only consume when not referenced anymore inside dispatcher
+    if oneShotCoro.cancelled:
+        return
+    if oneShotCoro.refCountInsideSelector == 1:
+        if oneShotCoro.activeCorosOutsideSelector == nil:
+            consumeOnly(oneShotCoro, byTimer)
+    else:
+        oneShotCoro.refCountInsideSelector.dec()
+    
+
+proc consumeAndResume*(oneShotCoro: OneShotCoroutine, byTimer: bool): tuple[hasResumed: bool, next: Coroutine] =
+    if oneShotCoro.cancelled:
+        return (false, nil)
+    let coro = oneShotCoro.coro
+    consumeOnly(oneShotCoro, byTimer)
+    if coro == nil:
+        return (false, nil)
+    resume(coro)
+    return (true, oneShotCoro.next)
+
+
+#[ *** Coroutine API *** ]#
+
+proc resumeSoon*(coro: Coroutine) =
+    ## Will register in the "pending phase"
+    ActiveDispatcher.pendingCoros.addLast coro
+
+proc resumeOnTimer*(oneShotCoro: OneShotCoroutine, timeoutMs: int) =
+    ## Equivalent to a sleep directly handled by the dispatcher
+    ## Returns an optional consummable object
+    oneShotCoro.notifyRegistration(ActiveDispatcher, false)
+    ActiveDispatcher.timers.push(
+        (getMonoTime() + initDuration(milliseconds = timeoutMs),
+        oneShotCoro)
+    )
+
+proc resumeOnNextTick*(coro: Coroutine) =
+    ActiveDispatcher.onNextTickCoros.addLast coro
+
+proc resumeOnCheckPhase*(coro: Coroutine) =
+    ActiveDispatcher.checkCoros.addLast coro
+
+proc resumeOnClosePhase*(coro: Coroutine) =
+    ActiveDispatcher.closeCoros.addLast coro
+
 
 #[ *** Dispatcher API *** ]#
 
@@ -109,9 +172,9 @@ proc newDispatcher*(): EvDispatcher =
     )
 
 proc isDispatcherEmpty*(dispatcher: EvDispatcher = ActiveDispatcher): bool =
-    dispatcher[].corosCountInSelector == 0 and
+    dispatcher[].activeCorosInsideSelector == 0 and
+        dispatcher[].activeCorosOutsideSelector == 0 and
         dispatcher[].onNextTickCoros.len() == 0 and
-        dispatcher[].timers.len() == 0 and
         dispatcher[].pendingCoros.len() == 0 and
         dispatcher[].checkCoros.len() == 0 and
         dispatcher[].closeCoros.len() == 0
@@ -121,7 +184,7 @@ proc processNextTickCoros(timeout: TimeOutWatcher) {.inline.} =
         ActiveDispatcher.onNextTickCoros.popFirst().resume()
 
 proc processTimers(coroLimitForTimer: var int, timeout: TimeOutWatcher) =
-    while coroLimitForTimer < CoroLimitByPhase or ActiveDispatcher.corosCountInSelector == 0:
+    while coroLimitForTimer < CoroLimitByPhase or ActiveDispatcher.activeCorosInsideSelector == 0:
         if timeout.expired():
             break
         if ActiveDispatcher.timers.len() == 0:
@@ -129,14 +192,14 @@ proc processTimers(coroLimitForTimer: var int, timeout: TimeOutWatcher) =
             break
         var monoTimeNow = getMonoTime()
         var hasResumed = false
-        # // TODO: Cancellable coroutines ?
         if ActiveDispatcher.timers.len() != 0:
             if monoTimeNow > ActiveDispatcher.timers[0].finishAt:
-                hasResumed = true
-                ActiveDispatcher.timers.pop().coro.consumeAndResumeInsideEv()
+                var (hasResumed2, next) = ActiveDispatcher.timers.pop().coro.consumeAndResume(true)
+                hasResumed = hasResumed2
+                if next != nil:
+                    resumeSoon(next)
                 processNextTickCoros(timeout)
                 coroLimitForTimer += 1
-                #monoTimeNow = getMonoTime()
         if not hasResumed:
             break
 
@@ -175,7 +238,7 @@ proc runOnce*(timeoutMs = -1) =
     else:
         pollTimeoutMs = EvDispatcherTimeoutMs
     # Phase 3: poll for I/O
-    while ActiveDispatcher.corosCountInSelector != 0:
+    while ActiveDispatcher.activeCorosInsideSelector != 0:
         # The event loop could return with no work if an event is triggered with no coroutine
         # If so, we will sleep and loop again
         var readyKeyList = ActiveDispatcher.selector.select(pollTimeoutMs)
@@ -183,32 +246,33 @@ proc runOnce*(timeoutMs = -1) =
         if readyKeyList.len() == 0:
             break # timeout expired
         for readyKey in readyKeyList:
-            var asyncData = getData(ActiveDispatcher.selector, readyKey.fd) 
-            var writeList: seq[Coroutine]
-            var readList: seq[Coroutine]
-            if Event.Write in readyKey.events:
-                writeList = move(asyncData.writeList)
-                if asyncData.wasWriteReady != nil:
-                    hasResumedCoro = true
-                    asyncData.wasWriteReady[] = true
-                    ActiveDispatcher.corosCountInSelector -= 1
-            if readyKey.events.card() > 0 and {Event.Write} != readyKey.events:
-                readList = move(asyncData.readList)
-                if asyncData.wasReadReady != nil:
-                    hasResumedCoro = true
-                    asyncData.wasReadReady[] = true
-                    ActiveDispatcher.corosCountInSelector -= 1
-            ActiveDispatcher.corosCountInSelector -= writeList.len() + readList.len()
-            if writeList.len() > 0 or readList.len() > 0:
-                hasResumedCoro = true
-            for coro in writeList:
-                coro.resume()
-                processNextTickCoros(timeout)
-            for coro in readList:
-                coro.resume()
-                processNextTickCoros(timeout)
-            if asyncData.unregisterWhenTriggered:
-                ActiveDispatcher.selector.unregister(readyKey.fd)
+            block eventHandler:
+                ActiveDispatcher.consumeEvent = false
+                var asyncData = getData(ActiveDispatcher.selector, readyKey.fd) 
+                var writeList: seq[OneShotCoroutine]
+                var readList: seq[OneShotCoroutine]
+                if Event.Write in readyKey.events:
+                    writeList = move(asyncData.writeList)
+                if readyKey.events.card() > 0 and {Event.Write} != readyKey.events:
+                    readList = move(asyncData.readList)
+                for coro in writeList:
+                    var (hasResumed, next) = coro.consumeAndResume(false)
+                    hasResumedCoro = hasResumedCoro or hasResumed
+                    if next != nil:
+                        resumeSoon(next)
+                    processNextTickCoros(timeout)
+                    if ActiveDispatcher.consumeEvent:
+                        break eventHandler
+                for coro in readList:
+                    var (hasResumed, next) = coro.consumeAndResume(false)
+                    hasResumedCoro = hasResumedCoro or hasResumed
+                    if next != nil:
+                        resumeSoon(next)
+                    processNextTickCoros(timeout)
+                    if ActiveDispatcher.consumeEvent:
+                        break eventHandler
+                if asyncData.unregisterWhenTriggered:
+                    ActiveDispatcher.selector.unregister(readyKey.fd)
         if hasResumedCoro:
             break
         sleep(SleepMsIfInactive)
@@ -262,38 +326,18 @@ proc running*(dispatcher = ActiveDispatcher): bool =
     dispatcher[].running
 
 
-#[ *** Coroutine API *** ]#
-
-proc resumeSoon*(coro: Coroutine) =
-    ## Will register in the "pending phase"
-    ActiveDispatcher.pendingCoros.addLast coro
-
-proc resumeOnTimer*(coro: Coroutine, timeoutMs: int): ConsummableCoroutine {.discardable.} =
-    ## Equivalent to a sleep directly handled by the dispatcher
-    ## Returns an optional consummable object
-    result = initConsummableCoro(coro)
-    ActiveDispatcher.timers.push(
-        (getMonoTime() + initDuration(milliseconds = timeoutMs),
-        result)
-    )
-
-proc resumeOnNextTick*(coro: Coroutine) =
-    ActiveDispatcher.onNextTickCoros.addLast coro
-
-proc resumeOnCheckPhase*(coro: Coroutine) =
-    ActiveDispatcher.checkCoros.addLast coro
-
-proc resumeOnClosePhase*(coro: Coroutine) =
-    ActiveDispatcher.closeCoros.addLast coro
-
-
 #[ *** Poll fd API *** ]#
+
+proc consumeCurrentEvent*() =
+    ## Will prevent other coroutines to resume until the next loop
+    ActiveDispatcher.consumeEvent = true
 
 proc registerEvent*(
     ev: SelectEvent,
-    coros: seq[Coroutine] = @[],
+    coros: seq[OneShotCoroutine],
 ) =
-    if coros.len() > 0: ActiveDispatcher.corosCountInSelector += coros.len()
+    for oneShotCoro in coros:
+        oneShotCoro.notifyRegistration(ActiveDispatcher, true)
     ActiveDispatcher.selector.registerEvent(ev, AsyncData(readList: coros))
 
 proc registerHandle*(
@@ -305,10 +349,11 @@ proc registerHandle*(
 
 proc registerProcess*(
     pid: int,
-    coros: seq[Coroutine] = @[],
+    coros: seq[OneShotCoroutine],
     unregisterWhenTriggered = true,
 ): PollFd =
-    if coros.len() > 0: ActiveDispatcher.corosCountInSelector += coros.len()
+    for oneShotCoro in coros:
+        oneShotCoro.notifyRegistration(ActiveDispatcher, true)
     result = PollFd(ActiveDispatcher.selector.registerProcess(pid, AsyncData(
             readList: coros,
             unregisterWhenTriggered: unregisterWhenTriggered
@@ -316,10 +361,11 @@ proc registerProcess*(
 
 proc registerSignal*(
     signal: int,
-    coros: seq[Coroutine] = @[],
+    coros: seq[OneShotCoroutine],
     unregisterWhenTriggered = true,
 ): PollFd =
-    if coros.len() > 0: ActiveDispatcher.corosCountInSelector += coros.len()
+    for oneShotCoro in coros:
+        oneShotCoro.notifyRegistration(ActiveDispatcher, true)
     result = PollFd(ActiveDispatcher.selector.registerSignal(signal, AsyncData(
         readList: coros,
         unregisterWhenTriggered: unregisterWhenTriggered
@@ -327,41 +373,47 @@ proc registerSignal*(
 
 proc registerTimer*(
     timeoutMs: int,
+    coros: seq[OneShotCoroutine],
     oneshot: bool = true,
-    coros: seq[Coroutine] = @[],
 ): PollFd =
     ## Timer is registered inside the poll, not inside the event loop.
     ## Use another function to sleep inside the event loop (more reactive, less overhead for short sleep)
     ## Coroutines will only be resumed once, even if timer is not oneshot. You need to associate them to the fd each time for a periodic action
-    if coros.len() > 0: ActiveDispatcher.corosCountInSelector += coros.len()
+    for oneShotCoro in coros:
+        oneShotCoro.notifyRegistration(ActiveDispatcher, true)
     result = PollFd(ActiveDispatcher.selector.registerTimer(timeoutMs, oneshot, AsyncData(
         readList: coros,
+        isTimer: true,
         unregisterWhenTriggered: oneshot
     )))
 
 proc unregister*(fd: PollFd) =
+    ## It will also consume all coroutines registered inside it
     var asyncData = ActiveDispatcher.selector.getData(fd.int)
     ActiveDispatcher.selector.unregister(fd.int)
-    ActiveDispatcher.corosCountInSelector -= asyncData.readList.len() + asyncData.writeList.len()
-    # If readList or writeList contains coroutines, they should be destroyed thanks to sharedPtr
+    for coro in asyncData.readList:
+        coro.removeFromSelector(false)
+    for coro in asyncData.writeList:
+        coro.removeFromSelector(false)
 
-proc addInsideSelector*(fd: PollFd, coro: seq[Coroutine], event: Event) =
+proc addInsideSelector*(fd: PollFd, oneShotCoro: OneShotCoroutine, event: Event) =
     ## Not thread safe
     ## Will not update the type event listening
-    ActiveDispatcher.corosCountInSelector += 1
+    oneShotCoro.notifyRegistration(ActiveDispatcher, true)
     if event == Event.Write:
-        ActiveDispatcher.selector.getData(fd.int).writeList.add(coro)
+        ActiveDispatcher.selector.getData(fd.int).writeList.add(oneShotCoro)
     else:
-        ActiveDispatcher.selector.getData(fd.int).readList.add(coro)
+        ActiveDispatcher.selector.getData(fd.int).readList.add(oneShotCoro)
 
-proc addInsideSelector*(fd: PollFd, coro: Coroutine, event: Event) =
+proc addInsideSelector*(fd: PollFd, coros: seq[OneShotCoroutine], event: Event) =
     ## Not thread safe
     ## Will not update the type event listening
-    ActiveDispatcher.corosCountInSelector += 1
+    for oneShotCoro in coros:
+        oneShotCoro.notifyRegistration(ActiveDispatcher, true)
     if event == Event.Write:
-        ActiveDispatcher.selector.getData(fd.int).writeList.add(coro)
+        ActiveDispatcher.selector.getData(fd.int).writeList.add(coros)
     else:
-        ActiveDispatcher.selector.getData(fd.int).readList.add(coro)
+        ActiveDispatcher.selector.getData(fd.int).readList.add(coros)
 
 proc updatePollFd*(fd: PollFd, events: set[Event]) =
     ## Not thread safe
@@ -374,36 +426,55 @@ proc suspendUntilRead*(fd: PollFd, timeoutMs = -1): bool =
     if coro.isNil():
         # We are not inside the dispatcher
         let timeout = TimeOutWatcher.init(timeoutMs)
-        var boolFlag = new bool
-        ActiveDispatcher.selector.getData(fd.int).wasReadReady = boolFlag
-        ActiveDispatcher.corosCountInSelector += 1
+        let oneShotCoro = toOneShot(nil)
+        addInsideSelector(fd, oneShotCoro, Event.Read)
         while true:
             runEventLoop(timeout.getRemainingMs())
-            if boolFlag[] == true:
-                result = true
-                break
+            if oneShotCoro.cancelled:
+                return true
             if timeout.expired():
-                result = false
-                break
-        ActiveDispatcher.selector.getData(fd.int).wasReadReady = nil
+                discard oneShotCoro.consumeAndResume(false)
+                return false
     elif timeoutMs == -1:
-        addInsideSelector(fd, coro, Event.Read)
+        addInsideSelector(fd, toOneShot(coro), Event.Read)
         suspend()
         return true
     else:
-        addInsideSelector(fd, coro, Event.Read)
-        var consummable = resumeOnTimer(coro, timeoutMs)
+        let oneShotCoro = toOneShot(coro)
+        addInsideSelector(fd, oneShotCoro, Event.Read)
+        resumeOnTimer(oneShotCoro, timeoutMs)
         suspend()
-        if consummable.consumeAndGet() == nil:
-            return true
-        else:
+        if oneShotCoro.cancelledByTimer:
             return false
-
+        else:
+            return true
 
 proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1): bool =
     ## If multiple coros are suspended for the same PollFd and one consume it, the others will deadlock
     ## If PollFd is not a file, by definition only the coros in the readList will be resumed
     let coro = getCurrentCoroutine()
-    #if coro.isNil(): raise newException(ValueError, "Can only suspend inside a coroutine")
-    addInsideSelector(fd, coro, Event.Write)
-    suspend()
+    if coro.isNil():
+        # We are not inside the dispatcher
+        let timeout = TimeOutWatcher.init(timeoutMs)
+        let oneShotCoro = toOneShot(nil)
+        addInsideSelector(fd, oneShotCoro, Event.Write)
+        while true:
+            runEventLoop(timeout.getRemainingMs())
+            if oneShotCoro.cancelled:
+                return true
+            if timeout.expired():
+                discard oneShotCoro.consumeAndResume(false)
+                return false
+    elif timeoutMs == -1:
+        addInsideSelector(fd, toOneShot(coro), Event.Write)
+        suspend()
+        return true
+    else:
+        let oneShotCoro = toOneShot(coro)
+        addInsideSelector(fd, oneShotCoro, Event.Write)
+        resumeOnTimer(oneShotCoro, timeoutMs)
+        suspend()
+        if oneShotCoro.cancelledByTimer:
+            return false
+        else:
+            return true

@@ -9,7 +9,7 @@ var pollFd = registerHandle(0, {Event.Read})
 
 proc main() =
     echo "before"
-    echo suspendUntilRead(pollFd, 500)
+    echo suspendUntilRead(pollFd, 50000)
     echo "after"
 resumeSoon(newCoroutine(main))
 runEventLoop()

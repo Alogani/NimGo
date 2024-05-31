@@ -31,6 +31,7 @@ proc finished*[T](gotask: GoTask[T]): bool =
     gotask.coro.finished()
 
 proc wait*[T](gotask: GoTask[T], timeoutMs = -1): Option[T] =
+    ## /TODO : use next instead
     let timeout = TimeOutWatcher.init(timeoutMs)
     while not gotask.coro.finished():
         runOnce(timeout.getRemainingMs())
