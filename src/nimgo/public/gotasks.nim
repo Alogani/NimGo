@@ -74,29 +74,8 @@ proc wait*(gotask: GoTask[void], timeoutMs = -1): bool =
     else:
         return true
 
-#[
-proc waitAll*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): seq[T] =
-    ## Fails fast. In case of fail, seq[T].len() == 0
-    result = newSeqOfCap(gotasks.len())
-    let timeout = TimeOutWatcher.init(timeoutMs)
-    while true:
-        var allFinished = true
-        for task in gotasks:
-            let coroState = task.coro.getState()
-            if coroState == CsDead:
-                return
-            elif coroState != CsFinished:
-                allFinished = false
-        if allFinished:
-            break
-        if timeout.expired():
-            return
-        runOnce(timeout.getRemainingMs())
-    for task in gotasks:
-        result.add task.coro.getReturnVal().unsafeGet()
-
-proc waitAll*(gotasks: seq[GoTask[void]], timeoutMs = -1): bool =
-    ## Fails fast. In case of fail, seq[T].len() == 0
+proc waitAllImpl[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
+    let coro = getCurrentCoroutine()
     let timeout = TimeOutWatcher.init(timeoutMs)
     while true:
         var allFinished = true
@@ -110,10 +89,27 @@ proc waitAll*(gotasks: seq[GoTask[void]], timeoutMs = -1): bool =
             return true
         if timeout.expired():
             return false
-        runOnce(timeout.getRemainingMs())
+        if coro == nil:
+            runOnce(timeout.getRemainingMs())
+        else:
+            resumeSoon(coro)
+            suspend(coro)
+
+proc waitAll*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): seq[T] =
+    ## Fails fast. In case of fail, seq[T].len() == 0
+    if not waitAllImpl(gotasks, timeoutMs):
+        return
+    result = newSeqOfCap[T](gotasks.len())
+    for task in gotasks:
+        result.add getReturnVal[T](task.coro)
+
+proc waitAll*(gotasks: seq[GoTask[void]], timeoutMs = -1): bool =
+    ## Fails fast. In case of fail, return false
+    return waitAllImpl(gotasks, timeoutMs)
 
 proc waitAny*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
     ## Ignores failed gotasks, return false if all failed
+    let coro = getCurrentCoroutine()
     let timeout = TimeOutWatcher.init(timeoutMs)
     while true:
         var allFailed = true
@@ -125,8 +121,9 @@ proc waitAny*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
                 allFailed = false
         if allFailed or timeout.expired():
             return false
-        runOnce(timeout.getRemainingMs())
-
-proc waitAny*(gotasks: seq[GoTask[void]], timeoutMs = -1): bool =
-    waitAny[void](gotasks, timeoutMs)
-]#
+        if coro == nil:
+            runOnce(timeout.getRemainingMs())
+        else:
+            resumeSoon(coro)
+            suspend(coro)
+    
