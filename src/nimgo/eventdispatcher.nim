@@ -408,8 +408,9 @@ proc updatePollFd*(fd: PollFd, events: set[Event]) =
     ActiveDispatcher.selector.updateHandle(fd.int, events)
 
 proc suspendUntilRead*(fd: PollFd, timeoutMs = -1): bool =
-    ## If multiple coros are suspended for the same PollFd and one consume it, the others will deadlock
+    ## See also `consumeCurrentEvent` to avoid a data race if multiple coros are registered for same fd
     ## If PollFd is not a file, by definition only the coros in the readList will be resumed
+    ## It will not try to update the kind of event waited inside the selector. Waiting for unregistered event will deadlock
     let coro = getCurrentCoroutine()
     if coro.isNil():
         # We are not inside the dispatcher
@@ -440,8 +441,9 @@ proc suspendUntilRead*(fd: PollFd, timeoutMs = -1): bool =
             return true
 
 proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1): bool =
-    ## If multiple coros are suspended for the same PollFd and one consume it, the others will deadlock
+    ## See also `consumeCurrentEvent` to avoid a data race if multiple coros are registered for same fd
     ## If PollFd is not a file, by definition only the coros in the readList will be resumed
+    ## It will not try to update the kind of event waited inside the selector. Waiting for unregistered event will deadlock
     let coro = getCurrentCoroutine()
     if coro.isNil():
         # We are not inside the dispatcher

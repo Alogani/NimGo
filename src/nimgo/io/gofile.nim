@@ -1,93 +1,84 @@
-import std/[syncio, oserrors]
-import ../eventdispatcher
-
-type
-    GoFile* = ref object
-        ## Equivalent of an AsyncFile for std/asyncdispatch
-        ## The name is different to avoid names conflict
-        # For simplicity, all operations are backed by std/syncio for the sync part
-        fd: PollFd # PollFd is the same as the file fd
-        file: File
-        registeredEvents: set[Event]
-        pollable: bool
-
-#[ *** Private *** ]#
-
-proc syncioModeToEvent(mode: FileMode): set[Event] =
-    case mode:
-    of fmRead:
-        {Event.Read}
-    of fmWrite, fmAppend:
-        {Event.Write}
-    of fmReadWrite, fmReadWriteExisting:
-        {Event.Read, Event.Write}
-
-when defined(linux):
-    import std/posix
-
-    proc isPollable(fd: FileHandle): bool =
-        ## EPOLL will throw error on regular file and /dev/null (warning: /dev/null not checked)
-        ## Solution: no async on regular file
-        var stat: Stat
-        discard fstat(fd, stat)
-        not S_ISREG(stat.st_mode)
+when defined(windows):
+    include ./gofile_win
 else:
-     proc isPollable(fd: FileHandle): bool = true
+    include ./gofile_posix
+import ../private/timeoutwatcher
 
-#[ *** Public: alphabetic order *** ]#
 
-proc close*(f: GoFile) =
-    f.fd.unregister()
-    f.file.close()
+proc endOfFile*(f: Gofile): bool =
+    f.state == FsEof
 
-proc getFilePos*(f: GoFile): int
+proc closed*(f: Gofile): bool =
+    f.state == FsClosed
 
-proc getFileSize*(f: GoFile): int
+proc error*(f: Gofile): bool =
+    f.state == FsError
+
+proc getError*(f: Gofile): OSErrorCode =
+    f.errorCode
 
 proc getOsFileHandle*(f: GoFile): FileHandle =
     FileHandle(f.fd)
 
-proc newGoFile*(fd: FileHandle, mode = fmRead): GoFile =
-    var file: File
-    if open(file, fd, mode) == false:
-        raiseOSError(osLastError())
-    let fd = file.getOsFileHandle()
-    let events = syncioModeToEvent(mode)
-    let pollable = isPollable(fd)
-    return GoFile(
-        fd: if pollable: registerHandle(fd, events) else: PollFd(fd),
-        file: file,
-        registeredEvents: events,
-        pollable: pollable
-    )
+proc read*(f: Gofile, len: Positive, timeoutMs = -1): string =
+    if f.buffer != nil:
+        if f.buffer.len() < len:
+            let data = f.readImpl(max(len, DefaultBufferSize), timeoutMs)
+            if data != "":
+                f.buffer.write(data)
+        return f.buffer.read(len)
+    else:
+        return f.readImpl(len, timeoutMs)
 
-proc openGoasync*(filename: string, mode = fmRead, bufsize = -1): GoFile =
-    let file = open(filename, mode, bufsize)
-    let fd = file.getOsFileHandle()
-    let events = syncioModeToEvent(mode)
-    let pollable = isPollable(fd)
-    return GoFile(
-        fd: if pollable: registerHandle(fd, events) else: PollFd(fd),
-        file: file,
-        registeredEvents: events,
-        pollable: pollable
-    )
+proc readAll*(f: Gofile, timeoutMs = -1): string =
+    ## Might return a string even if EOF has not been reached
+    let timeout = TimeOutWatcher.init(timeoutMs)
+    if f.buffer != nil:
+        result = f.buffer.readAll()
+    while true:
+        let data = f.readImpl(DefaultBufferSize, timeout.getRemainingMs())
+        if data.len() == 0:
+            break
+        result.add data
 
-proc read*(f: Gofile, size: int, timeoutMs = -1): Option[string]
-
-proc readAll*(f: Gofile, timeoutMs = -1): Option[string]
-
-proc readBuffer*(f: GoFile, buf: pointer, size: int, timeoutMs = -1): int
-
-proc readLine*(f: GoFile, timeoutMs = -1): Option[string]
-
-proc setFilePos*(f: GoFile, pos: int)
-
-proc setFileSize*(f: GoFile, length: int)
-
-proc write*(f: GoFile, data: string, timeoutMs = -1): int {.discardable}
-
-proc writeBuffer*(f: GoFile, buf: pointer, size: int, timeoutMs = -1): int =
-    if f.pollable:
-        if Event.Read notin f.registeredEvents:
-            updatePollFd(f.fd, {Event.Read})
+proc readLine*(f: GoFile, timeoutMs = -1, keepNewLine = false): string =
+    ## Newline is not kept. To distinguish between EOF, you can use `endOfFile`
+    let timeout = TimeOutWatcher.init(timeoutMs)
+    if f.buffer != nil:
+        while true:
+            let line = f.buffer.readLine(keepNewLine)
+            if line.len() != 0:
+                return line
+            let data = f.readImpl(DefaultBufferSize, timeout.getRemainingMs())
+            if data.len() == 0:
+                return f.buffer.readAll()
+            f.buffer.write(data)
+    else:
+        const BufSizeLine = 100
+        var line = newString(BufSizeLine)
+        var length = 0
+        while true:
+            var c: char
+            let readCount = f.readBufferImpl(addr(c), 1, timeout.getRemainingMs())
+            if readCount <= 0:
+                line.setLen(length)
+                return line
+            if c == '\c':
+                discard f.readBufferImpl(addr(c), 1, timeout.getRemainingMs())
+                if keepNewLine:
+                    line[length] = '\n'
+                    line.setLen(length + 1)
+                else:
+                    line.setLen(length)
+                return line
+            if c == '\L':
+                if keepNewLine:
+                    line[length] = '\n'
+                    line.setLen(length + 1)
+                else:
+                    line.setLen(length)
+                return line
+            if length == line.len():
+                line.setLen(line.len() * 2)
+            line[length] = c
+            length += 1
