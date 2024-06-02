@@ -1,14 +1,20 @@
 when defined(windows):
-    include ./gofile_win
+    include ./private/gofile_win
 else:
-    include ./gofile_posix
-import ../private/timeoutwatcher
+    include ./private/gofile_posix
+import ./private/timeoutwatcher
+
+let goStdin* = newGoFile(stdin.getFileHandle(), fmRead, buffered = false)
+let goStdout* = newGoFile(stdout.getFileHandle(), fmWrite, buffered = false)
+let goStderr* = newGoFile(stderr.getFileHandle(), fmWrite, buffered = false)
 
 
 proc endOfFile*(f: Gofile): bool =
     f.state == FsEof
 
 proc closed*(f: Gofile): bool =
+    ## Only return true if file was closed using `gofile.close()`.
+    ## Closing directly the underlying file or file descriptor won't be detected
     f.state == FsClosed
 
 proc error*(f: Gofile): bool =
@@ -23,7 +29,7 @@ proc getOsFileHandle*(f: GoFile): FileHandle =
 proc getSelectorFileHandle*(f: GoFile): PollFd =
     f.pollFd
 
-proc read*(f: Gofile, size: Positive, timeoutMs = -1): string =
+proc readAvailable*(f: Gofile, size: Positive, timeoutMs = -1): string =
     if f.buffer != nil:
         if f.buffer.len() < size:
             let data = f.readImpl(max(size, DefaultBufferSize), timeoutMs)
@@ -32,6 +38,15 @@ proc read*(f: Gofile, size: Positive, timeoutMs = -1): string =
         return f.buffer.read(size)
     else:
         return f.readImpl(size, timeoutMs)
+
+proc read*(f: Gofile, size: Positive, timeoutMs = -1): string =
+    result = newStringOfCap(size)
+    let timeout = TimeOutWatcher.init(timeoutMs)
+    while true:
+        let data = f.readAvailable(size, timeout.getRemainingMs())
+        if data.len() == 0:
+            break
+        result.add(data)
 
 proc readAll*(f: Gofile, timeoutMs = -1): string =
     ## Might return a string even if EOF has not been reached

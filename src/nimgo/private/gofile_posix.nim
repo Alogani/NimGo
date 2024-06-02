@@ -1,7 +1,7 @@
 import std/[bitops, posix, oserrors]
 from std/syncio import FileHandle, FileMode, FileSeekPos
 import ../eventdispatcher
-import ../private/[buffer]
+import ./buffer
 
 type
     FileState = enum
@@ -83,6 +83,15 @@ proc newGoFile*(fd: FileHandle, mode: FileMode, buffered = true): GoFile =
         buffer: if buffered: newBuffer() else: nil
     )
 
+proc createGoPipe*(): tuple[reader, writer: GoFile] =
+    var pipesArr: array[2, cint]
+    if pipe(pipesArr) != 0:
+        raiseOSError(osLastError())
+    return (
+        newGoFile(pipesArr[0], fmRead),
+        newGoFile(pipesArr[1], fmWrite),
+    )
+
 proc openGoFile*(filename: string, mode = fmRead, buffered = true): GoFile =
     let fd = posix.open(filename, syncioModeToPosix(mode))
     let events = syncioModeToEvent(mode)
@@ -116,7 +125,7 @@ proc readImpl(f: GoFile, size: Positive, timeoutMs: int): string {.used.} =
         return ""
     result.setLen(bytesCount)
 
-proc write*(f: GoFile, data: string, timeoutMs: int): int {.used.} =
+proc write*(f: GoFile, data: string, timeoutMs = -1): int {.discardable, used.} =
     ## Bypass the buffer
     if data.len() == 0:
         return 0

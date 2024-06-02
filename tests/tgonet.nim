@@ -1,4 +1,4 @@
-import nimgo, nimgo/io/gonet
+import nimgo, nimgo/gonet
 import os
 
 var clients: seq[GoSocket]

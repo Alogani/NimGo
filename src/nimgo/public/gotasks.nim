@@ -20,7 +20,7 @@ proc goAsyncImpl(next: NextCoroutine, fn: proc()): GoTask[void] {.discardable.} 
     resumeSoon(coro)
     return GoTask[void](coro: coro, next: next)
 
-proc goAsyncImpl[T](next: NextCoroutine, fn: proc(): T): GoTask[T] {.discardable.} =
+proc goAsyncImpl[T](next: NextCoroutine, fn: proc(): T): GoTask[T] =
     var coro = coroPool.acquireCoro(fn)
     resumeSoon(coro)
     return GoTask[T](coro: coro, next: next)
@@ -31,8 +31,14 @@ template goAsync*(fn: untyped) =
     let next = NextCoroutine()
     goAsyncImpl(next,
         proc(): auto =
+            static:
+                echo typeof(`fn`)
             when typeof(`fn`) is void:
                 `fn`
+            elif typeof(`fn`) is proc(): void {.closure.}:
+                `fn`()
+            elif typeof(`fn`) is proc {.closure.}:
+                result = `fn`()
             else:
                 result = `fn`
             if next.coro != nil:

@@ -1,7 +1,7 @@
 {.warning: "Not fully implemented nor tested".}
 
-import ../eventdispatcher
-import ../private/[buffer, timeoutwatcher]
+import ./eventdispatcher
+import ./private/[buffer, timeoutwatcher]
 import std/[nativesockets, net, options, oserrors]
 
 export net

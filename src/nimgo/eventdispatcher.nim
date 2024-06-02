@@ -41,7 +41,6 @@ type
     AsyncData = object
         readList: seq[OneShotCoroutine] # Also stores all other event kind
         writeList: seq[OneShotCoroutine]
-        unregisterWhenTriggered: bool
         isTimer: bool
 
     PollFd* = distinct int
@@ -257,8 +256,6 @@ proc runOnce*(timeoutMs = -1) =
                     let coro = oneShotCoro.consumeAndGet(false)
                     if coro != nil:
                         resume(coro)
-                if asyncData.unregisterWhenTriggered:
-                    ActiveDispatcher.selector.unregister(readyKey.fd)
         if pollTimeout.expired():
             break
         sleep(min(pollTimeout.getRemainingMs(), SleepMsIfInactive))
@@ -320,7 +317,7 @@ proc consumeCurrentEvent*() =
 
 proc registerEvent*(
     ev: SelectEvent,
-    coros: seq[OneShotCoroutine],
+    coros: seq[OneShotCoroutine] = @[],
 ) =
     for oneShotCoro in coros:
         oneShotCoro.notifyRegistration(ActiveDispatcher, true)
@@ -335,31 +332,27 @@ proc registerHandle*(
 
 proc registerProcess*(
     pid: int,
-    coros: seq[OneShotCoroutine],
-    unregisterWhenTriggered = true,
+    coros: seq[OneShotCoroutine] = @[],
 ): PollFd =
     for oneShotCoro in coros:
         oneShotCoro.notifyRegistration(ActiveDispatcher, true)
     result = PollFd(ActiveDispatcher.selector.registerProcess(pid, AsyncData(
             readList: coros,
-            unregisterWhenTriggered: unregisterWhenTriggered
         )))
 
 proc registerSignal*(
     signal: int,
-    coros: seq[OneShotCoroutine],
-    unregisterWhenTriggered = true,
+    coros: seq[OneShotCoroutine] = @[],
 ): PollFd =
     for oneShotCoro in coros:
         oneShotCoro.notifyRegistration(ActiveDispatcher, true)
     result = PollFd(ActiveDispatcher.selector.registerSignal(signal, AsyncData(
         readList: coros,
-        unregisterWhenTriggered: unregisterWhenTriggered
     )))
 
 proc registerTimer*(
     timeoutMs: int,
-    coros: seq[OneShotCoroutine],
+    coros: seq[OneShotCoroutine] = @[],
     oneshot: bool = true,
 ): PollFd =
     ## Timer is registered inside the poll, not inside the event loop.
@@ -370,7 +363,6 @@ proc registerTimer*(
     result = PollFd(ActiveDispatcher.selector.registerTimer(timeoutMs, oneshot, AsyncData(
         readList: coros,
         isTimer: true,
-        unregisterWhenTriggered: oneshot
     )))
 
 proc unregister*(fd: PollFd) =
@@ -411,9 +403,13 @@ proc sleepAsync*(timeoutMs: int) =
         let timeout = TimeOutWatcher.init(timeoutMs)
         while not timeout.expired():
             runOnce(timeout.getRemainingMs())
-    else:
+    elif timeoutMs < 5_000:
         resumeOnTimer(coro.toOneShot(), timeoutMs)
         suspend(coro)
+    else: # For longer waits, better in the selector ?
+        let pollFd = registerTimer(timeoutMs, @[coro.toOneShot()])
+        suspend(coro)
+        pollFd.unregister()
 
 proc suspendUntilRead*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
     ## See also `consumeCurrentEvent` to avoid a data race if multiple coros are registered for same fd

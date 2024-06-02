@@ -2,7 +2,7 @@
 import std/[winlean, widestrs, oserrors]
 from std/syncio import FileHandle, FileMode, FileSeekPos
 import ../eventdispatcher
-import ../private/[buffer]
+import ./buffer
 
 type
     FileState = enum
