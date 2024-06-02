@@ -22,7 +22,7 @@ import std/[deques, heapqueue]
 import std/[os, selectors, nativesockets]
 import std/[times, monotimes]
 
-export Event
+export Event, SocketHandle
 
 const EvDispatcherTimeoutMs {.intdefine.} = 20 # We don't block on poll phase if new coros were registered
 const SleepMsIfInactive = 5 # to avoid busy waiting. When selector is not empty, but events triggered with no associated coroutines

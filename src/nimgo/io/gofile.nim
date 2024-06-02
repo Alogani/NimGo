@@ -20,15 +20,18 @@ proc getError*(f: Gofile): OSErrorCode =
 proc getOsFileHandle*(f: GoFile): FileHandle =
     FileHandle(f.fd)
 
-proc read*(f: Gofile, len: Positive, timeoutMs = -1): string =
+proc getSelectorFileHandle*(f: GoFile): PollFd =
+    f.pollFd
+
+proc read*(f: Gofile, size: Positive, timeoutMs = -1): string =
     if f.buffer != nil:
-        if f.buffer.len() < len:
-            let data = f.readImpl(max(len, DefaultBufferSize), timeoutMs)
+        if f.buffer.len() < size:
+            let data = f.readImpl(max(size, DefaultBufferSize), timeoutMs)
             if data != "":
                 f.buffer.write(data)
-        return f.buffer.read(len)
+        return f.buffer.read(size)
     else:
-        return f.readImpl(len, timeoutMs)
+        return f.readImpl(size, timeoutMs)
 
 proc readAll*(f: Gofile, timeoutMs = -1): string =
     ## Might return a string even if EOF has not been reached

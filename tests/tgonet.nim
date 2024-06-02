@@ -6,9 +6,9 @@ var clients: seq[GoSocket]
 withEventLoop():
     proc client() =
         let client = newGoSocket()
-        discard client.connect("127.0.0.1", Port(12345))
+        client.connect("127.0.0.1", Port(12346))
         while true:
-            let data = client.recv(10)
+            let data = client.recv(10, timeoutMs = 10)
             echo "data=", data
 
     proc serve() =
@@ -16,7 +16,7 @@ withEventLoop():
         server.setSockOpt(OptReuseAddr, true)
         server.bindAddr(Port(12345))
         server.listen()
-        var (address, client) = server.acceptAddr()
+        var (address, client) = server.acceptAddr().get()
         echo "Client connected from:", address
         var i = 0
         while true:
