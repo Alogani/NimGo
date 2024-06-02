@@ -22,7 +22,9 @@ withEventLoop():
         while true:
             discard client.send("data" & $i)
             i += 1
-            sleep(2000)
+            echo "sleep"
+            sleepAsync(1000)
+            echo "wake up"
 
     goAsync serve()
     goAsync client()

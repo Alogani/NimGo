@@ -229,11 +229,11 @@ proc runOnce*(timeoutMs = -1) =
     else:
         pollTimeoutMs = EvDispatcherTimeoutMs
     # Phase 3: poll for I/O
+    let pollTimeout = TimeOutWatcher.init(pollTimeoutMs)
     while ActiveDispatcher.activeCorosInsideSelector != 0:
         # The event loop could return with no work if an event is triggered with no coroutine
         # If so, we will sleep and loop again
-        var readyKeyList = ActiveDispatcher.selector.select(pollTimeoutMs)
-        var hasResumedCoro: bool
+        var readyKeyList = ActiveDispatcher.selector.select(pollTimeout.getRemainingMs())
         if readyKeyList.len() == 0:
             break # timeout expired
         for readyKey in readyKeyList:
@@ -249,7 +249,6 @@ proc runOnce*(timeoutMs = -1) =
                 for oneShotCoro in writeList:
                     let coro = oneShotCoro.consumeAndGet(false)
                     if coro != nil:
-                        hasResumedCoro = true
                         resume(coro)
                     processNextTickCoros(timeout)
                     if ActiveDispatcher.consumeEvent:
@@ -257,13 +256,12 @@ proc runOnce*(timeoutMs = -1) =
                 for oneShotCoro in readList:
                     let coro = oneShotCoro.consumeAndGet(false)
                     if coro != nil:
-                        hasResumedCoro = true
                         resume(coro)
                 if asyncData.unregisterWhenTriggered:
                     ActiveDispatcher.selector.unregister(readyKey.fd)
-        if hasResumedCoro:
+        if pollTimeout.expired():
             break
-        sleep(SleepMsIfInactive)
+        sleep(min(pollTimeout.getRemainingMs(), SleepMsIfInactive))
     # Phase 1 again
     processTimers(coroLimitForTimer, timeout)
     # Phase 4: process "check" coros
@@ -412,7 +410,7 @@ proc sleepAsync*(timeoutMs: int) =
     if coro.isNil():
         let timeout = TimeOutWatcher.init(timeoutMs)
         while not timeout.expired():
-            runEventLoop(timeout.getRemainingMs())
+            runOnce(timeout.getRemainingMs())
     else:
         resumeOnTimer(coro.toOneShot(), timeoutMs)
         suspend(coro)
