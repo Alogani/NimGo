@@ -407,7 +407,17 @@ proc updatePollFd*(fd: PollFd, events: set[Event]) =
     ## Not thread safe
     ActiveDispatcher.selector.updateHandle(fd.int, events)
 
-proc suspendUntilRead*(fd: PollFd, timeoutMs = -1): bool =
+proc sleepAsync*(timeoutMs: int) =
+    let coro = getCurrentCoroutine()
+    if coro.isNil():
+        let timeout = TimeOutWatcher.init(timeoutMs)
+        while not timeout.expired():
+            runEventLoop(timeout.getRemainingMs())
+    else:
+        resumeOnTimer(coro.toOneShot(), timeoutMs)
+        suspend(coro)
+
+proc suspendUntilRead*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
     ## See also `consumeCurrentEvent` to avoid a data race if multiple coros are registered for same fd
     ## If PollFd is not a file, by definition only the coros in the readList will be resumed
     ## It will not try to update the kind of event waited inside the selector. Waiting for unregistered event will deadlock
@@ -420,6 +430,8 @@ proc suspendUntilRead*(fd: PollFd, timeoutMs = -1): bool =
         while true:
             runEventLoop(timeout.getRemainingMs())
             if oneShotCoro.cancelled:
+                if consumeEvent:
+                    consumeCurrentEvent()
                 return true
             if timeout.expired():
                 let coro = oneShotCoro.consumeAndGet(false)
@@ -429,6 +441,8 @@ proc suspendUntilRead*(fd: PollFd, timeoutMs = -1): bool =
     elif timeoutMs == -1:
         addInsideSelector(fd, toOneShot(coro), Event.Read)
         suspend()
+        if consumeEvent:
+            consumeCurrentEvent()
         return true
     else:
         let oneShotCoro = toOneShot(coro)
@@ -438,12 +452,14 @@ proc suspendUntilRead*(fd: PollFd, timeoutMs = -1): bool =
         if oneShotCoro.cancelledByTimer:
             return false
         else:
+            if consumeEvent:
+                consumeCurrentEvent()
             return true
 
-proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1): bool =
-    ## See also `consumeCurrentEvent` to avoid a data race if multiple coros are registered for same fd
+proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
     ## If PollFd is not a file, by definition only the coros in the readList will be resumed
     ## It will not try to update the kind of event waited inside the selector. Waiting for unregistered event will deadlock
+    ## consumeEvent permits to avoid a data race if multiple coros are registered for same fd
     let coro = getCurrentCoroutine()
     if coro.isNil():
         # We are not inside the dispatcher
@@ -453,6 +469,8 @@ proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1): bool =
         while true:
             runEventLoop(timeout.getRemainingMs())
             if oneShotCoro.cancelled:
+                if consumeEvent:
+                    consumeCurrentEvent()
                 return true
             if timeout.expired():
                 let coro = oneShotCoro.consumeAndGet(false)
@@ -462,6 +480,8 @@ proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1): bool =
     elif timeoutMs == -1:
         addInsideSelector(fd, toOneShot(coro), Event.Write)
         suspend()
+        if consumeEvent:
+            consumeCurrentEvent()
         return true
     else:
         let oneShotCoro = toOneShot(coro)
@@ -471,4 +491,6 @@ proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1): bool =
         if oneShotCoro.cancelledByTimer:
             return false
         else:
+            if consumeEvent:
+                consumeCurrentEvent()
             return true

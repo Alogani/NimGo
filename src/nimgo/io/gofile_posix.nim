@@ -100,7 +100,6 @@ proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, timeoutMs: int): int
     if f.pollable:
         if not suspendUntilRead(f.pollFd, timeoutMs):
             return -1
-        consumeCurrentEvent()
     let bytesCount = posix.read(f.fd, buf, len)
     if bytesCount == 0:
         f.state = FsEof
@@ -124,7 +123,6 @@ proc write*(f: GoFile, data: string, timeoutMs: int): int {.used.} =
     if f.pollable:
         if not suspendUntilWrite(f.pollFd, timeoutMs):
             return -1
-        consumeCurrentEvent()
     let bytesCount = posix.write(f.fd, addr(data[0]), data.len())
     if bytesCount == -1:
         f.state = FsError

@@ -99,7 +99,6 @@ proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, timeoutMs: int): int
     ## Bypass the buffer
     if not suspendUntilRead(f.pollFd, timeoutMs):
         return -1
-    consumeCurrentEvent()
     var bytesCount: int32
     if readFile(f.fd, buf, int32(len), addr(bytesCount), nil) == 0:
         f.state = FsError
@@ -124,7 +123,6 @@ proc write*(f: GoFile, data: string, timeoutMs: int): int {.used.} =
         return 0
     if not suspendUntilWrite(f.pollFd, timeoutMs):
         return -1
-    consumeCurrentEvent()
     var bytesCount: int32
     if writeFile(f.fd, addr(data[0]), int32(data.len()), addr(bytesCount), nil) == 0:
         f.state = FsError
