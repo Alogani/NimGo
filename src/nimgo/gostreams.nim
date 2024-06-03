@@ -119,8 +119,8 @@ method readChunk*(s: GoBufferStream, timeoutMs = -1): string =
 method read*(s: GoBufferStream, size: Positive, timeoutMs = -1): string =
     result = newStringOfCap(size)
     let timeout = TimeOutWatcher.init(timeoutMs)
-    while true:
-        let data = s.readAvailable(size, timeout.getRemainingMs())
+    while result.len() < size:
+        let data = s.readAvailable(size - result.len(), timeout.getRemainingMs())
         if data.len() == 0:
             break
         result.add(data)

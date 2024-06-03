@@ -1,12 +1,13 @@
-import ./public/gotasks
 import ./eventdispatcher
+import ./gofile, ./gostreams
+import ./goproc
+import ./public/gotasks
+import os
+import std/posix
 
-proc main() =
-    proc inner() =
-        var data = "blah"
-        goasync proc() =
-            echo data
-    inner()
-
-withEventLoop:
-    main()
+var p = createGoPipe(false)
+goasync proc() =
+    sleepAsync(1000)
+    p.reader.close()
+echo "count=", p.writer.write("blah")
+echo p.reader.read(5)

@@ -21,6 +21,7 @@ type
         childproc: Childproc
         pollFd: PollFd
         stdin*: GoStream
+        capturedInput*: GoStream
         stdout*: GoStream
         stderr*: GoStream
         capturesTask: seq[GoTask[void]]
@@ -33,7 +34,7 @@ type
         file: GoFile
 
     GoProcStreamKind = enum
-        None, File, Parent, Pipe, Stdout, CapturePipe
+        None, File, Parent, Pipe, Stdout, Capture, CaptureParent
 
 
 #[ *** CommandObj *** ]#
@@ -83,9 +84,11 @@ proc StreamStdout*(f: GoFile): GoProcStreamArg =
     ## Only valid for Stderr
     GoProcStreamArg(kind: Stdout)
 
-proc StreamCapturePipe*(f: GoFile): GoProcStreamArg =
-    ## Only valid for Stderr
-    GoProcStreamArg(kind: CapturePipe, file: f)
+proc StreamCapture*(f: GoFile): GoProcStreamArg =
+    GoProcStreamArg(kind: Capture, file: f)
+
+proc StreamCaptureParent*(): GoProcStreamArg =
+    GoProcStreamArg(kind: CaptureParent)
 
 #[ *** GoProc *** ]#
 
@@ -137,10 +140,12 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
             (goStdin, nil)
         of Pipe:
             var pipes = createGoPipe(false)
-            (pipes[0], newGoFileStream(pipes[1]))
+            (pipes.reader, newGoFileStream(pipes.writer))
         of Stdout:
             raise newException(ValueError, "StreamStdout is only valid for stderr")
-        else:
+        of Capture:
+            raise newException(ValueError, "")
+        of CaptureParent:
             raise newException(ValueError, "")
     )
     let (stdoutChild, stdoutParent) = (
@@ -153,21 +158,21 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
             (goStdout, nil)
         of Pipe:
             var pipes = createGoPipe(false)
-            (pipes[1], GoStream(newGoFileStream(pipes[0])))
+            (pipes.writer, GoStream(newGoFileStream(pipes.reader)))
         of Stdout:
             raise newException(ValueError, "StreamStdout is only valid for stderr")
-        of CapturePipe:
+        of Capture, CaptureParent:
             var pipes = createGoPipe(false)
-            var captureStream = newGoProcStream(pipes[0])
-            let destFile = stdout.file
+            var captureStream = newGoProcStream(pipes.reader)
+            let destFile = if stdout.kind == CaptureParent: goStdout else: stdout.file
             capturesTask.add goAsync proc() =
                 while true:
-                    let data = pipes[0].readChunk()
+                    let data = pipes.reader.readChunk()
                     if data == "": break
                     destFile.write(data)
                     captureStream.write(data)
                 captureStream.close()
-            (pipes[1], GoStream(captureStream))
+            (pipes.writer, GoStream(captureStream))
     )
     let (stderrChild, stderrParent) = (
         case stderr.kind:
@@ -179,28 +184,28 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
             (goStdout, nil)
         of Pipe:
             var pipes = createGoPipe(false)
-            (pipes[1], GoStream(newGoFileStream(pipes[0])))
+            (pipes.writer, GoStream(newGoFileStream(pipes.reader)))
         of Stdout:
             (stdoutChild, nil)
-        of CapturePipe:
+        of Capture, CaptureParent:
             var pipes = createGoPipe(false)
-            var captureStream = newGoProcStream(pipes[0])
-            let destFile = stdout.file
+            var captureStream = newGoProcStream(pipes.reader)
+            let destFile = if stderr.kind == CaptureParent: goStderr else: stderr.file
             capturesTask.add goAsync proc() =
                 while true:
-                    let data = pipes[0].readChunk()
+                    let data = pipes.reader.readChunk()
                     if data == "": break
                     destFile.write(data)
                     captureStream.write(data)
                 captureStream.close()
-            (pipes[1], GoStream(captureStream))
+            (pipes.writer, GoStream(captureStream))
     )
     var goproc = startProcess(command, stdinChild, stdoutChild, stderrChild)
-    if stdin.kind in { Pipe, CapturePipe }:
+    if stdin.kind in { Pipe, Capture, CaptureParent }:
         stdinChild.close()
-    if stdout.kind in { Pipe, CapturePipe }:
+    if stdout.kind in { Pipe, Capture, CaptureParent }:
         stdoutChild.close()
-    if stderr.kind in { Pipe, CapturePipe }:
+    if stderr.kind in { Pipe, Capture, CaptureParent }:
         stderrChild.close()
     goproc.stdin = stdinParent
     goproc.stdout = stdoutParent

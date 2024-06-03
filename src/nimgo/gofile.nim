@@ -52,8 +52,8 @@ proc readChunk*(f: Gofile, timeoutMs = -1): string =
 proc read*(f: Gofile, size: Positive, timeoutMs = -1): string =
     result = newStringOfCap(size)
     let timeout = TimeOutWatcher.init(timeoutMs)
-    while true:
-        let data = f.readAvailable(size, timeout.getRemainingMs())
+    while result.len() < size:
+        let data = f.readAvailable(size - result.len(), timeout.getRemainingMs())
         if data.len() == 0:
             break
         result.add(data)

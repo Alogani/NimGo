@@ -233,6 +233,7 @@ proc runOnce*(timeoutMs = -1) =
     # Phase 3: poll for I/O
     let pollTimeout = TimeOutWatcher.init(pollTimeoutMs)
     while ActiveDispatcher.activeCorosInsideSelector != 0:
+        sleep(300)
         # The event loop could return with no work if an event is triggered with no coroutine
         # If so, we will sleep and loop again
         var readyKeyList = ActiveDispatcher.selector.select(pollTimeout.getRemainingMs())
@@ -434,7 +435,7 @@ proc suspendUntilRead*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
         let oneShotCoro = toOneShot(nil)
         addInsideSelector(fd, oneShotCoro, Event.Read)
         while true:
-            runEventLoop(timeout.getRemainingMs())
+            runOnce(timeout.getRemainingMs())
             if oneShotCoro.cancelled:
                 if consumeEvent:
                     consumeCurrentEvent()
@@ -473,7 +474,7 @@ proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
         let oneShotCoro = toOneShot(nil)
         addInsideSelector(fd, oneShotCoro, Event.Write)
         while true:
-            runEventLoop(timeout.getRemainingMs())
+            runOnce(timeout.getRemainingMs())
             if oneShotCoro.cancelled:
                 if consumeEvent:
                     consumeCurrentEvent()
@@ -500,3 +501,4 @@ proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
             if consumeEvent:
                 consumeCurrentEvent()
             return true
+    
