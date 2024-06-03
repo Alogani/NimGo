@@ -24,8 +24,8 @@ import std/[times, monotimes]
 
 export Event, SocketHandle
 
-const EvDispatcherTimeoutMs {.intdefine.} = 20 # We don't block on poll phase if new coros were registered
-const SleepMsIfInactive = 5 # to avoid busy waiting. When selector is not empty, but events triggered with no associated coroutines
+const EvDispatcherTimeoutMs {.intdefine.} = 0 # We don't block on poll phase if new coros were registered
+const SleepMsIfInactive = 0 # to avoid busy waiting. When selector is not empty, but events triggered with no associated coroutines
 const CoroLimitByPhase = 50 # To avoid starving the coros inside the poll
 
 type
@@ -417,6 +417,9 @@ proc sleepAsync*(timeoutMs: int) =
         let timeout = TimeOutWatcher.init(timeoutMs)
         while not timeout.expired():
             runOnce(timeout.getRemainingMs())
+    elif timeoutMs == 0:
+        resumeSoon(coro)
+        suspend(coro)
     elif timeoutMs < 5_000:
         resumeOnTimer(coro.toOneShot(), timeoutMs)
         suspend(coro)

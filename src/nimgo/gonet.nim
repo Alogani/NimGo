@@ -50,7 +50,12 @@ proc accept*(gosocket: GoSocket, flags = {SafeDisconn};
         return none(GoSocket)
     var client: Socket
     accept(gosocket.socket, client, flags, inheritable)
-    return some GoSocket(socket: client, pollFd: registerHandle(client.getFd(), {Event.Read, Event.Write}))
+    return some GoSocket(
+        socket: client,
+        pollFd: registerHandle(client.getFd(), {Event.Read, Event.Write}),
+        readBuffer: if gosocket.readBuffer != nil: newBuffer() else: nil,
+        writeBuffer: if gosocket.writeBuffer != nil: newBuffer() else: nil,
+    )
 
 proc acceptAddr*(gosocket: GoSocket; flags = {SafeDisconn};
                     inheritable = defined(nimInheritHandles), timeoutMs = -1): Option[tuple[address: string, client: GoSocket]] =
@@ -71,8 +76,8 @@ proc bindUnix*(gosocket: GoSocket; path: string) =
     gosocket.socket.bindUnix(path)
 
 proc close*(gosocket: GoSocket) =
-    gosocket.socket.close()
     gosocket.pollFd.unregister()
+    gosocket.socket.close()
     gosocket.closed = true
 
 proc connect*(gosocket: GoSocket; address: string; port: Port) =
@@ -267,11 +272,14 @@ proc sendImpl(s: GoSocket; data: string, timeoutMs: int): int =
     return bytesCount
 
 proc send*(s: GoSocket; data: string, timeoutMs = -1): int =
-    s.writeBuffer.write(data)
-    if s.writeBuffer.len() > DefaultBufferSize:
-        return sendImpl(s, s.writeBuffer.readAll(), timeoutMs)
+    if s.writeBuffer != nil:
+        s.writeBuffer.write(data)
+        if s.writeBuffer.len() > DefaultBufferSize:
+            return sendImpl(s, s.writeBuffer.readAll(), timeoutMs)
+        else:
+            return data.len()
     else:
-        return data.len()
+        return sendImpl(s, data, timeoutMs)
 
 proc sendTo*(s: GoSocket; address: IpAddress; port: Port; data: string,
             flags = 0'i32, timeoutMs = -1): int {.discardable.} =

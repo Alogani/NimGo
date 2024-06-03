@@ -1,6 +1,11 @@
 import nimgo, nimgo/gonet
 import std/[os, times, deques]
 
+#[
+    This test shows a very slow time for handling new clients (x100 slower than async) for now
+    It has not been identified where the bottlenecks is
+]#
+
 const NumberOfClients = 200
 
 var clients: Deque[GoSocket]
@@ -21,7 +26,7 @@ withEventLoop():
             discard waitAll(allClients)
             let t1 = cpuTime() - t0
             echo "Number of connections: ", NumberOfClients
-            echo "Average response time: ", t1 / NumberOfClients
+            echo "Average response time: ", t1
             sleepAsync(300)
 
     proc processClients() =
