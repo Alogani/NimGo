@@ -39,6 +39,16 @@ proc readAvailable*(f: Gofile, size: Positive, timeoutMs = -1): string =
     else:
         return f.readImpl(size, timeoutMs)
 
+proc readChunk*(f: Gofile, timeoutMs = -1): string =
+    ## More efficient, especially when file is buffered
+    ## The returned read size is not predictable, but less than `buffer.DefaultBufferSize`
+    if f.buffer != nil:
+        if f.buffer.empty():
+            return f.readImpl(DefaultBufferSize, timeoutMs)
+        return f.buffer.readChunk()
+    else:
+        return f.readImpl(DefaultBufferSize, timeoutMs)
+
 proc read*(f: Gofile, size: Positive, timeoutMs = -1): string =
     result = newStringOfCap(size)
     let timeout = TimeOutWatcher.init(timeoutMs)
@@ -54,7 +64,7 @@ proc readAll*(f: Gofile, timeoutMs = -1): string =
     if f.buffer != nil:
         result = f.buffer.readAll()
     while true:
-        let data = f.readImpl(DefaultBufferSize, timeout.getRemainingMs())
+        let data = f.readChunk(timeout.getRemainingMs())
         if data.len() == 0:
             break
         result.add data

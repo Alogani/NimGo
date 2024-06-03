@@ -16,14 +16,17 @@ type
         daemon* = false
 
     GoProcStreamKind = enum
-        None, File, Parent, Capture, CaptureAndTee, Stdout
+        None, File, Parent, Pipe, Stdout
 
     GoProcStream = object
         kind: GoProcStreamKind
         file: GoFile
 
-    GoProc* = ref object
+    GoProc* = object
         childproc: Childproc
+        stdin*: GoFile
+        stdout*: GoFile
+        stderr*: GoFile
 
 proc Command*(args: seq[string],
         workingDir = "",
@@ -38,6 +41,7 @@ proc Command*(args: seq[string],
         daemon: daemon
     )
 
+
 proc StreamNone*(): GoProcStream =
     GoProcStream(kind: None)
 
@@ -49,15 +53,12 @@ proc StreamParent*(): GoProcStream =
 
 proc StreamPipe*(): GoProcStream =
     ## Won't be subject to filling up (blocking child process), because will be flushed regularly
-    GoProcStream(kind: Capture)
-
-proc StreamTeePipe*(f: GoFile): GoProcStream =
-    ## Won't be subject to filling up (blocking child process), because will be flushed regularly
-    GoProcStream(kind: CaptureAndTee, file: f)
+    GoProcStream(kind: Pipe)
 
 proc StreamStdout*(f: GoFile): GoProcStream =
     ## Only valid for Stderr
     GoProcStream(kind: Stdout)
+
 
 proc startProcessInPseudoTerminal*(command: CommandObj, mergeStderr = true): tuple[goproc: GoProc, stdin, stdout, stderr: GoFile] =
     discard
@@ -94,21 +95,76 @@ proc startProcess*(command: CommandObj; stdin: GoFile = nil, stdout: GoFile = ni
     )
     return GoProc(childproc: childproc)
 
-proc waitForExit*(goproc: GoProc, timeoutMs = -1): int =
+proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNone(), stderr = StreamNone()): GoProc =
+    ## Only StreamPipe will be closed when process ends. They can also be closed by user
+    let stdinPipe = (
+        case stdin.kind:
+        of None:
+            (nil, nil)
+        of File:
+            (stdin.file, nil)
+        of Parent:
+            (goStdin, nil)
+        of Pipe:
+            createGoPipe()
+        of Stdout:
+            raise newException(ValueError, "StreamStdout is only valid for stderr")
+    )
+    let stdoutPipe = (
+        case stdout.kind:
+        of None:
+            (nil, nil)
+        of File:
+            (nil, stdout.file)
+        of Parent:
+            (nil, goStdout)
+        of Pipe:
+            createGoPipe()
+        of Stdout:
+            raise newException(ValueError, "StreamStdout is only valid for stderr")
+    )
+    let stderrPipe = (
+        case stderr.kind:
+        of None:
+            (nil, nil)
+        of File:
+            (nil, stdout.file)
+        of Parent:
+            (nil, goStderr)
+        of Pipe:
+            createGoPipe()
+        of Stdout:
+            (nil, stdoutPipe[1])
+    )
+    var goproc = startProcess(command, stdinPipe[0], stdoutPipe[1], stderrPipe[1])
+    goproc.stdin = stdinPipe[1]
+    goproc.stdout = stdoutPipe[0]
+    goproc.stdout = stderrPipe[0]
+    return goproc
+
+proc waitForExit*(goproc: var GoProc, timeoutMs = -1, closePipeFirst = false): int =
     ## Child process can deadlock if its standard streams are filled up.
     ## It is important to always call this proc to clean up resources, even if it has been killed
+    if closePipeFirst:
+        if goproc.stdin != nil and not goproc.stdin.closed(): goproc.stdin.close()
+        if goproc.stdout != nil and not goproc.stdout.closed(): goproc.stdout.close()
+        if goproc.stderr != nil and not goproc.stderr.closed(): goproc.stderr.close()
     let pollFd = registerProcess(goproc.childproc.getPid())
     if not suspendUntilRead(pollFd, timeoutMs):
         pollFd.unregister()
         return -1
     pollFd.unregister()
+    if not closePipeFirst:
+        if goproc.stdin != nil and not goproc.stdin.closed(): goproc.stdin.close()
+        if goproc.stdout != nil and not goproc.stdout.closed(): goproc.stdout.close()
+        if goproc.stderr != nil and not goproc.stderr.closed(): goproc.stderr.close()
     return wait(goproc.childproc)
 
 
 proc getPid*(p: GoProc): int =
     p.childproc.getPid()
 
-proc running*(p: GoProc): bool =
+proc running*(p: var GoProc): bool =
     p.childproc.running()
 
 proc suspend*(p: GoProc) =
@@ -123,52 +179,7 @@ proc kill*(p: GoProc) =
 
 proc run*(command: CommandObj; stdin = StreamNone(), stdout = StreamNone(), stderr = StreamNone(),
             timeoutMs = -1): tuple[success: bool, exitCode: int; input, output, outputErr: string] =
-    let stdinPipe = (
-        case stdin.kind:
-        of None:
-            (nil, nil)
-        of File:
-            (stdin.file, nil)
-        of Parent:
-            (goStdin, nil)
-        of Capture:
-            createGoPipe()
-        of Stdout:
-            raise newException(ValueError, "StreamStdout is only valid for stderr")
-        of CaptureAndTee:
-            raise newException(ValueError, "")
-    )
-    let stdoutPipe = (
-        case stdout.kind:
-        of None:
-            (nil, nil)
-        of File:
-            (nil, stdout.file)
-        of Parent:
-            (nil, goStdout)
-        of Capture:
-            createGoPipe()
-        of Stdout:
-            raise newException(ValueError, "StreamStdout is only valid for stderr")
-        of CaptureAndTee:
-            createGoPipe()
-    )
-    let stderrPipe = (
-        case stderr.kind:
-        of None:
-            (nil, nil)
-        of File:
-            (nil, stdout.file)
-        of Parent:
-            (nil, goStderr)
-        of Capture:
-            createGoPipe()
-        of Stdout:
-            stdoutPipe
-        of CaptureAndTee:
-            createGoPipe()
-    )
-    var stdinCapture, stdoutCapture, stderrCapture: string
+
     var p = startProcess(command, stdinPipe[0], stdoutPipe[1], stderrPipe[1])
     var capturesTasks: seq[GoTask[void]]
     if stdoutPipe[0] != nil:

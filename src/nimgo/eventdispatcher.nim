@@ -97,6 +97,9 @@ proc notifyRegistration(oneShotCoro: OneShotCoroutine, dispatcher: EvDispatcher,
 proc cancelled*(oneShotCoro: OneShotCoroutine): bool =
     oneShotCoro.cancelled
 
+proc cancelledByTimer*(oneShotCoro: OneShotCoroutine): bool =
+    oneShotCoro.cancelledByTimer
+
 proc consumeAndGet*(oneShotCoro: OneShotCoroutine, byTimer: bool): Coroutine =
     ## Eventual next coroutine will be ignored
     if oneShotCoro.cancelled:
@@ -410,6 +413,15 @@ proc sleepAsync*(timeoutMs: int) =
         let pollFd = registerTimer(timeoutMs, @[coro.toOneShot()])
         suspend(coro)
         pollFd.unregister()
+
+proc pollOnce*() =
+    ## Works both inside and outside dispatcher
+    let coro = getCurrentCoroutine()
+    if coro == nil:
+        runOnce()
+    else:
+        resumeOnClosePhase(coro)
+        suspend(coro)
 
 proc suspendUntilRead*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
     ## See also `consumeCurrentEvent` to avoid a data race if multiple coros are registered for same fd

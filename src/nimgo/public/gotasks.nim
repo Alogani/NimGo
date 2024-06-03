@@ -98,7 +98,7 @@ proc waitAllImpl[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
         if coro == nil:
             runOnce(timeout.getRemainingMs())
         else:
-            resumeSoon(coro)
+            resumeOnClosePhase(coro)
             suspend(coro)
 
 proc waitAll*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): seq[T] =
@@ -130,6 +130,6 @@ proc waitAny*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
         if coro == nil:
             runOnce(timeout.getRemainingMs())
         else:
-            resumeSoon(coro)
+            resumeOnClosePhase(coro)
             suspend(coro)
     
