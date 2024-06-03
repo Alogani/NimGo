@@ -104,9 +104,9 @@ proc openGoFile*(filename: string, mode = fmRead, buffered = true): GoFile =
         buffer: if buffered: newBuffer() else: nil
     )
 
-proc readBufferImpl(f: GoFile, buf: pointer, size: Positive, timeoutMs: int): int {.used.} =
+proc readBufferImpl(f: GoFile, buf: pointer, size: Positive, timeoutMs: int, noAsync: bool): int {.used.} =
     ## Bypass the buffer
-    if f.pollable:
+    if f.pollable and not noAsync:
         if not suspendUntilRead(f.pollFd, timeoutMs):
             return -1
     let bytesCount = posix.read(f.fd, buf, size)
@@ -117,10 +117,10 @@ proc readBufferImpl(f: GoFile, buf: pointer, size: Positive, timeoutMs: int): in
         f.errorCode = osLastError()
     return bytesCount
 
-proc readImpl(f: GoFile, size: Positive, timeoutMs: int): string {.used.} =
+proc readImpl(f: GoFile, size: Positive, timeoutMs: int, noAsync: bool): string {.used.} =
     result = newStringOfCap(size)
     result.setLen(1)
-    let bytesCount = f.readBufferImpl(addr(result[0]), size, timeoutMs)
+    let bytesCount = f.readBufferImpl(addr(result[0]), size, timeoutMs, noAsync)
     if bytesCount <= 0:
         return ""
     result.setLen(bytesCount)

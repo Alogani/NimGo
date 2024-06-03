@@ -441,9 +441,6 @@ proc suspendUntilRead*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
                     consumeCurrentEvent()
                 return true
             if timeout.expired():
-                let coro = oneShotCoro.consumeAndGet(false)
-                if coro != nil:
-                    resume(coro)
                 return false
     elif timeoutMs == -1:
         addInsideSelector(fd, toOneShot(coro), Event.Read)
@@ -480,9 +477,6 @@ proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
                     consumeCurrentEvent()
                 return true
             if timeout.expired():
-                let coro = oneShotCoro.consumeAndGet(false)
-                if coro != nil:
-                    resume(coro)
                 return false
     elif timeoutMs == -1:
         addInsideSelector(fd, toOneShot(coro), Event.Write)

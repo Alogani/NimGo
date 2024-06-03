@@ -130,6 +130,7 @@ proc startProcess*(command: CommandObj; stdin: GoFile = nil, stdout: GoFile = ni
 proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNone(), stderr = StreamNone()): GoProc =
     ## Only StreamPipe will be closed when process ends. They can also be closed by user
     var capturesTask: seq[GoTask[void]]
+    var capturedInput: GoStream
     let (stdinChild, stdinParent) = (
         case stdin.kind:
         of None:
@@ -144,7 +145,24 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
         of Stdout:
             raise newException(ValueError, "StreamStdout is only valid for stderr")
         of Capture:
-            raise newException(ValueError, "")
+            var pipes = createGoPipe(false)
+            capturedInput = newGoProcStream(pipes.writer)
+            goAsync proc() =
+                while true:
+                    var hasData = suspendUntilRead(stdin.file.getSelectorFileHandle(), 500, false)
+                    if capturedInput.closed():
+                        break
+                    if not hasData:
+                        continue
+                    consumeCurrentEvent()
+                    let data = stdin.file.readChunk(noAsync = true)
+                    if data.len() == 0:
+                        break
+                    pipes.writer.write(data)
+                    capturedInput.write(data)
+                pipes.writer.close()
+                capturedInput.close()
+            (pipes.reader, nil)
         of CaptureParent:
             raise newException(ValueError, "")
     )
@@ -210,6 +228,7 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
     goproc.stdin = stdinParent
     goproc.stdout = stdoutParent
     goproc.stderr = stderrParent
+    goproc.capturedInput = capturedInput
     goproc.capturesTask = capturesTask
     return goproc
 
@@ -218,6 +237,7 @@ proc waitForExit*(goproc: var GoProc, timeoutMs = -1, closeStdinBefore = true): 
     ## It is important to always call this proc to clean up resources, even if it has been killed
     if closeStdinBefore:
         if goproc.stdin != nil and not goproc.stdin.closed(): goproc.stdin.close()
+        if goproc.capturedInput != nil and not goproc.capturedInput.closed(): goproc.capturedInput.close()
     if goproc.childproc.running() and not suspendUntilRead(goproc.pollFd, timeoutMs):
         return -1
     goproc.pollFd.unregister()
@@ -225,6 +245,7 @@ proc waitForExit*(goproc: var GoProc, timeoutMs = -1, closeStdinBefore = true): 
         discard waitAll(goproc.capturesTask)
     if not closeStdinBefore:
         if goproc.stdin != nil and not goproc.stdin.closed(): goproc.stdin.close()
+        if goproc.capturedInput != nil and not goproc.capturedInput.closed(): goproc.capturedInput.close()
     if goproc.stdout != nil and not goproc.stdout.closed(): goproc.stdout.close()
     if goproc.stderr != nil and not goproc.stderr.closed(): goproc.stderr.close()
     return wait(goproc.childproc)

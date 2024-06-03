@@ -95,10 +95,11 @@ proc openGoFile*(filename: string, mode = fmRead, buffered = true): GoFile =
         buffer: if buffered: newBuffer() else: nil
     )
 
-proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, timeoutMs: int): int {.used.} =
+proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, timeoutMs: int, noAsync: bool): int {.used.} =
     ## Bypass the buffer
-    if not suspendUntilRead(f.pollFd, timeoutMs):
-        return -1
+    if not noAsync:
+        if not suspendUntilRead(f.pollFd, timeoutMs):
+            return -1
     var bytesCount: int32
     if readFile(f.fd, buf, int32(len), addr(bytesCount), nil) == 0:
         f.state = FsError
@@ -108,11 +109,11 @@ proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, timeoutMs: int): int
         f.state = FsEof
     return bytesCount
 
-proc readImpl(f: GoFile, len: Positive, timeoutMs: int): string {.used.} =
+proc readImpl(f: GoFile, len: Positive, timeoutMs: int, noAsync: bool): string {.used.} =
     ## Bypass the buffer
     result = newStringOfCap(len)
     result.setLen(1)
-    let bytesCount = f.readBufferImpl(addr(result[0]), len, timeoutMs)
+    let bytesCount = f.readBufferImpl(addr(result[0]), len, timeoutMs, noAsync)
     if bytesCount <= 0:
         return ""
     result.setLen(bytesCount)
