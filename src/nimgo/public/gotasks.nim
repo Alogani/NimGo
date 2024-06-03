@@ -40,7 +40,7 @@ template goAsync*(fn: untyped) =
             else:
                 result = `fn`
             if next.coro != nil:
-                let coro = next.coro.consumeAndGet(false)
+                let coro = next.coro.consumeAndGet()
                 if coro != nil:
                     resumeSoon(coro)
     )

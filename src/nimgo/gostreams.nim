@@ -74,7 +74,7 @@ proc newGoBufferStream*(): GoBufferStream =
 method close*(s: GoBufferStream) =
     while s.waitersQueue.len() > 0:
         let coro = s.waitersQueue.popFirst()
-        resumeSoon(coro.consumeAndGet(false))
+        resumeSoon(coro.consumeAndGet())
     goAsync proc() =
         s.closed = true
         s.wakeupSignal = true
@@ -100,7 +100,7 @@ proc fillBuffer(s: GoBufferStream, timeoutMs: int): bool =
         if timeoutMs != -1:
             resumeOnTimer(oneShotCoro, timeoutMs)
         suspend(coro)
-        if s.closed or oneShotCoro.cancelledByTimer():
+        if s.closed or oneShotCoro.getWakeUpInfo().byTimer:
             return false
         return true
 
@@ -150,4 +150,4 @@ method write*(s: GoBufferStream, data: sink string, timeoutMs = -1): int {.disca
     if s.waitersQueue.len() == 0:
         s.wakeupSignal = true
     else:
-        resumeSoon(s.waitersQueue.popFirst().consumeAndGet(false))
+        resumeSoon(s.waitersQueue.popFirst().consumeAndGet())

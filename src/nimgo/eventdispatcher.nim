@@ -29,14 +29,16 @@ const SleepMsIfInactive = 5 # to avoid busy waiting. When selector is not empty,
 const CoroLimitByPhase = 50 # To avoid starving the coros inside the poll
 
 type
+    WakeUpInfo = tuple[pollFd: PollFd, events: set[Event], byTimer: bool]
+
     OneShotCoroutine* = ref object
         ## Coroutine that can only be resumed once inside a dispatcher
         coro: Coroutine
+        wakeUpInfo: WakeUpInfo
+        hasBeenWakedUp: bool
         activeCorosInsideSelector: ptr int
         refCountInsideSelector: int
         activeCorosOutsideSelector: ptr int
-        cancelled: bool
-        cancelledByTimer: bool
 
     AsyncData = object
         readList: seq[OneShotCoroutine] # Also stores all other event kind
@@ -63,6 +65,7 @@ type
     EvDispatcher* = ref EvDispatcherObj
         ## Cannot be shared or moved around threads
 
+const InvalidFd = PollFd(-1)
 var ActiveDispatcher {.threadvar.}: EvDispatcher
 
 proc newDispatcher*(): EvDispatcher
@@ -70,7 +73,7 @@ ActiveDispatcher = newDispatcher()
 
 #[ *** OneShotCoroutineCoroutine API *** ]#
 
-proc `<`(a, b: CoroutineWithTimer): bool =
+func `<`(a, b: CoroutineWithTimer): bool =
     a.finishAt < b.finishAt
 
 proc toOneShot*(coro: Coroutine): OneShotCoroutine =
@@ -79,7 +82,7 @@ proc toOneShot*(coro: Coroutine): OneShotCoroutine =
     )
 
 proc notifyRegistration(oneShotCoro: OneShotCoroutine, dispatcher: EvDispatcher, insideSelector: bool) =
-    if oneShotCoro.cancelled:
+    if oneShotCoro.hasBeenWakedUp:
         return
     if insideSelector:
         oneShotCoro.refCountInsideSelector.inc()
@@ -94,15 +97,15 @@ proc notifyRegistration(oneShotCoro: OneShotCoroutine, dispatcher: EvDispatcher,
         oneShotCoro.activeCorosOutsideSelector = addr(dispatcher.activeCorosOutsideSelector)
 
 
-proc cancelled*(oneShotCoro: OneShotCoroutine): bool =
-    oneShotCoro.cancelled
+func hasBeenWakedUp*(oneShotCoro: OneShotCoroutine): bool =
+    oneShotCoro.hasBeenWakedUp
 
-proc cancelledByTimer*(oneShotCoro: OneShotCoroutine): bool =
-    oneShotCoro.cancelledByTimer
+func getWakeUpInfo*(oneShotCoro: OneShotCoroutine): WakeUpInfo =
+    oneShotCoro.wakeUpInfo
 
-proc consumeAndGet*(oneShotCoro: OneShotCoroutine, byTimer: bool): Coroutine =
+proc consumeAndGet*(oneShotCoro: OneShotCoroutine, wakeUpInfo: WakeUpInfo = (InvalidFd, {}, false)): Coroutine =
     ## Eventual next coroutine will be ignored
-    if oneShotCoro.cancelled:
+    if oneShotCoro.hasBeenWakedUp:
         return nil
     result = oneShotCoro.coro
     if oneShotCoro.activeCorosInsideSelector != nil:
@@ -110,17 +113,16 @@ proc consumeAndGet*(oneShotCoro: OneShotCoroutine, byTimer: bool): Coroutine =
     if oneShotCoro.activeCorosOutsideSelector != nil:
         oneShotCoro.activeCorosOutsideSelector[].dec()
     oneShotCoro.coro = nil
-    oneShotCoro.cancelled = true
-    if byTimer:
-        oneShotCoro.cancelledByTimer = true
+    oneShotCoro.hasBeenWakedUp = true
+    oneShotCoro.wakeUpInfo = wakeUpInfo
 
 proc removeFromSelector*(oneShotCoro: OneShotCoroutine, byTimer: bool) =
     ## Only consume when not referenced anymore inside dispatcher
-    if oneShotCoro.cancelled:
+    if oneShotCoro.hasBeenWakedUp:
         return
     if oneShotCoro.refCountInsideSelector == 1:
         if oneShotCoro.activeCorosOutsideSelector == nil:
-            discard consumeAndGet(oneShotCoro, byTimer)
+            discard consumeAndGet(oneShotCoro, (InvalidFd, {}, byTimer))
     else:
         oneShotCoro.refCountInsideSelector.dec()
 
@@ -187,7 +189,7 @@ proc processTimers(coroLimitForTimer: var int, timeout: TimeOutWatcher) =
         var hasResumed = false
         if ActiveDispatcher.timers.len() != 0:
             if monoTimeNow > ActiveDispatcher.timers[0].finishAt:
-                let coro = ActiveDispatcher.timers.pop().coro.consumeAndGet(true)
+                let coro = ActiveDispatcher.timers.pop().coro.consumeAndGet((InvalidFd, {}, true))
                 if coro != nil:
                     hasResumed = true
                     resume(coro)
@@ -233,7 +235,6 @@ proc runOnce*(timeoutMs = -1) =
     # Phase 3: poll for I/O
     let pollTimeout = TimeOutWatcher.init(pollTimeoutMs)
     while ActiveDispatcher.activeCorosInsideSelector != 0:
-        sleep(300)
         # The event loop could return with no work if an event is triggered with no coroutine
         # If so, we will sleep and loop again
         var readyKeyList = ActiveDispatcher.selector.select(pollTimeout.getRemainingMs())
@@ -250,16 +251,19 @@ proc runOnce*(timeoutMs = -1) =
                 if readyKey.events.card() > 0 and {Event.Write} != readyKey.events:
                     readList = move(asyncData.readList)
                 for oneShotCoro in writeList:
-                    let coro = oneShotCoro.consumeAndGet(false)
+                    let coro = oneShotCoro.consumeAndGet((PollFd(readyKey.fd), readyKey.events, false))
                     if coro != nil:
                         resume(coro)
-                    processNextTickCoros(timeout)
                     if ActiveDispatcher.consumeEvent:
                         break eventHandler
+                    processNextTickCoros(timeout)
                 for oneShotCoro in readList:
-                    let coro = oneShotCoro.consumeAndGet(false)
+                    let coro = oneShotCoro.consumeAndGet((PollFd(readyKey.fd), readyKey.events, false))
                     if coro != nil:
                         resume(coro)
+                    if ActiveDispatcher.consumeEvent:
+                        break eventHandler
+                    processNextTickCoros(timeout)
         if pollTimeout.expired():
             break
         sleep(min(pollTimeout.getRemainingMs(), SleepMsIfInactive))
@@ -314,6 +318,12 @@ proc running*(dispatcher = ActiveDispatcher): bool =
 
 
 #[ *** Poll fd API *** ]#
+
+func `==`*(a, b: PollFd): bool =
+    int(a) == int(b)
+
+func isInvalid*(pollFd: PollFd): bool =
+    pollFd == InvalidFd
 
 proc consumeCurrentEvent*() =
     ## Will prevent other coroutines to resume until the next loop
@@ -424,75 +434,55 @@ proc pollOnce*() =
         resumeOnClosePhase(coro)
         suspend(coro)
 
+proc suspendUntilAny*(readFd: seq[PollFd], writefd: seq[PollFd], timeoutMs = -1): WakeUpInfo =
+    let coro = getCurrentCoroutine()
+    if coro.isNil():
+        let timeout = TimeOutWatcher.init(timeoutMs)
+        let oneShotCoro = toOneShot(nil)
+        for fd in readFd:
+            addInsideSelector(fd, oneShotCoro, Event.Read)
+        for fd in writefd:
+            addInsideSelector(fd, oneShotCoro, Event.Write)
+        while true:
+            runOnce(timeout.getRemainingMs())
+            if oneShotCoro.hasBeenWakedUp:
+                return oneShotCoro.wakeUpInfo
+            if timeout.expired():
+                return (InvalidFd, {}, true)
+    elif timeoutMs == -1:
+        let oneShotCoro = toOneShot(coro)
+        for fd in readFd:
+            addInsideSelector(fd, oneShotCoro, Event.Read)
+        for fd in writefd:
+            addInsideSelector(fd, oneShotCoro, Event.Write)
+        suspend()
+        return oneShotCoro.wakeUpInfo
+    else:
+        let oneShotCoro = toOneShot(coro)
+        for fd in readFd:
+            addInsideSelector(fd, oneShotCoro, Event.Read)
+        for fd in writefd:
+            addInsideSelector(fd, oneShotCoro, Event.Write)
+        resumeOnTimer(oneShotCoro, timeoutMs)
+        suspend()
+        return oneShotCoro.wakeUpInfo
+
 proc suspendUntilRead*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
     ## See also `consumeCurrentEvent` to avoid a data race if multiple coros are registered for same fd
     ## If PollFd is not a file, by definition only the coros in the readList will be resumed
     ## It will not try to update the kind of event waited inside the selector. Waiting for unregistered event will deadlock
-    let coro = getCurrentCoroutine()
-    if coro.isNil():
-        # We are not inside the dispatcher
-        let timeout = TimeOutWatcher.init(timeoutMs)
-        let oneShotCoro = toOneShot(nil)
-        addInsideSelector(fd, oneShotCoro, Event.Read)
-        while true:
-            runOnce(timeout.getRemainingMs())
-            if oneShotCoro.cancelled:
-                if consumeEvent:
-                    consumeCurrentEvent()
-                return true
-            if timeout.expired():
-                return false
-    elif timeoutMs == -1:
-        addInsideSelector(fd, toOneShot(coro), Event.Read)
-        suspend()
-        if consumeEvent:
-            consumeCurrentEvent()
-        return true
-    else:
-        let oneShotCoro = toOneShot(coro)
-        addInsideSelector(fd, oneShotCoro, Event.Read)
-        resumeOnTimer(oneShotCoro, timeoutMs)
-        suspend()
-        if oneShotCoro.cancelledByTimer:
-            return false
-        else:
-            if consumeEvent:
-                consumeCurrentEvent()
-            return true
+    if suspendUntilAny(@[fd], @[], timeoutMs).byTimer:
+        return false
+    if consumeEvent:
+        consumeCurrentEvent()
+    return true
 
 proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
     ## If PollFd is not a file, by definition only the coros in the readList will be resumed
     ## It will not try to update the kind of event waited inside the selector. Waiting for unregistered event will deadlock
     ## consumeEvent permits to avoid a data race if multiple coros are registered for same fd
-    let coro = getCurrentCoroutine()
-    if coro.isNil():
-        # We are not inside the dispatcher
-        let timeout = TimeOutWatcher.init(timeoutMs)
-        let oneShotCoro = toOneShot(nil)
-        addInsideSelector(fd, oneShotCoro, Event.Write)
-        while true:
-            runOnce(timeout.getRemainingMs())
-            if oneShotCoro.cancelled:
-                if consumeEvent:
-                    consumeCurrentEvent()
-                return true
-            if timeout.expired():
-                return false
-    elif timeoutMs == -1:
-        addInsideSelector(fd, toOneShot(coro), Event.Write)
-        suspend()
-        if consumeEvent:
-            consumeCurrentEvent()
-        return true
-    else:
-        let oneShotCoro = toOneShot(coro)
-        addInsideSelector(fd, oneShotCoro, Event.Write)
-        resumeOnTimer(oneShotCoro, timeoutMs)
-        suspend()
-        if oneShotCoro.cancelledByTimer:
-            return false
-        else:
-            if consumeEvent:
-                consumeCurrentEvent()
-            return true
-    
+    if suspendUntilAny(@[], @[fd], timeoutMs).byTimer:
+        return false
+    if consumeEvent:
+        consumeCurrentEvent()
+    return true

@@ -24,7 +24,7 @@ type
         capturedInput*: GoStream
         stdout*: GoStream
         stderr*: GoStream
-        capturesTask: seq[GoTask[void]]
+        captureTasks: seq[GoTask[void]]
 
     GoProcStream = ref object of GoBufferStream
         associatedFile: GoFile
@@ -77,10 +77,9 @@ proc StreamParent*(): GoProcStreamArg =
     GoProcStreamArg(kind: Parent)
 
 proc StreamPipe*(): GoProcStreamArg =
-    ## Won't be subject to filling up (blocking child process), because will be flushed regularly
     GoProcStreamArg(kind: Pipe)
 
-proc StreamStdout*(f: GoFile): GoProcStreamArg =
+proc StreamStdout*(): GoProcStreamArg =
     ## Only valid for Stderr
     GoProcStreamArg(kind: Stdout)
 
@@ -90,9 +89,11 @@ proc StreamCapture*(f: GoFile): GoProcStreamArg =
 proc StreamCaptureParent*(): GoProcStreamArg =
     GoProcStreamArg(kind: CaptureParent)
 
+
 #[ *** GoProc *** ]#
 
-proc startProcessInPseudoTerminal*(command: CommandObj, mergeStderr = true): tuple[goproc: GoProc, stdin, stdout, stderr: GoFile] =
+proc startProcessInPseudoTerminal*(command: CommandObj, mergeStderr = true): GoProc =
+    ## Not available in windows
     discard
 
 proc startProcess*(command: CommandObj; stdin: GoFile = nil, stdout: GoFile = nil, stderr: GoFile = nil): GoProc =
@@ -129,7 +130,8 @@ proc startProcess*(command: CommandObj; stdin: GoFile = nil, stdout: GoFile = ni
 
 proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNone(), stderr = StreamNone()): GoProc =
     ## Only StreamPipe will be closed when process ends. They can also be closed by user
-    var capturesTask: seq[GoTask[void]]
+    var goproc: GoProc
+    var captureTasks: seq[GoTask[void]]
     var capturedInput: GoStream
     let (stdinChild, stdinParent) = (
         case stdin.kind:
@@ -147,15 +149,16 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
         of Capture:
             var pipes = createGoPipe(false)
             capturedInput = newGoProcStream(pipes.writer)
+            let providedStdin = stdin.file
             goAsync proc() =
-                while true:
-                    var hasData = suspendUntilRead(stdin.file.getSelectorFileHandle(), 500, false)
-                    if capturedInput.closed():
+                let goprocFd = goproc.pollFd
+                let stdinFd = providedStdin.getSelectorFileHandle()
+                while goproc.childproc.running():
+                    let wakeUpInfo = suspendUntilAny(@[stdinFd, goprocFd], @[])
+                    if wakeUpInfo.pollFd == goprocFd:
                         break
-                    if not hasData:
-                        continue
                     consumeCurrentEvent()
-                    let data = stdin.file.readChunk(noAsync = true)
+                    let data = providedStdin.readChunk(noAsync = true)
                     if data.len() == 0:
                         break
                     pipes.writer.write(data)
@@ -183,7 +186,7 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
             var pipes = createGoPipe(false)
             var captureStream = newGoProcStream(pipes.reader)
             let destFile = if stdout.kind == CaptureParent: goStdout else: stdout.file
-            capturesTask.add goAsync proc() =
+            captureTasks.add goAsync proc() =
                 while true:
                     let data = pipes.reader.readChunk()
                     if data == "": break
@@ -209,7 +212,7 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
             var pipes = createGoPipe(false)
             var captureStream = newGoProcStream(pipes.reader)
             let destFile = if stderr.kind == CaptureParent: goStderr else: stderr.file
-            capturesTask.add goAsync proc() =
+            captureTasks.add goAsync proc() =
                 while true:
                     let data = pipes.reader.readChunk()
                     if data == "": break
@@ -218,7 +221,7 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
                 captureStream.close()
             (pipes.writer, GoStream(captureStream))
     )
-    var goproc = startProcess(command, stdinChild, stdoutChild, stderrChild)
+    goproc = startProcess(command, stdinChild, stdoutChild, stderrChild)
     if stdin.kind in { Pipe, Capture, CaptureParent }:
         stdinChild.close()
     if stdout.kind in { Pipe, Capture, CaptureParent }:
@@ -229,7 +232,7 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
     goproc.stdout = stdoutParent
     goproc.stderr = stderrParent
     goproc.capturedInput = capturedInput
-    goproc.capturesTask = capturesTask
+    goproc.captureTasks = captureTasks
     return goproc
 
 proc waitForExit*(goproc: var GoProc, timeoutMs = -1, closeStdinBefore = true): int =
@@ -241,8 +244,8 @@ proc waitForExit*(goproc: var GoProc, timeoutMs = -1, closeStdinBefore = true): 
     if goproc.childproc.running() and not suspendUntilRead(goproc.pollFd, timeoutMs):
         return -1
     goproc.pollFd.unregister()
-    if goproc.capturesTask.len() > 0:
-        discard waitAll(goproc.capturesTask)
+    if goproc.captureTasks.len() > 0:
+        discard waitAll(goproc.captureTasks)
     if not closeStdinBefore:
         if goproc.stdin != nil and not goproc.stdin.closed(): goproc.stdin.close()
         if goproc.capturedInput != nil and not goproc.capturedInput.closed(): goproc.capturedInput.close()
