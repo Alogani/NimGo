@@ -1,4 +1,4 @@
-{.warning: "Not fully implemented nor tested".}
+{.warning: "gonet is completly untested. Please remove this line, use at your own risk and tell me if it works".}
 
 import ./eventdispatcher
 import ./private/[buffer, timeoutwatcher]

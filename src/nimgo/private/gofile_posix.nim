@@ -83,13 +83,13 @@ proc newGoFile*(fd: FileHandle, mode: FileMode, buffered = true): GoFile =
         buffer: if buffered: newBuffer() else: nil
     )
 
-proc createGoPipe*(): tuple[reader, writer: GoFile] =
+proc createGoPipe*(buffered = true): tuple[reader, writer: GoFile] =
     var pipesArr: array[2, cint]
     if pipe(pipesArr) != 0:
         raiseOSError(osLastError())
     return (
-        newGoFile(pipesArr[0], fmRead),
-        newGoFile(pipesArr[1], fmWrite),
+        newGoFile(pipesArr[0], fmRead, buffered),
+        newGoFile(pipesArr[1], fmWrite, buffered),
     )
 
 proc openGoFile*(filename: string, mode = fmRead, buffered = true): GoFile =
@@ -125,7 +125,7 @@ proc readImpl(f: GoFile, size: Positive, timeoutMs: int): string {.used.} =
         return ""
     result.setLen(bytesCount)
 
-proc write*(f: GoFile, data: string, timeoutMs = -1): int {.discardable, used.} =
+proc write*(f: GoFile, data: sink string, timeoutMs = -1): int {.discardable, used.} =
     ## Bypass the buffer
     if data.len() == 0:
         return 0

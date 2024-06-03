@@ -1,4 +1,4 @@
-{.error: "gofile_win is completly untested. Please remove this line, use at your own risk and tell me if it works".}
+{.warning: "gofile_win is completly untested. Please remove this line, use at your own risk and tell me if it works".}
 import std/[winlean, widestrs, oserrors]
 from std/syncio import FileHandle, FileMode, FileSeekPos
 import ../eventdispatcher
@@ -117,7 +117,7 @@ proc readImpl(f: GoFile, len: Positive, timeoutMs: int): string {.used.} =
         return ""
     result.setLen(bytesCount)
 
-proc write*(f: GoFile, data: string, timeoutMs: int): int {.used.} =
+proc write*(f: GoFile, data: sink string, timeoutMs: int): int {.used.} =
     ## Bypass the buffer
     if data.len() == 0:
         return 0

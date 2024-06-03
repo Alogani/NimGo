@@ -31,13 +31,11 @@ template goAsync*(fn: untyped) =
     let next = NextCoroutine()
     goAsyncImpl(next,
         proc(): auto =
-            static:
-                echo typeof(`fn`)
             when typeof(`fn`) is void:
                 `fn`
-            elif typeof(`fn`) is proc(): void {.closure.}:
+            elif typeof(`fn`) is proc(): void {.closure.} or typeof(`fn`) is proc(): void {.nimcall.}:
                 `fn`()
-            elif typeof(`fn`) is proc {.closure.}:
+            elif typeof(`fn`) is proc {.closure.} or typeof(`fn`) is proc {.nimcall.}:
                 result = `fn`()
             else:
                 result = `fn`

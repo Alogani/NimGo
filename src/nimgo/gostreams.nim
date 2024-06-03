@@ -6,7 +6,7 @@ import std/deques
 type
     GoStream* = ref object of RootRef
 
-    GoBufferStream = ref object of GoStream
+    GoBufferStream* = ref object of GoStream
         ## A kind of channel with no thread support
         ## warning..:
         ## Like all channels, there is a risk of deadlock. Deadlock can only happen if read is not done inside a coroutine
@@ -16,7 +16,7 @@ type
         wakeupSignal: bool
         closed: bool
 
-    GoFileStream = ref object of GoStream
+    GoFileStream* = ref object of GoStream
         file: GoFile
 
 #[ *** GoStream *** ]#
@@ -30,7 +30,7 @@ method readChunk*(s: GoStream, timeoutMs = -1): string {.base.} = discard
 method read*(s: GoStream, size: Positive, timeoutMs = -1): string {.base.} = discard
 method readAll*(s: GoStream, timeoutMs = -1): string {.base.} = discard
 method readLine*(s: GoStream, timeoutMs = -1, keepNewLine = false): string {.base.} = discard
-method write*(s: GoStream, data: string, timeoutMs = -1): int {.discardable, base.} = discard
+method write*(s: GoStream, data: sink string, timeoutMs = -1): int {.discardable, base.} = discard
 
 
 #[ *** GoFileStream *** ]#
@@ -59,11 +59,14 @@ method readAll*(s: GoFileStream, timeoutMs = -1): string =
 method readLine*(s: GoFileStream, timeoutMs = -1, keepNewLine = false): string =
     readLine(s.file, timeoutMs, keepNewLine)
 
-method write*(s: GoFileStream, data: string, timeoutMs = -1): int {.discardable.} =
+method write*(s: GoFileStream, data: sink string, timeoutMs = -1): int {.discardable.} =
     write(s.file, data, timeoutMs)
 
 
 #[ *** GoBufferStream *** ]#
+
+proc init*(s: GoBufferStream) =
+    s.buffer = newBuffer()
 
 proc newGoBufferStream*(): GoBufferStream =
     GoBufferStream(buffer: newBuffer())
@@ -142,7 +145,7 @@ method readLine*(s: GoBufferStream, timeoutMs = -1, keepNewLine = false): string
             else:
                 return ""
 
-method write*(s: GoBufferStream, data: string, timeoutMs = -1): int {.discardable.} =
+method write*(s: GoBufferStream, data: sink string, timeoutMs = -1): int {.discardable.} =
     s.buffer.write(data)
     if s.waitersQueue.len() == 0:
         s.wakeupSignal = true
