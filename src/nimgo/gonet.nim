@@ -222,7 +222,7 @@ proc recvFrom*[T: string | IpAddress](s: GoSocket; data: var string;
 
 proc recvLine*(s: GoSocket; keepNewLine = false,
               timeoutMs = -1): string =
-    let timeout = TimeOutWatcher.init(timeoutMs)
+    var timeout = initTimeOutWatcher(timeoutMs)
     if s.readBuffer != nil:
         while true:
             let line = s.readBuffer.readLine(keepNewLine)

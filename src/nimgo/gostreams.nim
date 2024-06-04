@@ -83,26 +83,13 @@ method closed*(s: GoBufferStream): bool =
     s.closed
 
 proc fillBuffer(s: GoBufferStream, timeoutMs: int): bool =
-    let timeout = Timeoutwatcher.init(timeoutMs)
-    let coro = getCurrentCoroutine()
-    if coro == nil:
-        s.wakeupSignal = false
-        while true:
-            runOnce(timeout.getRemainingMs())
-            if s.wakeupSignal:
-                s.wakeupSignal = false
-                return true
-            if timeout.expired() or s.closed:
-                return false
-    else:
-        let oneShotCoro = coro.toOneShot()
-        s.waitersQueue.addLast oneShotCoro
-        if timeoutMs != -1:
-            resumeOnTimer(oneShotCoro, timeoutMs)
-        suspend(coro)
-        if s.closed or oneShotCoro.getWakeUpInfo().byTimer:
-            return false
-        return true
+    let coro = getCurrentCoroutineSafe()
+    let oneShotCoro = toOneShot(coro)
+    s.waitersQueue.addLast oneShotCoro
+    if timeoutMs != -1:
+        resumeOnTimer(oneShotCoro, timeoutMs)
+    suspend(coro)
+    return wasWakeUpByTimer()
 
 method readAvailable*(s: GoBufferStream, size: Positive, timeoutMs = -1): string =
     if s.buffer.empty() and not s.closed:
@@ -118,7 +105,7 @@ method readChunk*(s: GoBufferStream, timeoutMs = -1): string =
     
 method read*(s: GoBufferStream, size: Positive, timeoutMs = -1): string =
     result = newStringOfCap(size)
-    let timeout = TimeOutWatcher.init(timeoutMs)
+    var timeout = initTimeOutWatcher(timeoutMs)
     while result.len() < size:
         let data = s.readAvailable(size - result.len(), timeout.getRemainingMs())
         if data.len() == 0:
@@ -126,7 +113,7 @@ method read*(s: GoBufferStream, size: Positive, timeoutMs = -1): string =
         result.add(data)
 
 method readAll*(s: GoBufferStream, timeoutMs = -1): string =
-    let timeout = TimeOutWatcher.init(timeoutMs)
+    var timeout = initTimeOutWatcher(timeoutMs)
     while true:
         let data = s.readAvailable(DefaultBufferSize, timeout.getRemainingMs())
         if data.len() == 0:
@@ -134,7 +121,7 @@ method readAll*(s: GoBufferStream, timeoutMs = -1): string =
         result.add data
     
 method readLine*(s: GoBufferStream, timeoutMs = -1, keepNewLine = false): string =
-    let timeout = TimeOutWatcher.init(timeoutMs)
+    var timeout = initTimeOutWatcher(timeoutMs)
     while true:
         let line = s.buffer.readLine(keepNewLine)
         if line.len() != 0:

@@ -213,6 +213,15 @@ proc getCurrentCoroutine*(): Coroutine =
     ## If we are not inside a coroutine, nil is retuned
     return cast[Coroutine](getRunningMco().getUserData())
 
+proc getCurrentCoroutineSafe*(): Coroutine =
+    ## Additional check on debug to verify we are inside a coroutine
+    when defined(debug):
+        result = getCurrentCoroutine()
+        if result == nil:
+            raise newException(ValueError, "We are not inside a coroutine")
+    else:
+        getCurrentCoroutine()
+
 proc getReturnVal*[T](coro: Coroutine): T =
     if coro.returnedVal == nil:
         raise newException(ValueError, "Coroutine don't have a return value or is not finished")

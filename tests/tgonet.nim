@@ -12,6 +12,7 @@ withEventLoop():
             let t0 = cpuTime()
             for i in 0..<NumberOfClients:
                 allClients[i] = goAsync proc() =
+                    echo "in"
                     let client = newGoSocket(buffered = false)
                     client.connect("127.0.0.1", Port(12346))
                     discard client.send("Hello\n")

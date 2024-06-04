@@ -1,36 +1,63 @@
-import std/[times]
+import std/[times, monotimes]
 
 type
     TimeOutWatcher* = object
-        beginTime: Time
-        timeoutMs: int
+        finishAt: MonoTime
+        hasNoDeadline: bool
+        isExpired: bool
 
-proc init*(T: type TimeOutWatcher, timeoutMs: int): T =
+proc initTimeoutWatcher*(timeoutMs: int): TimeOutWatcher =
     TimeOutWatcher(
-        beginTime: if timeoutMs != -1: getTime() else: Time(),
-        timeoutMs: timeoutMs
+        finishAt: (
+            if timeoutMs != -1:
+                getMonoTime() + initDuration(milliseconds = timeoutMs)
+            else:
+                MonoTime()),
+        hasNoDeadline: if timeoutMs == -1: true else: false
     )
 
-proc hasNoDeadline*(self: TimeOutWatcher): bool =
-    return self.timeoutMs == -1
+proc timeoutWatcherFromFinishAt*(finishAt: MonoTime): TimeOutWatcher =
+    TimeOutWatcher(
+        finishAt: finishAt,
+        hasNoDeadline: false
+    )
 
-proc expired*(self: TimeOutWatcher): bool =
-    if self.timeoutMs == -1:
+func `<=`*(a, b: TimeOutWatcher): bool =
+    if a.hasNoDeadline:
         return false
-    if self.timeoutMs <= (getTime() - self.beginTime).inMilliseconds():
+    elif b.hasNoDeadline:
         return true
-    return false
+    else:
+        a.finishAt < b.finishAt
 
-proc getRemainingMs*(self: TimeOutWatcher): int =
-    if self.timeoutMs == -1:
+func hasNoDeadline*(self: TimeOutWatcher): bool =
+    return self.hasNoDeadline
+
+proc expired*(self: var TimeOutWatcher): bool =
+    if self.hasNoDeadline:
+        return false
+    if self.isExpired:
+        return true
+    else:
+        if (self.finishAt - getMonoTime()).inMilliseconds() < 0:
+            self.isExpired = true
+            return true
+        else:
+            return false
+
+proc getRemainingMs*(self: var TimeOutWatcher): int =
+    if self.hasNoDeadline:
         return -1
-    let remaining = self.timeoutMs - (getTime() - self.beginTime).inMilliseconds()
+    if self.isExpired:
+        return 0
+    let remaining = (self.finishAt - getMonoTime()).inMilliseconds()
     if remaining < 0:
+        self.isExpired = true
         return 0
     else:
         return remaining
 
-proc clampTimeout*(x, b: int): int =
+func clampTimeout*(x, b: int): int =
     ## if b == -1, consider it infinity
     ## Minimum timeout is always 0
     if x < 0: return 0

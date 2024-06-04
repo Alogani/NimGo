@@ -51,7 +51,7 @@ proc readChunk*(f: Gofile, timeoutMs = -1, noAsync = false): string =
 
 proc read*(f: Gofile, size: Positive, timeoutMs = -1): string =
     result = newStringOfCap(size)
-    let timeout = TimeOutWatcher.init(timeoutMs)
+    var timeout = initTimeOutWatcher(timeoutMs)
     while result.len() < size:
         let data = f.readAvailable(size - result.len(), timeout.getRemainingMs())
         if data.len() == 0:
@@ -60,7 +60,7 @@ proc read*(f: Gofile, size: Positive, timeoutMs = -1): string =
 
 proc readAll*(f: Gofile, timeoutMs = -1): string =
     ## Might return a string even if EOF has not been reached
-    let timeout = TimeOutWatcher.init(timeoutMs)
+    var timeout = initTimeOutWatcher(timeoutMs)
     if f.buffer != nil:
         result = f.buffer.readAll()
     while true:
@@ -71,7 +71,7 @@ proc readAll*(f: Gofile, timeoutMs = -1): string =
 
 proc readLine*(f: GoFile, timeoutMs = -1, keepNewLine = false): string =
     ## Newline is not kept. To distinguish between EOF, you can use `endOfFile`
-    let timeout = TimeOutWatcher.init(timeoutMs)
+    var timeout = initTimeOutWatcher(timeoutMs)
     if f.buffer != nil:
         while true:
             let line = f.buffer.readLine(keepNewLine)
