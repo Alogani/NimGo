@@ -6,6 +6,9 @@
 # Choice has been made to rely on minicoroutines for numerous reasons (efficient, single file, clear API, cross platform, virtual memory, etc.)
 # Inspired freely from https://git.envs.net/iacore/minicoro-nim
 
+
+#{.push stackTrace:off.}
+
 when not defined(gcArc) and not defined(gcOrc):
     {.warning: "coroutines is not tested without --mm:orc or --mm:arc".}
 
@@ -109,7 +112,6 @@ type
         CsParenting ## The coroutine is active but not running (that is, it has resumed another coroutine).
         CsSuspended
         CsFinished
-        CsDead ## Finished with an error
     
     EntryFn*[T] = proc(): T
         ## Supports at least closure and nimcall calling convention
@@ -118,7 +120,6 @@ type
         entryFn: SafeContainer[void]
         returnedVal: pointer
         mcoCoroutine: ptr McoCoroutine
-        exception: ptr Exception
     Coroutine* = ref CoroutineObj
         ## Basic coroutine object
         ## Thread safety: unstarted coroutine can be moved between threads
@@ -127,18 +128,12 @@ type
 proc coroutineMain[T](mcoCoroutine: ptr McoCoroutine) {.cdecl.} =
     ## Start point of the coroutine.
     let coroPtr = cast[ptr CoroutineObj](mcoCoroutine.getUserData())
-    try:
-        # Peek only, otherwise GC will happily free our captured variables right now if we are in another thread
-        let entryFn = cast[SafeContainer[EntryFn[T]]](coroPtr[].entryFn).popFromContainer()
-        when T isnot void:
-            let res = entryFn()
-            coroPtr[].returnedVal = allocAndSet(res.pushIntoContainer())
-        else:
-            entryFn()
-    except CatchableError:
-        let exception = getCurrentException()
-        Gc_ref exception
-        coroPtr.exception = cast[ptr Exception](exception)
+    let entryFn = cast[SafeContainer[EntryFn[T]]](coroPtr[].entryFn).popFromContainer()
+    when T isnot void:
+        let res = entryFn()
+        coroPtr[].returnedVal = allocAndSet(res.pushIntoContainer())
+    else:
+        entryFn()
 
 proc destroyMcoCoroutine(coroObj: CoroutineObj) =
     checkMcoReturnCode destroyMco(coroObj.mcoCoroutine)
@@ -151,8 +146,6 @@ proc `=destroy`*(coroObj: CoroutineObj) =
             destroyMcoCoroutine(coroObj)
         except:
             discard
-    if coroObj.exception != nil:
-        dealloc(coroObj.exception)
     if coroObj.returnedVal != nil:
         deallocShared(coroObj.returnedVal)
     coroObj.entryFn.destroy()
@@ -186,11 +179,8 @@ proc newCoroutine*[T](entryFn: EntryFn[T], stacksize = DefaultStackSize): Corout
 proc newCoroutine*(entryFn: EntryFn[void], stacksize = DefaultStackSize): Coroutine =
     newCoroutineImpl[void](entryFn, stacksize)
 
-proc resume*(coro: Coroutine, noraise = false) =
+proc resume*(coro: Coroutine) =
     ## Will resume the coroutine where it stopped (or start it)
-    ## If noraise == true, won't try to resume finished or suspended coroutines
-    if noraise and getState(coro.mcoCoroutine) in {McoCsFinished, McoCsSuspended}:
-        return
     let frame = getFrameState()
     checkMcoReturnCode resume(coro.mcoCoroutine)
     setFrameState(frame)
@@ -229,19 +219,6 @@ proc getReturnVal*[T](coro: Coroutine): T =
     deallocShared(coro.returnedVal)
     coro.returnedVal = nil
 
-proc getException*(coro: Coroutine): ref Exception =
-    ## nil if state is different than CsDead
-    result = cast[ref Exception](coro[].exception)
-    if result != nil:
-        Gc_unref(result)
-
-proc raiseException*(coro: Coroutine) =
-    if coro.mcoCoroutine.getState() != McoCsFinished:
-        raise newException(ValueError, "Can't reraise unfinished coroutines")
-    let exception = coro.getException()
-    if exception != nil:
-        raise exception
-
 proc finished*(coro: Coroutine): bool =
     ## Finished either with error or success
     coro.mcoCoroutine.getState() == McoCsFinished
@@ -249,10 +226,7 @@ proc finished*(coro: Coroutine): bool =
 proc getState*(coro: Coroutine): CoroState =
     case coro.mcoCoroutine.getState():
     of McoCsFinished:
-        if coro.exception == nil:
-            CsFinished
-        else:
-            CsDead
+        CsFinished
     of McoCsParenting:
         CsParenting
     of McoCsRunning:

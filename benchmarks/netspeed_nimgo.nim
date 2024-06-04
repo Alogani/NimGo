@@ -2,8 +2,13 @@ import nimgo, nimgo/gonet
 import std/[os, times, deques]
 
 #[
-    This test shows a very slow time for handling new clients (x100 slower than async) for now
-    It has not been identified where the bottlenecks is
+    This bench shows a very slow time for handling new clients (x10 slower than async) for now
+    This bottleneck is unexpected, a reasonnable value should be less than 30% slower than asyncdispatch
+
+    There are also other problematics:
+        - stacktrace disapears after resuming `server.accept().get()` -> `suspendUntilRead`. Leading to: "Error: execution of an external program failed"
+        - `server.accept()` returns if no connections are made even if no timeout is set, leading to misses
+        - the program crash after a short time for unknown reason
 ]#
 
 const NumberOfClients = 200
@@ -23,7 +28,7 @@ withEventLoop():
                     discard client.recvLine()
                     client.close()
             
-            discard waitAll(allClients)
+            waitAll(allClients)
             let t1 = cpuTime() - t0
             echo "Number of connections: ", NumberOfClients
             echo "Average response time: ", t1

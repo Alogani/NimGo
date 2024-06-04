@@ -232,54 +232,44 @@ proc processSelector(timeout: var TimeOutWatcher) =
         return
     var hasResumed: bool
     while true:
-        when defined(nimgodebug):
-            var LoopCount {.global.}: int = 0
-            var Sum {.global.}: Duration
-            var t0 = getMonoTime()
-            LoopCount.inc()
         let readyKeyList = ActiveDispatcher.selector.select(
             timeout.getRemainingMs(),
         )
-        when defined(nimgodebug):
-            Sum += getMonoTime() - t0
-            if LoopCount mod 2000 == 0:
-                echo "Select time taken=", Sum.inMilliseconds()
-                Sum = DurationZero
         if readyKeyList.len() == 0:
             ## Timeout expired
             break
         for readyKey in readyKeyList:
-            var asyncData = getData(ActiveDispatcher.selector, readyKey.fd)
-            if Event.Write in readyKey.events:
-                ActiveDispatcher.lastWakeUpInfo = (
-                    PollFd(readyKey.fd),
-                    { Event.Write },
-                    asyncData.isTimer,
-                )
-                ActiveDispatcher.consumeEventFlag = false
-                while asyncData.writeList.len() != 0:
-                    let coro = asyncData.writeList.popFirst().consumeAndGet()
-                    if coro == nil:
-                        continue
-                    hasResumed = true
-                    resume(coro)
-                    if ActiveDispatcher.consumeEventFlag:
-                        break
-            if readyKey.events.card() > 0 and {Event.Write} != readyKey.events:
-                ActiveDispatcher.lastWakeUpInfo = (
-                    PollFd(readyKey.fd),
-                    readykey.events - { Event.Write },
-                    asyncData.isTimer,
-                )
-                ActiveDispatcher.consumeEventFlag = false
-                while asyncData.readList.len() != 0:
-                    let coro = asyncData.readList.popFirst().consumeAndGet()
-                    if coro == nil:
-                        continue
-                    hasResumed = true
-                    resume(coro)
-                    if ActiveDispatcher.consumeEventFlag:
-                        break
+            ActiveDispatcher.selector.withData(readyKey.fd, asyncData) do:
+                if Event.Write in readyKey.events:
+                    ActiveDispatcher.lastWakeUpInfo = (
+                        PollFd(readyKey.fd),
+                        { Event.Write },
+                        asyncData.isTimer,
+                    )
+                    ActiveDispatcher.consumeEventFlag = false
+                    while asyncData.writeList.len() != 0:
+                        let coro = asyncData.writeList.popFirst().consumeAndGet()
+                        if coro == nil:
+                            continue
+                        hasResumed = true
+                        resume(coro)
+                        if ActiveDispatcher.consumeEventFlag:
+                            break
+                if readyKey.events.card() > 0 and {Event.Write} != readyKey.events:
+                    ActiveDispatcher.lastWakeUpInfo = (
+                        PollFd(readyKey.fd),
+                        readykey.events - { Event.Write },
+                        asyncData.isTimer,
+                    )
+                    ActiveDispatcher.consumeEventFlag = false
+                    while asyncData.readList.len() != 0:
+                        let coro = asyncData.readList.popFirst().consumeAndGet()
+                        if coro == nil:
+                            continue
+                        hasResumed = true
+                        resume(coro)
+                        if ActiveDispatcher.consumeEventFlag:
+                            break
         let remainingMs = timeout.getRemainingMs()
         if hasResumed or remainingMs == 0:
             break
@@ -472,7 +462,7 @@ proc suspendUntilRead*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
     let coro = getCurrentCoroutineSafe()
     let oneShotCoro = toOneShot(coro)
     addInsideSelector(fd, oneShotCoro, Event.Read)
-    if timeoutMs == -1:
+    if timeoutMs != -1:
         resumeOnTimer(oneShotCoro, timeoutMs)
     suspend(coro)
     if ActiveDispatcher.lastWakeUpInfo.byTimer:
@@ -488,7 +478,7 @@ proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
     let coro = getCurrentCoroutineSafe()
     let oneShotCoro = toOneShot(coro)
     addInsideSelector(fd, oneShotCoro, Event.Write)
-    if timeoutMs == -1:
+    if timeoutMs != -1:
         resumeOnTimer(oneShotCoro, timeoutMs)
     suspend(coro)
     if ActiveDispatcher.lastWakeUpInfo.byTimer:

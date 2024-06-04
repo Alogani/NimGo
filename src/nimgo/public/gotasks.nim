@@ -73,12 +73,19 @@ proc wait*[T](gotask: GoTask[T], timeoutMs = -1): Option[T] =
     else:
         return some(getReturnVal[T](gotask.coro))
 
-proc wait*(gotask: GoTask[void], timeoutMs = -1): bool =
+proc wait*[T](gotask: GoTask[T]): T =
+    waitImpl(goTask, -1)
+    return getReturnVal[T](gotask.coro)
+
+proc wait*(gotask: GoTask[void], timeoutMs: int): bool =
     waitImpl(goTask, timeoutMs)
     if gotask.coro.getState() != CsFinished:
         return false
     else:
         return true
+
+proc wait*(gotask: GoTask[void]) =
+    waitImpl(goTask, -1)
 
 proc waitAllImpl[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
     let coro = getCurrentCoroutine()
@@ -86,10 +93,7 @@ proc waitAllImpl[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
     while true:
         var allFinished = true
         for task in gotasks:
-            let coroState = task.coro.getState()
-            if coroState == CsDead:
-                return false
-            elif coroState != CsFinished:
+            if task.coro.getState() != CsFinished:
                 allFinished = false
         if allFinished:
             return true
@@ -102,16 +106,17 @@ proc waitAllImpl[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
             suspend(coro)
 
 proc waitAll*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): seq[T] =
-    ## Fails fast. In case of fail, seq[T].len() == 0
     if not waitAllImpl(gotasks, timeoutMs):
         return
     result = newSeqOfCap[T](gotasks.len())
     for task in gotasks:
         result.add getReturnVal[T](task.coro)
 
-proc waitAll*(gotasks: seq[GoTask[void]], timeoutMs = -1): bool =
-    ## Fails fast. In case of fail, return false
+proc waitAll*(gotasks: seq[GoTask[void]], timeoutMs: int): bool =
     return waitAllImpl(gotasks, timeoutMs)
+
+proc waitAll*(gotasks: seq[GoTask[void]]) =
+    discard waitAllImpl(gotasks, -1)
 
 proc waitAny*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
     ## Ignores failed gotasks, return false if all failed
@@ -123,8 +128,6 @@ proc waitAny*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
             let coroState = task.coro.getState()
             if coroState == CsFinished:
                 return true
-            elif coroState != CsDead:
-                allFailed = false
         if allFailed or timeout.expired():
             return false
         if coro == nil:

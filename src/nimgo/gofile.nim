@@ -4,9 +4,18 @@ else:
     include ./private/gofile_posix
 import ./private/timeoutwatcher
 
-let goStdin* = newGoFile(stdin.getFileHandle(), fmRead, buffered = false)
-let goStdout* = newGoFile(stdout.getFileHandle(), fmWrite, buffered = false)
-let goStderr* = newGoFile(stderr.getFileHandle(), fmWrite, buffered = false)
+
+proc newGoStdin*(): GoFile =
+    ## Can only be called once by dispatcher
+    newGoFile(stdin.getFileHandle(), fmRead, buffered = false)
+
+proc newGoStdout*(): GoFile =
+    ## Can only be called once by dispatcher
+    newGoFile(stdout.getFileHandle(), fmWrite, buffered = false)
+
+proc newGoStderr*(): GoFile =
+    ## Can only be called once by dispatcher
+    newGoFile(stderr.getFileHandle(), fmWrite, buffered = false)
 
 
 proc endOfFile*(f: Gofile): bool =

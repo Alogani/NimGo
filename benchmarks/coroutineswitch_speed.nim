@@ -1,7 +1,7 @@
 import aloganimisc/fasttest
 
 #[
-    Tested on commit number 49, with Fedora OS
+    Tested on commit number 49 of nimgo_multithreadattempt, with Fedora OS
 
     This benchmarks serves two purposes:
     - Demonstrating the deep of the coro stacksize (16 000 recursions with no stack variable)
