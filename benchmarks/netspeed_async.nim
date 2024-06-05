@@ -31,6 +31,7 @@ proc processClients() {.async.} =
         let client = clients.popFirst()
         discard client.send("Hello\n")
         discard client.recvLine()
+        client.close()
 
 proc serve() {.async.} =
     var server = newAsyncSocket(buffered = false)

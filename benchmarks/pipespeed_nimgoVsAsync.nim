@@ -1,8 +1,9 @@
 #[
     Tested on commit number 25, with Fedora OS
 
-    This benchmarks shows a better performancefor nimgo of 30%.
-    This is unexpected, because of the time of the context switch induced by coroutines. The reason is probably because this test is very specific and don't represent a real usage
+    This benchmarks shows a largely better performance for nimgo.
+    Performance was even better when buffered to avoid reading one character at a time for readline.
+    This is unexpected, because of the time of the context switch induced by coroutines. The reason is probably because asyncdispatcher use a seq instead of a queue
     The memory usage were the sames for the two programs due to the few coroutines needed.
 ]#
 

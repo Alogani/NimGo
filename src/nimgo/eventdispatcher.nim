@@ -6,6 +6,12 @@ import std/[times, monotimes]
 
 export Event, SocketHandle
 
+#[
+    {.push stackTrace:off.}
+    # If stack trace is messed up, we would have to disable it for this file
+    # There is also the possibility even there than using runEventLoop multiple times can mess it
+    # One workaround could be to wrap the run the event loop indefinitly inside a suspendable coroutine
+]#
 
 type
     PollFd* = distinct int

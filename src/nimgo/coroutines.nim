@@ -7,7 +7,10 @@
 # Inspired freely from https://git.envs.net/iacore/minicoro-nim
 
 
-#{.push stackTrace:off.}
+{.push stackTrace:off.}
+#[
+    We disable stacktrace for this file because moving around coroutines before resuming/suspending can mess it up
+]#
 
 when not defined(gcArc) and not defined(gcOrc):
     {.warning: "coroutines is not tested without --mm:orc or --mm:arc".}

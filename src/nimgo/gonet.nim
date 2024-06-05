@@ -45,12 +45,12 @@ when defined(ssl):
         gosocket.socket.getPeerCertificates()
 
 proc accept*(gosocket: GoSocket, flags = {SafeDisconn};
-            inheritable = defined(nimInheritHandles), timeoutMs = -1): Option[GoSocket] =
+            inheritable = defined(nimInheritHandles), timeoutMs = -1): GoSocket =
     if not suspendUntilRead(gosocket.pollFd, timeoutMs):
-        return none(GoSocket)
+        raise newException(ValueError, "Timeout occured")
     var client: Socket
     accept(gosocket.socket, client, flags, inheritable)
-    return some GoSocket(
+    return GoSocket(
         socket: client,
         pollFd: registerHandle(client.getFd(), {Event.Read, Event.Write}),
         readBuffer: if gosocket.readBuffer != nil: newBuffer() else: nil,
@@ -58,13 +58,13 @@ proc accept*(gosocket: GoSocket, flags = {SafeDisconn};
     )
 
 proc acceptAddr*(gosocket: GoSocket; flags = {SafeDisconn};
-                    inheritable = defined(nimInheritHandles), timeoutMs = -1): Option[tuple[address: string, client: GoSocket]] =
+                    inheritable = defined(nimInheritHandles), timeoutMs = -1): tuple[address: string, client: GoSocket] =
     if not suspendUntilRead(gosocket.pollFd, timeoutMs):
-        return none(tuple[address: string, client: GoSocket])
+        raise newException(ValueError, "Timeout occured")
     var client: Socket
     var address = ""
     acceptAddr(gosocket.socket, client, address, flags, inheritable)
-    return some (
+    return (
         address,
         GoSocket(socket: client, pollFd: registerHandle(client.getFd(), {Event.Read, Event.Write}))
     )
@@ -80,25 +80,15 @@ proc close*(gosocket: GoSocket) =
     gosocket.socket.close()
     gosocket.closed = true
 
-proc connect*(gosocket: GoSocket; address: string; port: Port) =
-    discard suspendUntilRead(gosocket.pollFd, -1)
-    connect(gosocket.socket, address, port)
-
-proc connectWithTimeout*(gosocket: GoSocket; address: string; port: Port, timeoutMs = -1): bool =
+proc connect*(gosocket: GoSocket; address: string; port: Port, timeoutMs = -1) =
     if not suspendUntilRead(gosocket.pollFd, timeoutMs):
-        return false
+        raise newException(ValueError, "Timeout occured")
     connect(gosocket.socket, address, port)
-    return true
 
 proc connectUnix*(gosocket: GoSocket; path: string, timeoutMs = -1) =
-    discard suspendUntilRead(gosocket.pollFd, timeoutMs)
-    connectUnix(gosocket.socket, path)
-
-proc connectUnixWithTimeout*(gosocket: GoSocket; path: string, timeoutMs = -1): bool =
     if not suspendUntilRead(gosocket.pollFd, timeoutMs):
-        return false
+        raise newException(ValueError, "Timeout occured")
     connectUnix(gosocket.socket, path)
-    return true
 
 proc dial*(address: string; port: Port; protocol = IPPROTO_TCP; buffered = true): GoSocket =
     # https://github.com/nim-lang/Nim/blob/version-2-0/lib/pure/net.nim#L1989
