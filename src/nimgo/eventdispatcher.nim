@@ -335,9 +335,21 @@ template withEventLoop*(body: untyped) =
     `body`
     runEventLoop()
 
+template insideNewEventLoop*(dispatcher: EvDispatcher, body: untyped) =
+    ## Temporarly replace the current event loop.
+    ## This means, you can't use any AsyncObjects defined before like `goStdin, `goStdout`.
+    ## But we can register them in the new dispatcher.
+    ## And no coroutines defined before will be executed
+    let oldDispatcher = ActiveDispatcher
+    ActiveDispatcher = dispatcher
+    `body`
+    runEventLoop()
+    ActiveDispatcher = oldDispatcher
+
 template insideNewEventLoop*(body: untyped) =
     ## Temporarly replace the current event loop.
-    ## This means, you can't use any AsyncObjects defined before.
+    ## This means, you can't use any AsyncObjects defined before like `goStdin, `goStdout`.
+    ## But we can register them in the new dispatcher.
     ## And no coroutines defined before will be executed
     let oldDispatcher = ActiveDispatcher
     ActiveDispatcher = newDispatcher()
@@ -374,6 +386,7 @@ proc registerHandle*(
     events: set[Event],
 ): PollFd =
     result = PollFd(fd)
+    ## std/selectors will raise here when trying to register twice
     ActiveDispatcher.selector.registerHandle(fd, events, AsyncData())
 
 proc registerProcess*(
@@ -413,6 +426,9 @@ proc registerTimer*(
 
 proc unregister*(fd: PollFd) =
     ## It will also consume all coroutines registered inside it
+    when not defined(release):
+        if not ActiveDispatcher.selector.contains(fd.int):
+            raise newException(ValueError, "Can't unregister file descriptor " & $fd.int & " twice")
     var asyncData = ActiveDispatcher.selector.getData(fd.int)
     ActiveDispatcher.selector.unregister(fd.int)
     for coro in asyncData.readList:
@@ -421,7 +437,6 @@ proc unregister*(fd: PollFd) =
         coro.removeFromSelector(false)
 
 proc addInsideSelector*(fd: PollFd, oneShotCoro: OneShotCoroutine, event: Event) =
-    ## Not thread safe
     ## Will not update the type event listening
     oneShotCoro.notifyRegistration(ActiveDispatcher, true)
     if event == Event.Write:
@@ -430,10 +445,12 @@ proc addInsideSelector*(fd: PollFd, oneShotCoro: OneShotCoroutine, event: Event)
         ActiveDispatcher.selector.getData(fd.int).readList.addLast(oneShotCoro)
 
 proc addInsideSelector*(fd: PollFd, coros: seq[OneShotCoroutine], event: Event) =
-    ## Not thread safe
     ## Will not update the type event listening
     for oneShotCoro in coros:
         oneShotCoro.notifyRegistration(ActiveDispatcher, true)
+    when not defined(release):
+        if not ActiveDispatcher.selector.contains(fd.int):
+            raise newException(ValueError, "The file handle " & $fd.int & " is not registered with the event selector.")
     if event == Event.Write:
         for coro in coros:
             ActiveDispatcher.selector.getData(fd.int).writeList.addLast(coro)
@@ -442,7 +459,7 @@ proc addInsideSelector*(fd: PollFd, coros: seq[OneShotCoroutine], event: Event) 
             ActiveDispatcher.selector.getData(fd.int).readList.addLast(coro)
 
 proc updatePollFd*(fd: PollFd, events: set[Event]) =
-    ## Not thread safe
+    ## std/selector raise here if fd is not registered
     ActiveDispatcher.selector.updateHandle(fd.int, events)
 
 proc sleepAsync*(timeoutMs: int) =
