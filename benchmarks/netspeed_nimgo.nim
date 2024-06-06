@@ -1,9 +1,14 @@
 import nimgo, nimgo/gonet
 import std/[os, times, deques]
-
+import nimgo/coroutines
 #[
     This bench shows a very slow time for handling new clients (x10 slower than async) for now
     This bottleneck is unexpected, a reasonnable value should be less than 30% slower than asyncdispatch
+    - It doesn't seem to come from the number of coroutines created, this has a negligible impact (tested with and without coroutinepool)
+        -> to be exact, on my computer I have measured it to be responsible for 0,15% of the total time taken for the handling of the 200 clients
+    - The overhead induced by coroutines context switch is also negligible for this number of coroutines
+        -> to be exact, on my computer I have measured it to be responsible for 0,02% of the total time taken for the handling of the 200 clients
+    So the bottleneck is elsewhere
 ]#
 
 const NumberOfClients = 200
@@ -23,10 +28,10 @@ proc client() =
                 discard client.recvLine()
                 client.close()
         
-        waitAll(allClients)
+        waitall allclients
         let t1 = cpuTime() - t0
         echo "Number of connections: ", NumberOfClients
-        echo "Average response time: ", t1
+        echo "Response time: ", t1
         sleepAsync(300)
 
 proc processClients() =

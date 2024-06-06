@@ -176,6 +176,7 @@ proc recvBufferImpl(s: GoSocket; data: pointer, size: int, timeoutMs: int): int 
     ## Bypass the buffer
     if not suspendUntilRead(s.pollFd, timeoutMs):
         return -1
+    assert(not s.closed, "Cannot `recv` on a closed socket")
     let bytesCount = recv(s.socket, data, size)
     return bytesCount
 

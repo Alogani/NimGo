@@ -10,42 +10,92 @@ type
     NextCoroutine = ref object
         coro: OneShotCoroutine
 
-    GoTask*[T] = ref object
+    GoTaskObj[T] = object
         coro: Coroutine
         next: NextCoroutine
 
+    GoTask*[T] = ref GoTaskObj[T]
 
-proc goAsyncImpl(next: NextCoroutine, fn: proc()): GoTask[void] {.discardable.} =
-    #var coro = coroPool.acquireCoro(fn)
-    var coro = newCoroutine(fn)
+
+proc `=destroy`[T](gotaskObj: GoTaskObj[T]) =
+    coroPool.releaseCoro(gotaskObj.coro)
+
+proc goAsyncImpl(next: NextCoroutine, fn: proc()): GoTask[void] =
+    var coro = coroPool.acquireCoro(fn)
     resumeLater(coro)
     return GoTask[void](coro: coro, next: next)
 
 proc goAsyncImpl[T](next: NextCoroutine, fn: proc(): T): GoTask[T] =
-    #var coro = coroPool.acquireCoro(fn)
-    var coro = newCoroutine(fn)
+    var coro = coroPool.acquireCoro(fn)
     resumeLater(coro)
     return GoTask[T](coro: coro, next: next)
 
-template goAsync*(fn: untyped): auto =
-    # Hard to do it without macro
-    # But this one is fast to compile (and called less often than async/await)
-    let next = NextCoroutine()
-    goAsyncImpl(next,
-        proc(): auto =
-            when typeof(`fn`) is void:
-                `fn`
-            elif typeof(`fn`) is proc(): void {.closure.} or typeof(`fn`) is proc(): void {.nimcall.}:
-                `fn`()
-            elif typeof(`fn`) is proc {.closure.} or typeof(`fn`) is proc {.nimcall.}:
-                result = `fn`()
-            else:
-                result = `fn`
-            if next.coro != nil:
-                let coro = next.coro.consumeAndGet()
-                if coro != nil:
-                    resumeLater(coro)
-    )
+macro goAsync*(fn: typed): untyped =
+    if fn.kind == nnkCall:
+        let fnType = getType(fn)
+        let closureSym = genSym(nskProc)
+        if fnType.strVal() == "void":
+            return quote do:
+                proc `closureSym`(): GoTask[void] {.discardable.} =
+                    let next = NextCoroutine()
+                    result = goAsyncImpl(
+                        next,
+                        proc() =
+                            `fn`
+                            if next.coro != nil:
+                                let coro = next.coro.consumeAndGet()
+                                if coro != nil:
+                                    resumeLater(coro)
+                    )
+                `closureSym`()
+        else:
+            return quote do:
+                proc `closureSym`(): GoTask[`fnType`] =
+                    let next = NextCoroutine()
+                    result = goAsyncImpl(
+                        next,
+                        proc(): `fnType` =
+                            result = `fn`
+                            if next.coro != nil:
+                                let coro = next.coro.consumeAndGet()
+                                if coro != nil:
+                                    resumeLater(coro)
+                    )
+                `closureSym`()
+    let symType = getType(fn)
+    let declarationVal = symType[0].strVal()
+    if declarationVal != "proc" and declarationVal != "func":
+        error("Expected a function or a call")
+    let fnType = symType[1]
+    let closureSym = genSym(nskProc)
+    if fnType.strVal() == "void":
+        return quote do:
+            proc `closureSym`(): GoTask[void] {.discardable.} =
+                let next = NextCoroutine()
+                result = goAsyncImpl(
+                    next,
+                    proc() =
+                        `fn`()
+                        if next.coro != nil:
+                            let coro = next.coro.consumeAndGet()
+                            if coro != nil:
+                                resumeLater(coro)
+                )
+            `closureSym`()
+    else:
+        return quote do:
+            proc `closureSym`(): GoTask[`fnType`] =
+                let next = NextCoroutine()
+                result = goAsyncImpl(
+                    next,
+                    proc(): `fnType` =
+                        result = `fn`()
+                        if next.coro != nil:
+                            let coro = next.coro.consumeAndGet()
+                            if coro != nil:
+                                resumeLater(coro)
+                )
+            `closureSym`()
 
 proc finished*[T](gotask: GoTask[T]): bool =
     gotask.coro.finished()

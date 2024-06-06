@@ -208,6 +208,7 @@ proc processTimers(): TimeOutWatcher =
     ## Returns the timeout until the next timer
     if ActiveDispatcher.countInsideTimers < 0:
         return initTimeoutWatcher(-1)
+    ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, true)
     var monotimeInit: bool
     var monoTimeNow: MonoTime
     for i in 0 ..< ActiveDispatcher.timers.len():
@@ -222,14 +223,16 @@ proc processTimers(): TimeOutWatcher =
         elif monoTimeNow <= nextFinishAt:
             monoTimeNow = getMonoTime()
         if monoTimeNow <= nextFinishAt:
+            ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, false)
             return initTimeoutWatcher((nextFinishAt - monoTimeNow).inMilliseconds())
         let coro = ActiveDispatcher.timers.pop().coro.consumeAndGet()
-        ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, true)
         resume(coro)
     if ActiveDispatcher.timers.len() == 0:
+        
         return initTimeoutWatcher(-1)
     else:
-        timeoutWatcherFromFinishAt(ActiveDispatcher.timers[0].finishAt)
+        ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, false)
+        return timeoutWatcherFromFinishAt(ActiveDispatcher.timers[0].finishAt)
 
 proc processSelector(timeout: var TimeOutWatcher) =
     ## Selector will return when timeout is expired or at least one coro has been resumed
@@ -241,7 +244,7 @@ proc processSelector(timeout: var TimeOutWatcher) =
         let readyKeyList = ActiveDispatcher.selector.select(
             timeout.getRemainingMs(),
         )
-        if readyKeyList.len() == 0:
+        if readyKeyList.len() == 0:# or timeout.expired():
             ## Timeout expired
             break
         for readyKey in readyKeyList:
@@ -280,6 +283,7 @@ proc processSelector(timeout: var TimeOutWatcher) =
         if hasResumed or remainingMs == 0:
             break
         sleep(min(SelectorBusySleepMs, remainingMs))
+    ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, false)
 
 proc runOnce*(timeoutMs = -1) =
     ## Run the event loop. The poll phase is done only once
@@ -299,6 +303,9 @@ proc runOnce*(timeoutMs = -1) =
         # To avoid starving the loop
         let coro = ActiveDispatcher.pending.popFirst()
         resume(coro)
+    #var timeout2 = min(selectorTimeout, initTimeoutWatcher(50))
+    #processSelector(timeout2)
+    #discard processTimers()
 
 proc runEventLoop*(
         timeoutMs = -1,
@@ -309,7 +316,7 @@ proc runEventLoop*(
     ## Two kinds of deadlocks can happen when timeoutMs is not set:
     ## - if at least one coroutine waits for an event that never happens
     ## - if a coroutine never stops, or recursivly add coroutines
-    if dispatcher[].running:
+    if dispatcher.running:
         raise newException(ValueError, "Cannot run the same event loop twice")
     let oldDispatcher = ActiveDispatcher
     ActiveDispatcher = dispatcher
@@ -321,7 +328,7 @@ proc runEventLoop*(
                 break
             runOnce(timeout.getRemainingMs())
     finally:
-        dispatcher[].running = false
+        dispatcher.running = false
         ActiveDispatcher = oldDispatcher
 
 template withEventLoop*(body: untyped) =
@@ -332,7 +339,7 @@ template withEventLoop*(body: untyped) =
     ActiveDispatcher = oldDispatcher
 
 proc running*(dispatcher = ActiveDispatcher): bool =
-    dispatcher[].running
+    dispatcher.running
 
 
 #[ *** Poll fd API *** ]#
@@ -447,7 +454,7 @@ proc pollOnce*() =
 
 proc wasWakeUpByTimer*(): bool =
     ## Only works inside a coroutine resumed by dispatcher
-    not ActiveDispatcher.lastWakeUpInfo.byTimer
+    ActiveDispatcher.lastWakeUpInfo.byTimer
 
 proc suspendUntilAny*(readFd: seq[PollFd], writefd: seq[PollFd], timeoutMs = -1): WakeUpInfo =
     let coro = getCurrentCoroutineSafe()

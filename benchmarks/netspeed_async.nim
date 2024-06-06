@@ -1,7 +1,7 @@
 import asyncnet, asyncdispatch
 import std/[os, times, deques]
 
-const NumberOfClients = 200
+const NumberOfClients = 300
 
 var clients: Deque[AsyncSocket]
 
@@ -21,7 +21,7 @@ proc client() {.async.} =
         await all(allClients)
         let t1 = cpuTime() - t0
         echo "Number of connections: ", NumberOfClients
-        echo "Average response time: ", t1
+        echo "Response time: ", t1
         await sleepAsync(300)
 
 proc processClients() {.async.} =
