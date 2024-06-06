@@ -331,6 +331,14 @@ proc runEventLoop*(
         ActiveDispatcher = oldDispatcher
 
 template withEventLoop*(body: untyped) =
+    ## Ensures all coroutines registered will be executed, contrary to wait
+    `body`
+    runEventLoop()
+
+template insideNewEventLoop*(body: untyped) =
+    ## Temporarly replace the current event loop.
+    ## This means, you can't use any AsyncObjects defined before.
+    ## And no coroutines defined before will be executed
     let oldDispatcher = ActiveDispatcher
     ActiveDispatcher = newDispatcher()
     `body`

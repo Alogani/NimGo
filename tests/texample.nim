@@ -13,11 +13,10 @@ proc readAndPrint(file: GoFile) =
     # readAndPrint will be suspended until readTask is finished
     echo "UNREADLENGTH=", (wait readTask).len()
 
-block:
+withEventLoop():
     var myFile = openGoFile(MyFilePath)
-    withEventLoop():
-        goAsync readAndPrint(myFile)
-        echo "I'm not waiting for readAndPrint to finish !"
+    goAndWait readAndPrint(myFile)
+    echo "I'm not waiting for readAndPrint to finish !"
     echo "But `withEventLoop` ensures all registered tasks are executed"
     myFile.close()
 
@@ -28,7 +27,7 @@ block:
     proc getFirstLine(f: GoFile): string =
         f.readLine()
     var myFile = openGoFile(MyFilePath)
-    echo "MYLINE=", wait goAsync getFirstLine(myFile)
+    echo "MYLINE=", goAndWait getFirstLine(myFile)
     myFile.close()
 
 ## ## With closures:
@@ -36,11 +35,10 @@ proc main() =
     # Any GC value can be shared between coroutines
     var sharedData: string
     ## We have to use wait, otherwise sharedData will not be updated yet
-    wait goAsync proc() =
+    goAndWait proc() =
         sharedData = "Inside the coroutine"
     echo sharedData
-withEventLoop():
-    main()
+main()
 
 
 ## # Unordered execution
@@ -63,8 +61,7 @@ waitAll @[
 ]
 
 ## Timeout
-
-wait goAsync proc() =
+goAndWait proc() =
     echo "Please input from stdin: "
     var data = goStdin.readChunk(timeoutMs = 500)
     if data.len() == 0:

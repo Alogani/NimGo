@@ -174,4 +174,7 @@ proc waitAny*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
             ## Slow busy waiting here to refactor
             resumeLater(coro)
             suspend(coro)
-    
+
+template goAndwait*(fn: untyped): untyped =
+    ## Shortcut for wait goAsync
+    wait(goAsync(`fn`))
