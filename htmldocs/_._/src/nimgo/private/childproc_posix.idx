@@ -1,0 +1,10 @@
+nimTitle	childproc_posix	_._/src/nimgo/private/childproc_posix.html	module src/nimgo/private/childproc_posix		0
+nim	ChildProc	_._/src/nimgo/private/childproc_posix.html#ChildProc	type ChildProc		5
+nim	wait	_._/src/nimgo/private/childproc_posix.html#wait,ChildProc	proc wait(p: var ChildProc): int		29
+nim	getPid	_._/src/nimgo/private/childproc_posix.html#getPid,ChildProc	proc getPid(p: ChildProc): int		35
+nim	running	_._/src/nimgo/private/childproc_posix.html#running,ChildProc	proc running(p: var ChildProc): bool		38
+nim	suspend	_._/src/nimgo/private/childproc_posix.html#suspend,ChildProc	proc suspend(p: ChildProc)		42
+nim	resume	_._/src/nimgo/private/childproc_posix.html#resume,ChildProc	proc resume(p: ChildProc)		45
+nim	terminate	_._/src/nimgo/private/childproc_posix.html#terminate,ChildProc	proc terminate(p: ChildProc)		48
+nim	kill	_._/src/nimgo/private/childproc_posix.html#kill,ChildProc	proc kill(p: ChildProc)		51
+nim	startProcessPosix	_._/src/nimgo/private/childproc_posix.html#startProcessPosix,string,seq[string],string,StringTableRef,string,proc),seq[],int	proc startProcessPosix(command: string; args: seq[string]; stdin = FileHandle(-1);\n                  stdout = FileHandle(-1); stderr = FileHandle(-1); cwd = "";\n                  env: StringTableRef = nil; name = ""; prexecFn: proc () = nil;\n                  closeFds = true;\n                  passFds: seq[(FileHandle, FileHandle)] = @[];\n                  startNewSession = false; umask = -1): ChildProc		78

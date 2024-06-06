@@ -1,0 +1,12 @@
+nimTitle	buffer	_._/src/nimgo/private/buffer.html	module src/nimgo/private/buffer		0
+nim	Buffer	_._/src/nimgo/private/buffer.html#Buffer	type Buffer		3
+nim	DefaultBufferSize	_._/src/nimgo/private/buffer.html#DefaultBufferSize	const DefaultBufferSize		10
+nim	newBuffer	_._/src/nimgo/private/buffer.html#newBuffer	proc newBuffer(): Buffer		12
+nim	clear	_._/src/nimgo/private/buffer.html#clear,Buffer	proc clear(self: Buffer)		15
+nim	empty	_._/src/nimgo/private/buffer.html#empty,Buffer	proc empty(self: Buffer): bool		18
+nim	len	_._/src/nimgo/private/buffer.html#len,Buffer	proc len(self: Buffer): int		22
+nim	read	_._/src/nimgo/private/buffer.html#read,Buffer,int	proc read(self: Buffer; count: int): string		26
+nim	readLine	_._/src/nimgo/private/buffer.html#readLine,Buffer	proc readLine(self: Buffer; keepNewLine = false): string		50
+nim	readChunk	_._/src/nimgo/private/buffer.html#readChunk,Buffer	proc readChunk(self: Buffer): string		65
+nim	readAll	_._/src/nimgo/private/buffer.html#readAll,Buffer	proc readAll(self: Buffer): string		70
+nim	write	_._/src/nimgo/private/buffer.html#write,Buffer,sinkstring	proc write(self: Buffer; data: sink string)		75

@@ -1,0 +1,39 @@
+nimTitle	gostreams	_._/src/nimgo/gostreams.html	module src/nimgo/gostreams		0
+nim	GoStream	_._/src/nimgo/gostreams.html#GoStream	type GoStream		7
+nim	GoBufferStream	_._/src/nimgo/gostreams.html#GoBufferStream	type GoBufferStream		9
+nim	GoFileStream	_._/src/nimgo/gostreams.html#GoFileStream	type GoFileStream		19
+nim	close	_._/src/nimgo/gostreams.html#close.e,GoStream	method close(s: GoStream)		24
+nim	closed	_._/src/nimgo/gostreams.html#closed.e,GoStream	method closed(s: GoStream): bool		25
+nim	readAvailable	_._/src/nimgo/gostreams.html#readAvailable.e,GoStream,Positive,int	method readAvailable(s: GoStream; size: Positive; timeoutMs = -1): string		26
+nim	readChunk	_._/src/nimgo/gostreams.html#readChunk.e,GoStream,int	method readChunk(s: GoStream; timeoutMs = -1): string		27
+nim	read	_._/src/nimgo/gostreams.html#read.e,GoStream,Positive,int	method read(s: GoStream; size: Positive; timeoutMs = -1): string		30
+nim	readAll	_._/src/nimgo/gostreams.html#readAll.e,GoStream,int	method readAll(s: GoStream; timeoutMs = -1): string		31
+nim	readLine	_._/src/nimgo/gostreams.html#readLine.e,GoStream,int	method readLine(s: GoStream; timeoutMs = -1; keepNewLine = false): string		32
+nim	write	_._/src/nimgo/gostreams.html#write.e,GoStream,sinkstring,int	method write(s: GoStream; data: sink string; timeoutMs = -1): int		33
+nim	newGoFileStream	_._/src/nimgo/gostreams.html#newGoFileStream,GoFile	proc newGoFileStream(file: GoFile): GoFileStream		38
+nim	close	_._/src/nimgo/gostreams.html#close.e,GoFileStream	method close(s: GoFileStream)		41
+nim	closed	_._/src/nimgo/gostreams.html#closed.e,GoFileStream	method closed(s: GoFileStream): bool		44
+nim	readAvailable	_._/src/nimgo/gostreams.html#readAvailable.e,GoFileStream,Positive,int	method readAvailable(s: GoFileStream; size: Positive; timeoutMs = -1): string		47
+nim	readChunk	_._/src/nimgo/gostreams.html#readChunk.e,GoFileStream,int	method readChunk(s: GoFileStream; timeoutMs = -1): string		50
+nim	read	_._/src/nimgo/gostreams.html#read.e,GoFileStream,Positive,int	method read(s: GoFileStream; size: Positive; timeoutMs = -1): string		53
+nim	readAll	_._/src/nimgo/gostreams.html#readAll.e,GoFileStream,int	method readAll(s: GoFileStream; timeoutMs = -1): string		56
+nim	readLine	_._/src/nimgo/gostreams.html#readLine.e,GoFileStream,int	method readLine(s: GoFileStream; timeoutMs = -1; keepNewLine = false): string		59
+nim	write	_._/src/nimgo/gostreams.html#write.e,GoFileStream,sinkstring,int	method write(s: GoFileStream; data: sink string; timeoutMs = -1): int		62
+nim	init	_._/src/nimgo/gostreams.html#init,GoBufferStream	proc init(s: GoBufferStream)		68
+nim	newGoBufferStream	_._/src/nimgo/gostreams.html#newGoBufferStream	proc newGoBufferStream(): GoBufferStream		71
+nim	close	_._/src/nimgo/gostreams.html#close.e,GoBufferStream	method close(s: GoBufferStream)		74
+nim	closed	_._/src/nimgo/gostreams.html#closed.e,GoBufferStream	method closed(s: GoBufferStream): bool		82
+nim	readAvailable	_._/src/nimgo/gostreams.html#readAvailable.e,GoBufferStream,Positive,int	method readAvailable(s: GoBufferStream; size: Positive; timeoutMs = -1): string		94
+nim	readChunk	_._/src/nimgo/gostreams.html#readChunk.e,GoBufferStream,int	method readChunk(s: GoBufferStream; timeoutMs = -1): string		100
+nim	read	_._/src/nimgo/gostreams.html#read.e,GoBufferStream,Positive,int	method read(s: GoBufferStream; size: Positive; timeoutMs = -1): string		106
+nim	readAll	_._/src/nimgo/gostreams.html#readAll.e,GoBufferStream,int	method readAll(s: GoBufferStream; timeoutMs = -1): string		115
+nim	readLine	_._/src/nimgo/gostreams.html#readLine.e,GoBufferStream,int	method readLine(s: GoBufferStream; timeoutMs = -1; keepNewLine = false): string		123
+nim	write	_._/src/nimgo/gostreams.html#write.e,GoBufferStream,sinkstring,int	method write(s: GoBufferStream; data: sink string; timeoutMs = -1): int		135
+nimgrp	close	_._/src/nimgo/gostreams.html#close-methods-all	method		24
+nimgrp	readavailable	_._/src/nimgo/gostreams.html#readAvailable-methods-all	method		26
+nimgrp	write	_._/src/nimgo/gostreams.html#write-methods-all	method		33
+nimgrp	readall	_._/src/nimgo/gostreams.html#readAll-methods-all	method		31
+nimgrp	readchunk	_._/src/nimgo/gostreams.html#readChunk-methods-all	method		27
+nimgrp	closed	_._/src/nimgo/gostreams.html#closed-methods-all	method		25
+nimgrp	readline	_._/src/nimgo/gostreams.html#readLine-methods-all	method		32
+nimgrp	read	_._/src/nimgo/gostreams.html#read-methods-all	method		30

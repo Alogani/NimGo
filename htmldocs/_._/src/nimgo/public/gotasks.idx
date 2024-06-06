@@ -1,0 +1,15 @@
+nimTitle	gotasks	_._/src/nimgo/public/gotasks.html	module src/nimgo/public/gotasks		0
+nim	GoTask	_._/src/nimgo/public/gotasks.html#GoTask	type GoTask		17
+nim	goAsync	_._/src/nimgo/public/gotasks.html#goAsync.m,typed	macro goAsync(fn: typed): untyped		33
+nim	finished	_._/src/nimgo/public/gotasks.html#finished,GoTask[T]	proc finished[T](gotask: GoTask[T]): bool		100
+nim	wait	_._/src/nimgo/public/gotasks.html#wait,GoTask[T],int	proc wait[T](gotask: GoTask[T]; timeoutMs: int): Option[T]		122
+nim	wait	_._/src/nimgo/public/gotasks.html#wait,GoTask[T]	proc wait[T](gotask: GoTask[T]): T		128
+nim	wait	_._/src/nimgo/public/gotasks.html#wait,GoTask[void],int	proc wait(gotask: GoTask[void]; timeoutMs: int): bool		132
+nim	wait	_._/src/nimgo/public/gotasks.html#wait,GoTask[void]	proc wait(gotask: GoTask[void])		135
+nim	waitAll	_._/src/nimgo/public/gotasks.html#waitAll,seq[GoTask[T]],int	proc waitAll[T](gotasks: seq[GoTask[T]]; timeoutMs = -1): seq[T]		146
+nim	waitAll	_._/src/nimgo/public/gotasks.html#waitAll,seq[GoTask[void]],int	proc waitAll(gotasks: seq[GoTask[void]]; timeoutMs: int): bool		153
+nim	waitAll	_._/src/nimgo/public/gotasks.html#waitAll,seq[GoTask[void]]	proc waitAll(gotasks: seq[GoTask[void]])		156
+nim	waitAny	_._/src/nimgo/public/gotasks.html#waitAny,seq[GoTask[T]],int	proc waitAny[T](gotasks: seq[GoTask[T]]; timeoutMs = -1): bool		159
+nim	goAndwait	_._/src/nimgo/public/gotasks.html#goAndwait.t,untyped	template goAndwait(fn: untyped): untyped		178
+nimgrp	wait	_._/src/nimgo/public/gotasks.html#wait-procs-all	proc		122
+nimgrp	waitall	_._/src/nimgo/public/gotasks.html#waitAll-procs-all	proc		146

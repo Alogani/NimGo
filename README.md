@@ -21,6 +21,10 @@ Only one word to remember : **goAsync** (and optionaly **wait**, but seriously w
 - [ ] Implement `GoChannel` a queue that can pass effienctly GC memory between coroutines and threads, without blocking the whole thread if waiting inside a coroutine. The thread queue has already been developped [here](https://github.com/Alogani/NimGo_multithreadingattempt/blob/main/src/nimgo/private/threadqueue.nim).
 
 
+## Documentation
+
+Full documentation can be browsered [here](https://htmlpreview.github.io/?https://github.com/Alogani/NimGo/blob/main/htmldocs/nimgo.html). The documentation is still under construction.
+
 ## Example
 You can find more example in [tests](https://github.com/Alogani/NimGo/tree/main/tests) folder or [benchmarks](https://github.com/Alogani/NimGo/tree/main/benchmarks) folder
 
@@ -42,10 +46,10 @@ proc readAndPrint(file: GoFile) =
 
 withEventLoop():
     var myFile = openGoFile(MyFilePath)
-    goAndWait readAndPrint(myFile)
+    goAsync readAndPrint(myFile)
     echo "I'm not waiting for readAndPrint to finish !"
-    echo "But `withEventLoop` ensures all registered tasks are executed"
     myFile.close()
+echo "But `withEventLoop` ensures all registered tasks are executed"
 
 ## # Coroutines communication
 

@@ -1,0 +1,6 @@
+nimTitle	coroutinepool	_._/src/nimgo/private/coroutinepool.html	module src/nimgo/private/coroutinepool		0
+nim	CoroutinePool	_._/src/nimgo/private/coroutinepool.html#CoroutinePool	type CoroutinePool		15
+nim	acquireCoro	_._/src/nimgo/private/coroutinepool.html#acquireCoro,CoroutinePool,EntryFn[T]	proc acquireCoro[T](pool: CoroutinePool; entryFn: EntryFn[T]): Coroutine		60
+nim	acquireCoro	_._/src/nimgo/private/coroutinepool.html#acquireCoro,CoroutinePool,EntryFn[void]	proc acquireCoro(pool: CoroutinePool; entryFn: EntryFn[void]): Coroutine		63
+nim	releaseCoro	_._/src/nimgo/private/coroutinepool.html#releaseCoro,CoroutinePool,Coroutine	proc releaseCoro(pool: CoroutinePool; coro: Coroutine)		67
+nimgrp	acquirecoro	_._/src/nimgo/private/coroutinepool.html#acquireCoro-procs-all	proc		60

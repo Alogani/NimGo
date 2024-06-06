@@ -1,0 +1,25 @@
+nimTitle	coroutines	_._/src/nimgo/coroutines.html	module src/nimgo/coroutines		0
+nim	CoroutineError	_._/src/nimgo/coroutines.html#CoroutineError	object CoroutineError		60
+nim	CsRunning	_._/src/nimgo/coroutines.html#CsRunning	CoroState.CsRunning		113
+nim	CsParenting	_._/src/nimgo/coroutines.html#CsParenting	CoroState.CsParenting		113
+nim	CsSuspended	_._/src/nimgo/coroutines.html#CsSuspended	CoroState.CsSuspended		113
+nim	CsFinished	_._/src/nimgo/coroutines.html#CsFinished	CoroState.CsFinished		113
+nim	CoroState	_._/src/nimgo/coroutines.html#CoroState	enum CoroState		113
+nim	EntryFn	_._/src/nimgo/coroutines.html#EntryFn	type EntryFn		119
+nim	Coroutine	_._/src/nimgo/coroutines.html#Coroutine	type Coroutine		126
+nim	`=destroy`	_._/src/nimgo/coroutines.html#=destroy,CoroutineObj	proc `=destroy`(coroObj: CoroutineObj)		144
+nim	reinit	_._/src/nimgo/coroutines.html#reinit,Coroutine,EntryFn[T]	proc reinit[T](coro: Coroutine; entryFn: EntryFn[T])		163
+nim	reinit	_._/src/nimgo/coroutines.html#reinit,Coroutine,EntryFn[void]	proc reinit(coro: Coroutine; entryFn: EntryFn[void])		166
+nim	newCoroutine	_._/src/nimgo/coroutines.html#newCoroutine,EntryFn[T]	proc newCoroutine[T](entryFn: EntryFn[T]; stacksize = DefaultStackSize): Coroutine		179
+nim	newCoroutine	_._/src/nimgo/coroutines.html#newCoroutine,EntryFn[void]	proc newCoroutine(entryFn: EntryFn[void]; stacksize = DefaultStackSize): Coroutine		182
+nim	resume	_._/src/nimgo/coroutines.html#resume,Coroutine	proc resume(coro: Coroutine)		185
+nim	suspend	_._/src/nimgo/coroutines.html#suspend	proc suspend()		191
+nim	suspend	_._/src/nimgo/coroutines.html#suspend,Coroutine	proc suspend(coro: Coroutine)		197
+nim	getCurrentCoroutine	_._/src/nimgo/coroutines.html#getCurrentCoroutine	proc getCurrentCoroutine(): Coroutine		204
+nim	getCurrentCoroutineSafe	_._/src/nimgo/coroutines.html#getCurrentCoroutineSafe	proc getCurrentCoroutineSafe(): Coroutine		209
+nim	getReturnVal	_._/src/nimgo/coroutines.html#getReturnVal,Coroutine	proc getReturnVal[T](coro: Coroutine): T		218
+nim	finished	_._/src/nimgo/coroutines.html#finished,Coroutine	proc finished(coro: Coroutine): bool		225
+nim	getState	_._/src/nimgo/coroutines.html#getState,Coroutine	proc getState(coro: Coroutine): CoroState		229
+nimgrp	suspend	_._/src/nimgo/coroutines.html#suspend-procs-all	proc		191
+nimgrp	reinit	_._/src/nimgo/coroutines.html#reinit-procs-all	proc		163
+nimgrp	newcoroutine	_._/src/nimgo/coroutines.html#newCoroutine-procs-all	proc		179

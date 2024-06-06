@@ -1,6 +1,6 @@
 ## Stackful asymmetric coroutines implementation, inspired freely from some language and relying on minicoro c library.
 ## Lighweight and efficient thanks to direct asm code and optional support for virtual memory.
-## Push, pop and return value were not implemented, because type and GC safety cannot be guaranted, especially in multithreaded environment. Use CoChannels instead
+## Push, pop and return value were not implemented, because type and GC safety cannot be guaranted, especially in multithreaded environment. Use Channels instead.
 
 #[ ********* minicoroutines.h v0.2.0 wrapper ********* ]#
 # Choice has been made to rely on minicoroutines for numerous reasons (efficient, single file, clear API, cross platform, virtual memory, etc.)
@@ -86,7 +86,7 @@ type
         tsan_fiber: pointer
         magic_number: uint
 
-    cstring_const* {.importc:"const char*", header: minicoroh.} = cstring
+    cstring_const {.importc:"const char*", header: minicoroh.} = cstring
 
 proc initMcoDescriptor(entryFn: proc (coro: ptr McoCoroutine) {.cdecl.}, stackSize: uint): McoCoroDescriptor {.importc: "mco_desc_init", header: minicoroh.}
 proc initMcoCoroutine(coro: ptr McoCoroutine, descriptor: ptr McoCoroDescriptor): McoReturnCode {.importc: "mco_init", header: minicoroh.}
@@ -161,11 +161,11 @@ proc reinitImpl[T](coro: Coroutine, entryFn: EntryFn[T]) =
     checkMcoReturnCode initMcoCoroutine(coro.mcoCoroutine, addr mcoCoroDescriptor)
 
 proc reinit*[T](coro: Coroutine, entryFn: EntryFn[T]) =
-    ## Allow to reuse an existing coroutine without reallocating it
-    ## However, pleasure ensure it has correctly finished
     reinitImpl[T](coro, entryFn)
 
 proc reinit*(coro: Coroutine, entryFn: EntryFn[void]) =
+    ## Allow to reuse an existing coroutine without reallocating it
+    ## However, please ensure it has correctly finished
     reinitImpl[void](coro, entryFn)
 
 proc newCoroutineImpl[T](entryFn: EntryFn[T], stacksize: int): Coroutine =

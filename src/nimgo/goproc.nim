@@ -245,7 +245,7 @@ proc waitForExit*(goproc: var GoProc, timeoutMs = -1, closeStdinBefore = true): 
         return -1
     goproc.pollFd.unregister()
     if goproc.captureTasks.len() > 0:
-        discard waitAll(goproc.captureTasks)
+        waitAll(goproc.captureTasks)
     if not closeStdinBefore:
         if goproc.stdin != nil and not goproc.stdin.closed(): goproc.stdin.close()
         if goproc.capturedInput != nil and not goproc.capturedInput.closed(): goproc.capturedInput.close()

@@ -1,0 +1,2 @@
+nimTitle	utils	_._/src/nimgo/private/utils.html	module src/nimgo/private/utils		0
+nim	allocAndSet	_._/src/nimgo/private/utils.html#allocAndSet,sinkT	proc allocAndSet[T](val: sink T): ptr T		1

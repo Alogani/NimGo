@@ -1,0 +1,9 @@
+nimTitle	timeoutwatcher	_._/src/nimgo/private/timeoutwatcher.html	module src/nimgo/private/timeoutwatcher		0
+nim	TimeOutWatcher	_._/src/nimgo/private/timeoutwatcher.html#TimeOutWatcher	object TimeOutWatcher		4
+nim	initTimeoutWatcher	_._/src/nimgo/private/timeoutwatcher.html#initTimeoutWatcher,int	proc initTimeoutWatcher(timeoutMs: int): TimeOutWatcher		9
+nim	timeoutWatcherFromFinishAt	_._/src/nimgo/private/timeoutwatcher.html#timeoutWatcherFromFinishAt,MonoTime	proc timeoutWatcherFromFinishAt(finishAt: MonoTime): TimeOutWatcher		19
+nim	`<=`	_._/src/nimgo/private/timeoutwatcher.html#<=,TimeOutWatcher,TimeOutWatcher	proc `<=`(a, b: TimeOutWatcher): bool		25
+nim	hasNoDeadline	_._/src/nimgo/private/timeoutwatcher.html#hasNoDeadline,TimeOutWatcher	proc hasNoDeadline(self: TimeOutWatcher): bool		33
+nim	expired	_._/src/nimgo/private/timeoutwatcher.html#expired,TimeOutWatcher	proc expired(self: var TimeOutWatcher): bool		36
+nim	getRemainingMs	_._/src/nimgo/private/timeoutwatcher.html#getRemainingMs,TimeOutWatcher	proc getRemainingMs(self: var TimeOutWatcher): int		48
+nim	clampTimeout	_._/src/nimgo/private/timeoutwatcher.html#clampTimeout,int,int	proc clampTimeout(x, b: int): int		60

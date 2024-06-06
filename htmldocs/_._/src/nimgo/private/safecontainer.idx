@@ -1,0 +1,7 @@
+nimTitle	safecontainer	_._/src/nimgo/private/safecontainer.html	module src/nimgo/private/safecontainer		0
+nim	SafeContainer	_._/src/nimgo/private/safecontainer.html#SafeContainer	object SafeContainer		14
+nim	pushIntoContainer	_._/src/nimgo/private/safecontainer.html#pushIntoContainer,sinkT	proc pushIntoContainer[T](val: sink T): SafeContainer[T]		20
+nim	peek	_._/src/nimgo/private/safecontainer.html#peek,SafeContainer[T]	proc peek[T](container: SafeContainer[T]): T		28
+nim	popFromContainer	_._/src/nimgo/private/safecontainer.html#popFromContainer,sinkSafeContainer[T]	proc popFromContainer[T](container: sink SafeContainer[T]): T		38
+nim	isNil	_._/src/nimgo/private/safecontainer.html#isNil,SafeContainer[T]	proc isNil[T](container: SafeContainer[T]): bool		49
+nim	destroy	_._/src/nimgo/private/safecontainer.html#destroy,SafeContainer[T]	proc destroy[T](container: SafeContainer[T])		55

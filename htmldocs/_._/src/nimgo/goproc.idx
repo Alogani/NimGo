@@ -1,0 +1,22 @@
+nimTitle	goproc	_._/src/nimgo/goproc.html	module src/nimgo/goproc		0
+nim	CommandObj	_._/src/nimgo/goproc.html#CommandObj	object CommandObj		13
+nim	GoProc	_._/src/nimgo/goproc.html#GoProc	object GoProc		20
+nim	Command	_._/src/nimgo/goproc.html#Command,seq[string],string,StringTableRef,string	proc Command(args: seq[string]; workingDir = ""; env: StringTableRef = nil;\n        name = ""; daemon = false): CommandObj		42
+nim	close	_._/src/nimgo/goproc.html#close.e,GoProcStream	method close(s: GoProcStream)		63
+nim	StreamNone	_._/src/nimgo/goproc.html#StreamNone	proc StreamNone(): GoProcStreamArg		70
+nim	StreamFile	_._/src/nimgo/goproc.html#StreamFile,GoFile	proc StreamFile(f: GoFile): GoProcStreamArg		73
+nim	StreamParent	_._/src/nimgo/goproc.html#StreamParent	proc StreamParent(): GoProcStreamArg		76
+nim	StreamPipe	_._/src/nimgo/goproc.html#StreamPipe	proc StreamPipe(): GoProcStreamArg		79
+nim	StreamStdout	_._/src/nimgo/goproc.html#StreamStdout	proc StreamStdout(): GoProcStreamArg		82
+nim	StreamCapture	_._/src/nimgo/goproc.html#StreamCapture,GoFile	proc StreamCapture(f: GoFile): GoProcStreamArg		86
+nim	StreamCaptureParent	_._/src/nimgo/goproc.html#StreamCaptureParent	proc StreamCaptureParent(): GoProcStreamArg		89
+nim	startProcessInPseudoTerminal	_._/src/nimgo/goproc.html#startProcessInPseudoTerminal,CommandObj	proc startProcessInPseudoTerminal(command: CommandObj; mergeStderr = true): GoProc		95
+nim	startProcess	_._/src/nimgo/goproc.html#startProcess,CommandObj,GoFile,GoFile,GoFile	proc startProcess(command: CommandObj; stdin: GoFile = nil; stdout: GoFile = nil;\n             stderr: GoFile = nil): GoProc		99
+nim	startProcess	_._/src/nimgo/goproc.html#startProcess,CommandObj	proc startProcess(command: CommandObj; stdin = StreamNone(); stdout = StreamNone();\n             stderr = StreamNone()): GoProc		131
+nim	waitForExit	_._/src/nimgo/goproc.html#waitForExit,GoProc,int	proc waitForExit(goproc: var GoProc; timeoutMs = -1; closeStdinBefore = true): int		238
+nim	getPid	_._/src/nimgo/goproc.html#getPid,GoProc	proc getPid(p: GoProc): int		257
+nim	running	_._/src/nimgo/goproc.html#running,GoProc	proc running(p: var GoProc): bool		260
+nim	suspend	_._/src/nimgo/goproc.html#suspend,GoProc	proc suspend(p: GoProc)		263
+nim	terminate	_._/src/nimgo/goproc.html#terminate,GoProc	proc terminate(p: GoProc)		266
+nim	kill	_._/src/nimgo/goproc.html#kill,GoProc	proc kill(p: GoProc)		269
+nimgrp	startprocess	_._/src/nimgo/goproc.html#startProcess-procs-all	proc		99
