@@ -100,60 +100,48 @@ macro goAsync*(fn: typed): untyped =
 proc finished*[T](gotask: GoTask[T]): bool =
     gotask.coro.finished()
 
-proc waitImpl[T](gotask: GoTask[T], timeoutMs = -1) =
+proc waitImpl[T](gotask: GoTask[T], currentCoro: Coroutine, timeoutMs = -1): bool =
     if not gotask.coro.finished():
         var timeout = initTimeOutWatcher(timeoutMs)
-        let coro = getCurrentCoroutine()
-        if coro == nil:
+        if currentCoro == nil:
             while not gotask.coro.finished():
                 runOnce(timeout.getRemainingMs())
                 if timeout.expired():
                     break
         else:
-            let oneShotCoro = coro.toOneShot()
+            let oneShotCoro = currentCoro.toOneShot()
             gotask.next.coro = oneShotCoro
             if timeoutMs != -1:
                 resumeOnTimer(oneShotCoro, timeoutMs)
-            suspend(coro)
+            suspend(currentCoro)
+            if wasWakeUpByTimer():
+                return false
+    return true
+        
 
 proc wait*[T](gotask: GoTask[T], timeoutMs = -1): Option[T] =
-    waitImpl(goTask, timeoutMs)
-    if gotask.coro.getState() != CsFinished:
+    if not waitImpl(goTask, getCurrentCoroutine(), timeoutMs):
         return none(T)
     else:
         return some(getReturnVal[T](gotask.coro))
 
 proc wait*[T](gotask: GoTask[T]): T =
-    waitImpl(goTask, -1)
+    discard waitImpl(goTask, getCurrentCoroutine(), -1)
     return getReturnVal[T](gotask.coro)
 
 proc wait*(gotask: GoTask[void], timeoutMs: int): bool =
-    waitImpl(goTask, timeoutMs)
-    if gotask.coro.getState() != CsFinished:
-        return false
-    else:
-        return true
+    return waitImpl(goTask, getCurrentCoroutine(), timeoutMs)
 
 proc wait*(gotask: GoTask[void]) =
-    waitImpl(goTask, -1)
+    discard waitImpl(goTask, getCurrentCoroutine(), -1)
 
 proc waitAllImpl[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
-    let coro = getCurrentCoroutine()
+    let currentCoro = getCurrentCoroutine()
     var timeout = initTimeOutWatcher(timeoutMs)
-    while true:
-        var allFinished = true
-        for task in gotasks:
-            if task.coro.getState() != CsFinished:
-                allFinished = false
-        if allFinished:
-            return true
-        if timeout.expired():
+    for task in gotasks:
+        if not waitImpl(task, currentCoro, timeout.getRemainingMs()):
             return false
-        if coro == nil:
-            runOnce(timeout.getRemainingMs())
-        else:
-            resumeLater(coro)
-            suspend(coro)
+    return true
 
 proc waitAll*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): seq[T] =
     if not waitAllImpl(gotasks, timeoutMs):
@@ -183,6 +171,7 @@ proc waitAny*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
         if coro == nil:
             runOnce(timeout.getRemainingMs())
         else:
+            ## Slow busy waiting here to refactor
             resumeLater(coro)
             suspend(coro)
     

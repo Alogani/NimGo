@@ -228,7 +228,7 @@ proc processTimers(): TimeOutWatcher =
         let coro = ActiveDispatcher.timers.pop().coro.consumeAndGet()
         resume(coro)
     if ActiveDispatcher.timers.len() == 0:
-        
+        ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, false)
         return initTimeoutWatcher(-1)
     else:
         ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, false)
