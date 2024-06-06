@@ -241,11 +241,11 @@ proc processSelector(timeout: var TimeOutWatcher) =
         return
     var hasResumed: bool
     while true:
+        let remainingMs = timeout.getRemainingMs()
         let readyKeyList = ActiveDispatcher.selector.select(
-            timeout.getRemainingMs(),
+            remainingMs,
         )
-        if readyKeyList.len() == 0:# or timeout.expired():
-            ## Timeout expired
+        if readyKeyList.len() == 0:
             break
         for readyKey in readyKeyList:
             ActiveDispatcher.selector.withData(readyKey.fd, asyncData) do:
@@ -279,7 +279,6 @@ proc processSelector(timeout: var TimeOutWatcher) =
                         resume(coro)
                         if ActiveDispatcher.consumeEventFlag:
                             break
-        let remainingMs = timeout.getRemainingMs()
         if hasResumed or remainingMs == 0:
             break
         sleep(min(SelectorBusySleepMs, remainingMs))
@@ -299,13 +298,10 @@ proc runOnce*(timeoutMs = -1) =
     )
     processSelector(selectorTimeout)
     discard processTimers()
-    for i in 0 ..< ActiveDispatcher.pending.len():
-        # To avoid starving the loop
-        let coro = ActiveDispatcher.pending.popFirst()
-        resume(coro)
-    #var timeout2 = min(selectorTimeout, initTimeoutWatcher(50))
-    #processSelector(timeout2)
-    #discard processTimers()
+    for i in 0..2: # To avoid starving the loop, but handling maximum number of coroutines
+        for i in 0 ..< ActiveDispatcher.pending.len():
+            let coro = ActiveDispatcher.pending.popFirst()
+            resume(coro)
 
 proc runEventLoop*(
         timeoutMs = -1,

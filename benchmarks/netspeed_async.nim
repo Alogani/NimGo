@@ -1,7 +1,7 @@
 import asyncnet, asyncdispatch
 import std/[os, times, deques]
 
-const NumberOfClients = 300
+const NumberOfClients = 200
 
 var clients: Deque[AsyncSocket]
 
