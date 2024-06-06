@@ -119,7 +119,7 @@ proc waitImpl[T](gotask: GoTask[T], currentCoro: Coroutine, timeoutMs = -1): boo
     return true
         
 
-proc wait*[T](gotask: GoTask[T], timeoutMs = -1): Option[T] =
+proc wait*[T](gotask: GoTask[T], timeoutMs: int): Option[T] =
     if not waitImpl(goTask, getCurrentCoroutine(), timeoutMs):
         return none(T)
     else:

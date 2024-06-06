@@ -1,4 +1,6 @@
 {.warning: "gonet is completly untested. Please remove this line, use at your own risk and tell me if it works".}
+## This is a simple wrapper the socket defined std/net, with our own buffer component and added async features
+## So all operations are not guaranteed to has been asyncified
 
 import ./eventdispatcher
 import ./private/[buffer, timeoutwatcher]

@@ -33,8 +33,9 @@ proc read*(self: Buffer, count: int): string =
         if self.queue.len() == 0:
             break
         if count > self.queue[0].len():
-            result.add(self.queue.popFirst())
-            count -= result.len()
+            var data = self.queue.popFirst()
+            result.add(data)
+            count -= data.len()
         elif count == self.queue[0].len():
             result.add(self.queue.popFirst())
             break

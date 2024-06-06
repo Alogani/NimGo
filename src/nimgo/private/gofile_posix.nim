@@ -8,7 +8,7 @@ type
         FsOpen, FsClosed, FsEof, FsError
 
     GoFile* = ref object
-        pollFd: PollFd
+        pollFd = InvalidFd
         fd: cint
         state: FileState
         errorCode: OSErrorCode
@@ -39,7 +39,8 @@ proc syncioModeToPosix(mode: FileMode): cint =
 
 proc close*(f: GoFile) =
     if f.state != FsClosed:
-        f.pollFd.unregister()
+        if f.pollFd != InvalidFd:
+            f.pollFd.unregister()
         if posix.close(f.fd) == -1:
             raiseOSError(osLastError())
         f.state = FsClosed
@@ -94,6 +95,8 @@ proc createGoPipe*(buffered = true): tuple[reader, writer: GoFile] =
 
 proc openGoFile*(filename: string, mode = fmRead, buffered = true): GoFile =
     let fd = posix.open(filename, syncioModeToPosix(mode))
+    if fd == -1:
+        raiseOSError(osLastError())
     let events = syncioModeToEvent(mode)
     let pollable = isPollable(fd)
     return GoFile(

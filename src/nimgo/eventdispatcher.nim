@@ -156,9 +156,11 @@ proc suspendUntilLater*(coro: Coroutine = nil) =
 
 proc resumeOnTimer*(coro: Coroutine, timeoutMs: int) =
     ## Equivalent to a sleep directly handled by the dispatcher
+    let oneShotCoro = coro.toOneShot()
+    oneShotCoro.notifyRegistration(ActiveDispatcher, false)
     ActiveDispatcher.timers.push(
         (getMonoTime() + initDuration(milliseconds = timeoutMs),
-        coro.toOneShot())
+        oneShotCoro)
     )
 
 proc resumeOnTimer*(oneShotCoro: OneShotCoroutine, timeoutMs: int) =
@@ -211,22 +213,23 @@ proc processTimers(): TimeOutWatcher =
     ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, true)
     var monotimeInit: bool
     var monoTimeNow: MonoTime
-    for i in 0 ..< ActiveDispatcher.timers.len():
-        if ActiveDispatcher.timers[0].coro.hasBeenResumed:
-            discard ActiveDispatcher.timers.pop()
-            continue
-        let nextFinishAt = ActiveDispatcher.timers[0].finishAt
-        if not monotimeInit:
-            # Costly operation, so we shall avoid doing it more than necessary
-            monoTimeNow = getMonoTime()
-            monotimeInit = true
-        elif monoTimeNow <= nextFinishAt:
-            monoTimeNow = getMonoTime()
-        if monoTimeNow <= nextFinishAt:
-            ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, false)
-            return initTimeoutWatcher((nextFinishAt - monoTimeNow).inMilliseconds())
-        let coro = ActiveDispatcher.timers.pop().coro.consumeAndGet()
-        resume(coro)
+    for i in 0..2: # To avoid starving the loop, but handling maximum number of coroutines
+        for i in 0 ..< ActiveDispatcher.timers.len():
+            if ActiveDispatcher.timers[0].coro.hasBeenResumed:
+                discard ActiveDispatcher.timers.pop()
+                continue
+            let nextFinishAt = ActiveDispatcher.timers[0].finishAt
+            if not monotimeInit:
+                # Costly operation, so we shall avoid doing it more than necessary
+                monoTimeNow = getMonoTime()
+                monotimeInit = true
+            elif monoTimeNow <= nextFinishAt:
+                monoTimeNow = getMonoTime()
+            if monoTimeNow <= nextFinishAt:
+                ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, false)
+                return initTimeoutWatcher((nextFinishAt - monoTimeNow).inMilliseconds())
+            let coro = ActiveDispatcher.timers.pop().coro.consumeAndGet()
+            resume(coro)
     if ActiveDispatcher.timers.len() == 0:
         ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, false)
         return initTimeoutWatcher(-1)
