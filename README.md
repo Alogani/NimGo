@@ -15,7 +15,6 @@ Only one word to remember : **goAsync** (and optionaly **wait**, but seriously w
 
 - [ ] *Finish the implementation of goproc*
 - [ ] Add goproc support for windows (certainly by doing a wrapper around osproc)
-- [ ] Add createGoPipe for windows
 - [ ] Create more error handling in various libraries
 - [ ] Adding more test cases
 - [ ] Amelioration of efficiency of gonet
@@ -25,7 +24,7 @@ Only one word to remember : **goAsync** (and optionaly **wait**, but seriously w
 ## Example
 You can find more example in [tests](https://github.com/Alogani/NimGo/tree/main/tests) folder or [benchmarks](https://github.com/Alogani/NimGo/tree/main/benchmarks) folder
 
-```
+```nim
 import nimgo, nimgo/gofile
 
 

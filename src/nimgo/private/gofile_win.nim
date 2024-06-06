@@ -73,6 +73,19 @@ proc newGoFile*(fd: FileHandle, mode: FileMode, buffered = true): GoFile =
         buffer: if buffered: newBuffer() else: nil
     )
 
+proc createGoPipe*(buffered = true): tuple[reader, writer: GoFile] =
+    var sa: SECURITY_ATTRIBUTES
+    sa.nLength = sizeof(SECURITY_ATTRIBUTES).cint
+    sa.lpSecurityDescriptor = nil
+    sa.bInheritHandle = 1
+    var readHandle, writeHandle: Handle
+    if createPipe(readHandle, writeHandle, sa, 0) == 0'i32:
+        raiseOSError(osLastError())
+    return (
+        newGoFile(FileHandle(readHandle), fmRead, buffered),
+        newGoFile(FileHandle(writeHandle), fmWrite, buffered),
+    )
+
 proc openGoFile*(filename: string, mode = fmRead, buffered = true): GoFile =
     let winMode = syncioModeToWin(mode)
     let fd = createFileW(
