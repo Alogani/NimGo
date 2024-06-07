@@ -17,8 +17,12 @@ type
     GoTask*[T] = ref GoTaskObj[T]
 
 
-proc `=destroy`[T](gotaskObj: GoTaskObj[T]) =
-    coroPool.releaseCoro(gotaskObj.coro)
+when defined(nimAllowNonVarDestructor):
+    proc `=destroy`[T](gotaskObj: GoTaskObj[T]) =
+        coroPool.releaseCoro(gotaskObj.coro)
+else:
+    proc `=destroy`[T](gotaskObj: var GoTaskObj[T]) =
+        coroPool.releaseCoro(gotaskObj.coro)
 
 proc goAsyncImpl(next: NextCoroutine, fn: proc()): GoTask[void] =
     var coro = coroPool.acquireCoro(fn)

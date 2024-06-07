@@ -13,6 +13,7 @@ Only one word to remember : **goAsync** (and optionaly **wait**, but seriously w
 
 ## Future Roadmap
 
+- [ ] *Change of the cancellation works: not by using timeouts, but by using another task. Create sleepTask*
 - [ ] *Finish the implementation of goproc*
 - [ ] Add goproc support for windows (certainly by doing a wrapper around osproc)
 - [ ] Create more error handling in various libraries
@@ -122,6 +123,11 @@ Certainly! The NimGo library consists of the following key modules:
 Most users will primarily interact with the higher-level modules like nimgo, nimgo/gofile, nimgo/gonet, and nimgo/public/gotasks, while the lower-level modules (nimgo/coroutines and nimgo/eventdispatcher) are intended for more advanced use cases.
 
 
+### What do Araq thinks of it ?
+
+"Looks nice and has good ideas. But what's the benefit of this over just using threads? Coorperative scheduling is bug-prone much like multi-threading is IMHO without its performance benefits." from [Araq, creator of Nim language and its main developper, 07/06/2024](https://forum.nim-lang.org/t/11720)
+
+
 ### What are coroutines? Can you explain the difference between stackful and stackless coroutines?
 
 Coroutines are a way to have multiple tasks running within a single thread of execution. They allow you to pause a task, save its state, and then resume it later.
@@ -161,6 +167,13 @@ Yes, your code is indeed asynchronous when using NimGo, even if you don't explic
 Unlike some other approaches that rely on futures, NimGo uses the powerful concept of stackful coroutines. This means that any I/O call will automatically suspend the current function, allowing the runtime to execute other tasks, and then resume the function later when the I/O operation has completed.
 
 You can control where the functions suspend and resume by using the goAsync and wait keywords provided by NimGo. This gives you a fine-grained control over the asynchronous flow of your code.
+
+
+### But I heard all files operations were synchronous ?
+
+That's a common misconception. The operating system does consider regular file operations to be instantaneous, but that's not the case for all file-related tasks. Asynchronous I/O is generally not possible for regular files, which can impact the behavior of I/O libraries across programming languages (including std/asyncdispatch).
+
+However, when there are potential sources of latency involved, such as reading from a remote server, the only solution is to use a separate thread. This allows the main application to continue running without being blocked by the file operation. There are plans to introduce a multi-threaded implementation of a channel in the future. This would allow the current coroutine to be blocked, without interrupting the entire event loop or dispatcher thread. This would simplify the handling of file operations with potential latency.
 
 
 ### Is NimGo multithreaded ?

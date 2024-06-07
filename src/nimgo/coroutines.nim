@@ -142,17 +142,31 @@ proc coroutineMain[T](mcoCoroutine: ptr McoCoroutine) {.cdecl.} =
 proc destroyMcoCoroutine(coroObj: CoroutineObj) =
     checkMcoReturnCode destroyMco(coroObj.mcoCoroutine)
 
-proc `=destroy`*(coroObj: CoroutineObj) =
-    ## Unfinished coroutines clean themselves. However, it is not sure its heap memory will be cleaned up, resulting in a leakage
-    ## It is always better to resume a coroutine until its end
-    if coroObj.mcoCoroutine != nil:
-        try:
-            destroyMcoCoroutine(coroObj)
-        except:
-            discard
-    if coroObj.returnedVal != nil:
-        deallocShared(coroObj.returnedVal)
-    coroObj.entryFn.destroy()
+
+when defined(nimAllowNonVarDestructor):
+    proc `=destroy`*(coroObj: CoroutineObj) =
+        ## Unfinished coroutines clean themselves. However, it is not sure its heap memory will be cleaned up, resulting in a leakage
+        ## It is always better to resume a coroutine until its end
+        if coroObj.mcoCoroutine != nil:
+            try:
+                destroyMcoCoroutine(coroObj)
+            except:
+                discard
+        if coroObj.returnedVal != nil:
+            deallocShared(coroObj.returnedVal)
+        coroObj.entryFn.destroy()
+else:
+    proc `=destroy`*(coroObj: var CoroutineObj) =
+        ## Unfinished coroutines clean themselves. However, it is not sure its heap memory will be cleaned up, resulting in a leakage
+        ## It is always better to resume a coroutine until its end
+        if coroObj.mcoCoroutine != nil:
+            try:
+                destroyMcoCoroutine(coroObj)
+            except:
+                discard
+        if coroObj.returnedVal != nil:
+            deallocShared(coroObj.returnedVal)
+        coroObj.entryFn.destroy()
 
 proc reinitImpl[T](coro: Coroutine, entryFn: EntryFn[T]) =
     checkMcoReturnCode uninitMcoCoroutine(coro.mcoCoroutine)
