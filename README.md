@@ -2,7 +2,7 @@
 
 _NimGo: Asynchronous Library Inspired by Go's Asyncio. Or for Purists: Stackful Coroutines library associated with an I/O Pollable Event Loop and Dispatcher_
 
-**Warning: this library relies on stackful coroutines. Stackful coroutines provides a high flexibility, but have a large surface attack. It is advised to not use it in servers or to handle external data. This [paper](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1364r0.pdf) can provide you more information about it.**
+**Warning: this library relies on stackful coroutines. You can see this [paper](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1364r0.pdf) for the actual drawbacks of it. It is not yet sure if there is a possible attack surface due a stack overflow.**
 
 This repository is currently an alpha release. You can expect bugs and inefficiencies. Do not use in production !
 
