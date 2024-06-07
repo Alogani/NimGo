@@ -24,11 +24,12 @@ when defined(coroUseVMem):
 when not defined(debug):
     {.passC: "-DMCO_NO_DEBUG".}
 
+const coroMemratio {.intdefine.} = 10
 
 when defined(coroUseVMem):
-    const DefaultStackSize = 2040 * 1024 ## Recommanded by MCO
+    const DefaultStackSize = 2040 * 1024 * coroMemratio div 10 ## Recommanded by MCO
 else:
-    const DefaultStackSize = 56 * 1024 ## Recommanded by MCO
+    const DefaultStackSize = 56 * 1024 * coroMemratio div 10 ## Recommanded by MCO
 
 type
     McoCoroDescriptor {.importc: "mco_desc", header: minicoroh.} = object

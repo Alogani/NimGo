@@ -106,6 +106,38 @@ goAndWait proc() =
 
 ## Frequently asked questions
 
+### Can you give me a quicktour of the modules ?
+
+Certainly! The NimGo library consists of the following key modules:
+
+- nimgo: This module provides the necessary tools to create and manage the flow of execution.
+- nimgo/gofile: This module offers all the asynchronous I/O operations for files and pipes.
+- nimgo/gostreams: This module provides an internal channel called GoBufferStream, as well as a common API for working with this channel and files.
+- nimgo/gonet: This module handles all the operations for working with sockets asynchronously.
+- nimgo/goproc: This module exposes an API for creating child processes, executing commands, and interacting with them asynchronously.
+- nimgo/coroutines: This module provides the low-level API for the stackful coroutines, which is abstracted away for most users.
+- nimgo/eventdispatcher: This module exposes the low-level API for using the event loop and dispatcher.
+- nimgo/public/gotasks: This module is already imported with the nimgo package and provides the `GoTask` abstraction for manipulating the flow of execution and return values.
+
+Most users will primarily interact with the higher-level modules like nimgo, nimgo/gofile, nimgo/gonet, and nimgo/public/gotasks, while the lower-level modules (nimgo/coroutines and nimgo/eventdispatcher) are intended for more advanced use cases.
+
+
+### What are coroutines? Can you explain the difference between stackful and stackless coroutines?
+
+Coroutines are a way to have multiple tasks running within a single thread of execution. They allow you to pause a task, save its state, and then resume it later.
+
+**Stackful Coroutines:**
+- These coroutines have their own call stack, which is managed by the coroutine library.
+- When a stackful coroutine is paused, its entire call stack is saved, so it can resume exactly where it left off.
+- This gives you more flexibility and control, but it also uses more memory and requires more work to manage the call stack.
+
+**Stackless Coroutines:**
+- These coroutines don't have their own call stack. Instead, they use the existing call stack of the underlying thread.
+- When a stackless coroutine is paused, it simply yields control back to the calling code, without saving any call stack information.
+- This is more lightweight and efficient, but it also means you have less control over the flow of execution, and you can't easily handle complex function calls or recursion.
+
+In the case of NimGo, the library uses stackful coroutines, which provide more power and flexibility, but also require more careful management. The lower-level modules expose the details of the stackful coroutines, while the higher-level modules abstract away the complexity for most users.
+
 
 ### Is it more efficient than async/await ?
 
@@ -146,13 +178,44 @@ Compared to the other async approach CPS with stackless coroutines offer some ad
 - They can be more efficient in terms of memory usage and control flow.
 - They provide fine-grained control over the data flow and execution.
 - They may be better suited for certain use cases like compilers.
+
 However, CPS and stackless coroutines also have some drawbacks:
 - They are more complex and verbose to use compared to callback-based approaches.
 - They can be less intuitive and harder to integrate with existing synchronous codebases.
 
 It's important to note that the traditional async/await syntax in Nim is also a form of stackless coroutines, although implemented way differently. Instead NimGo choose to rely on stackful coroutines (also called green threads).
 
-You can see https://github.com/nim-works/cps for more details. The developers of the [nimskull](https://github.com/nim-works/nimskull/pull/1249) compiler are planning to integrate a I/O library based on CPS. But for now, CPS remains a specialized programming paradigm, rather than a widely adopted I/O library.
+You can see https://github.com/nim-works/cps for more details. It also seems to exists an I/O library built on continuation [nim-sys](https://github.com/alaviss/nim-sys)
+
+
+### When and how my function is executed ?
+
+In NimGo, the behavior is different from the standard std/asyncdispatch library. When you use goAsync, your function is not executed immediately (but this behaviour could change in the future if it makes more sense). Instead, it is only executed when:
+
+- You explicitly call wait on the specific task in your code.
+- You call runEventLoop(), which is implicitly called when you use the withEventLoop template.
+
+It is generally recommended to rely more on `withEventLoop()` or `runEventLoop()` rather than `wait`, to ensure that all coroutines created with goAsync are executed, even if you didn't explicitly wait for them.
+
+Another key difference is that in NimGo, when your code is suspended, it doesn't pause the actual function itself. Instead, it can pause the entire code block executed with goAsync, allowing you to have an arbitrary depth of paused code (This recursion depth is limited by the implementation of the coroutines API in NimGo, which is typically between 1,000 and 5,000 levels, but could be lower if large stack variables like arrays are created inside a coroutine). You can think of goAsync as a checkpoint in your code, where the execution can be suspended and resumed later.
+
+
+### Just Give Me the Coroutines, No Boilerplate
+
+If you're not interested in all the boilerplate of I/O and event loops, and you just want to use coroutines directly with no additional overhead, you can do so by importing the nimgo/coroutines module.
+
+By importing only nimgo/coroutines, you'll have access to the core coroutines API, which allows you to create, suspend, and resume coroutines. This gives you a lightweight way to work with coroutines without the additional complexity of the full NimGo framework.
+
+However, it's important to note that by using only the coroutines API, you'll be limited in what you can do. The full power of NimGo comes from its integration with the event dispatcher/loop, which provide additional functionality for managing asynchronous tasks. If you want to leverage the dispatcher and event loop features, you can also import the nimgo/eventdispatcher module. This will give you access to the higher-level APIs for working with asynchronous code, while still allowing you to use the low-level coroutines primitives from the nimgo/coroutines module.
+
+
+### Customizing Coroutine Memory Usage
+
+In NimGo, you can tweak the memory usage of coroutines in a few different ways:
+
+- Virtual Memory Usage `-d:coroUseVMem`: By defining the coroUseVMem compile-time flag, you can make coroutines use virtual memory instead of physical memory. This is available on Linux and Windows systems, but may not work on other platforms. When using virtual memory, each coroutine will request significantly more memory from the system (around 36x more), but the physical memory used will be slower and will only grow with the coroutine's stack. This can be seen in the difference between the VIRT (virtual) and RES (resident) memory usage reported by the top program.
+- Memory Allocation Ratio `d:coroMemratio:10`: You can use the coroMemratio compile-time flag to adjust the amount of memory allocated for each coroutine. The number you provide is a ratio, where 10 is the default. Values below 10 will allocate less memory, and values above 10 will allocate more. This allows you to control how much the coroutine's stack can grow, which is important for functions with a lot of local variables, large stack variables like arrays or deep recursions.
+- Specifying Stack Size `newCoroutine(fn, stacksize)`: If you're using the lower-level nimgo/coroutines module directly, you can specify the raw number of bytes to allocate for the coroutine's stack when creating a new coroutine. For a reference point, you can check the value of the DefaultStackSize constant, which represents the default stack size used by NimGo.
 
 
 ### Can I contribute

@@ -1,5 +1,5 @@
-import ./nimgo/[coroutines, eventdispatcher]
-export coroutines
+import ./nimgo/[eventdispatcher]
+
 # from eventdispatcher
 export insideNewEventLoop, withEventLoop, runEventLoop, sleepAsync
 
