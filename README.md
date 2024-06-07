@@ -2,7 +2,7 @@
 
 _NimGo: Asynchronous Library Inspired by Go's Asyncio. Or for Purists: Stackful Coroutines library associated with an I/O Pollable Event Loop and Dispatcher_
 
-**Warning: this library relies on stackful coroutines. You can see this [paper](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1364r0.pdf) for the actual drawbacks of it. It is not yet sure if there is a possible attack surface due a stack overflow.**
+**Warning: there might exists for now an attack surface by overflowing the stack (which is limited). I can affirm if that kind of attack is possible with the current implementation. However, it is planned to handle that case in a future release to prevent this kind of attack.**
 
 This repository is currently an alpha release. You can expect bugs and inefficiencies. Do not use in production !
 
@@ -17,6 +17,7 @@ Only one word to remember : **goAsync** (and optionaly **wait**, but seriously w
 
 - [ ] *Change of the cancellation works: not by using timeouts, but by using another task. Create sleepTask*
 - [ ] *Finish the implementation of goproc*
+- [ ] *add a PROT_NONE add the end of the stack to prevent stackoverflow issues -> see if it is possible to implement growable stack like Go*
 - [ ] Add goproc support for windows (certainly by doing a wrapper around osproc)
 - [ ] Create more error handling in various libraries
 - [ ] Adding more test cases
