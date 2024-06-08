@@ -1,13 +1,13 @@
 nimTitle	gonet	_._/src/nimgo/gonet.html	module src/nimgo/gonet		0
 nim	GoSocket	_._/src/nimgo/gonet.html#GoSocket	type GoSocket		13
 nim	newGoSocket	_._/src/nimgo/gonet.html#newGoSocket,Domain,SockType,Protocol	proc newGoSocket(domain: Domain = AF_INET; sockType: SockType = SOCK_STREAM;\n            protocol: Protocol = IPPROTO_TCP; buffered = true;\n            inheritable = defined(nimInheritHandles)): GoSocket		20
-nim	accept	_._/src/nimgo/gonet.html#accept,GoSocket,int	proc accept(gosocket: GoSocket; flags = {SafeDisconn};\n       inheritable = defined(nimInheritHandles); timeoutMs = -1): GoSocket		47
-nim	acceptAddr	_._/src/nimgo/gonet.html#acceptAddr,GoSocket,int	proc acceptAddr(gosocket: GoSocket; flags = {SafeDisconn};\n           inheritable = defined(nimInheritHandles); timeoutMs = -1): tuple[\n    address: string, client: GoSocket]		59
+nim	accept	_._/src/nimgo/gonet.html#accept,GoSocket,GoTask	proc accept(gosocket: GoSocket; flags = {SafeDisconn};\n       inheritable = defined(nimInheritHandles); canceller: GoTaskUntyped = nil): GoSocket		47
+nim	acceptAddr	_._/src/nimgo/gonet.html#acceptAddr,GoSocket,GoTask	proc acceptAddr(gosocket: GoSocket; flags = {SafeDisconn};\n           inheritable = defined(nimInheritHandles);\n           canceller: GoTaskUntyped = nil): tuple[address: string,\n    client: GoSocket]		59
 nim	bindAddr	_._/src/nimgo/gonet.html#bindAddr,GoSocket,string	proc bindAddr(gosocket: GoSocket; port = Port(0); address = "")		71
 nim	bindUnix	_._/src/nimgo/gonet.html#bindUnix,GoSocket,string	proc bindUnix(gosocket: GoSocket; path: string)		74
 nim	close	_._/src/nimgo/gonet.html#close,GoSocket	proc close(gosocket: GoSocket)		77
-nim	connect	_._/src/nimgo/gonet.html#connect,GoSocket,string,Port,int	proc connect(gosocket: GoSocket; address: string; port: Port; timeoutMs = -1)		82
-nim	connectUnix	_._/src/nimgo/gonet.html#connectUnix,GoSocket,string,int	proc connectUnix(gosocket: GoSocket; path: string; timeoutMs = -1)		87
+nim	connect	_._/src/nimgo/gonet.html#connect,GoSocket,string,Port,GoTask	proc connect(gosocket: GoSocket; address: string; port: Port;\n        canceller: GoTaskUntyped = nil)		82
+nim	connectUnix	_._/src/nimgo/gonet.html#connectUnix,GoSocket,string,GoTask	proc connectUnix(gosocket: GoSocket; path: string; canceller: GoTaskUntyped = nil)		87
 nim	dial	_._/src/nimgo/gonet.html#dial,string,Port	proc dial(address: string; port: Port; protocol = IPPROTO_TCP; buffered = true): GoSocket		92
 nim	getFd	_._/src/nimgo/gonet.html#getFd,GoSocket	proc getFd(gosocket: GoSocket): SocketHandle		150
 nim	getLocalAddr	_._/src/nimgo/gonet.html#getLocalAddr,GoSocket	proc getLocalAddr(gosocket: GoSocket): (string, Port)		153
@@ -18,9 +18,9 @@ nim	hasDataBuffered	_._/src/nimgo/gonet.html#hasDataBuffered,GoSocket	proc hasDa
 nim	isClosed	_._/src/nimgo/gonet.html#isClosed,GoSocket	proc isClosed(gosocket: GoSocket): bool		168
 nim	isSsl	_._/src/nimgo/gonet.html#isSsl,GoSocket	proc isSsl(gosocket: GoSocket): bool		171
 nim	listen	_._/src/nimgo/gonet.html#listen,GoSocket	proc listen(gosocket: GoSocket; backlog = SOMAXCONN)		174
-nim	recv	_._/src/nimgo/gonet.html#recv,GoSocket,int,int	proc recv(s: GoSocket; size: int; timeoutMs = -1): string		193
-nim	recvFrom	_._/src/nimgo/gonet.html#recvFrom,GoSocket,string,int,T,Port,int32,int	proc recvFrom[T: string | IpAddress](s: GoSocket; data: var string; length: int;\n                                address: var T; port: var Port; flags = 0'i32;\n                                timeoutMs = -1): int		203
-nim	recvLine	_._/src/nimgo/gonet.html#recvLine,GoSocket,int	proc recvLine(s: GoSocket; keepNewLine = false; timeoutMs = -1): string		212
-nim	send	_._/src/nimgo/gonet.html#send,GoSocket,string,int	proc send(s: GoSocket; data: string; timeoutMs = -1): int		263
-nim	sendTo	_._/src/nimgo/gonet.html#sendTo,GoSocket,IpAddress,Port,string,int32,int	proc sendTo(s: GoSocket; address: IpAddress; port: Port; data: string; flags = 0'i32;\n       timeoutMs = -1): int		267
-nim	setSockOpt	_._/src/nimgo/gonet.html#setSockOpt,GoSocket,SOBool,bool	proc setSockOpt(gosocket: GoSocket; opt: SOBool; value: bool; level = SOL_SOCKET)		277
+nim	recv	_._/src/nimgo/gonet.html#recv,GoSocket,int,GoTask	proc recv(s: GoSocket; size: int; canceller: GoTaskUntyped = nil): string		193
+nim	recvFrom	_._/src/nimgo/gonet.html#recvFrom,GoSocket,string,int,T,Port,int32,GoTask	proc recvFrom[T: string | IpAddress](s: GoSocket; data: var string; length: int;\n                                address: var T; port: var Port; flags = 0'i32;\n                                canceller: GoTaskUntyped = nil): int		203
+nim	recvLine	_._/src/nimgo/gonet.html#recvLine,GoSocket,GoTask	proc recvLine(s: GoSocket; keepNewLine = false; canceller: GoTaskUntyped = nil): string		212
+nim	send	_._/src/nimgo/gonet.html#send,GoSocket,string,GoTask	proc send(s: GoSocket; data: string; canceller: GoTaskUntyped = nil): int		262
+nim	sendTo	_._/src/nimgo/gonet.html#sendTo,GoSocket,IpAddress,Port,string,int32,GoTask	proc sendTo(s: GoSocket; address: IpAddress; port: Port; data: string; flags = 0'i32;\n       canceller: GoTaskUntyped = nil): int		266
+nim	setSockOpt	_._/src/nimgo/gonet.html#setSockOpt,GoSocket,SOBool,bool	proc setSockOpt(gosocket: GoSocket; opt: SOBool; value: bool; level = SOL_SOCKET)		276

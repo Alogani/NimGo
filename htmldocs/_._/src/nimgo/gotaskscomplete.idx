@@ -1,0 +1,4 @@
+nimTitle	gotaskscomplete	_._/src/nimgo/gotaskscomplete.html	module src/nimgo/gotaskscomplete		0
+nim	addCallback	_._/src/nimgo/gotaskscomplete.html#addCallback,GoTask,OneShotCoroutine	proc addCallback(goTask: GoTaskUntyped; oneShotCoro: OneShotCoroutine)		11
+nim	suspendUntilRead	_._/src/nimgo/gotaskscomplete.html#suspendUntilRead,PollFd,GoTask,bool	proc suspendUntilRead(fd: PollFd; canceller: GoTaskUntyped = nil; consumeEvent: bool): bool		19
+nim	suspendUntilWrite	_._/src/nimgo/gotaskscomplete.html#suspendUntilWrite,PollFd,GoTask,bool	proc suspendUntilWrite(fd: PollFd; canceller: GoTaskUntyped = nil; consumeEvent: bool): bool		32

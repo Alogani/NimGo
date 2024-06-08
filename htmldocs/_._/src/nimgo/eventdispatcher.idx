@@ -1,51 +1,47 @@
 nimTitle	eventdispatcher	_._/src/nimgo/eventdispatcher.html	module src/nimgo/eventdispatcher		0
 nim	PollFd	_._/src/nimgo/eventdispatcher.html#PollFd	type PollFd		17
 nim	OneShotCoroutine	_._/src/nimgo/eventdispatcher.html#OneShotCoroutine	type OneShotCoroutine		20
-nim	EvDispatcher	_._/src/nimgo/eventdispatcher.html#EvDispatcher	type EvDispatcher		46
-nim	InvalidFd	_._/src/nimgo/eventdispatcher.html#InvalidFd	const InvalidFd		50
-nim	newDispatcher	_._/src/nimgo/eventdispatcher.html#newDispatcher	proc newDispatcher(): EvDispatcher		54
-nim	toOneShot	_._/src/nimgo/eventdispatcher.html#toOneShot,Coroutine	proc toOneShot(coro: Coroutine): OneShotCoroutine		63
-nim	hasBeenResumed	_._/src/nimgo/eventdispatcher.html#hasBeenResumed,OneShotCoroutine	proc hasBeenResumed(oneShotCoro: OneShotCoroutine): bool		79
-nim	consumeAndGet	_._/src/nimgo/eventdispatcher.html#consumeAndGet,OneShotCoroutine	proc consumeAndGet(oneShotCoro: OneShotCoroutine): Coroutine		82
-nim	removeFromSelector	_._/src/nimgo/eventdispatcher.html#removeFromSelector,OneShotCoroutine,bool	proc removeFromSelector(oneShotCoro: OneShotCoroutine; byTimer: bool)		94
-nim	resumeImmediatly	_._/src/nimgo/eventdispatcher.html#resumeImmediatly,Coroutine	proc resumeImmediatly(coro: Coroutine)		107
-nim	suspendUntilImmediatly	_._/src/nimgo/eventdispatcher.html#suspendUntilImmediatly,Coroutine	proc suspendUntilImmediatly(coro: Coroutine = nil)		115
-nim	resumeSoon	_._/src/nimgo/eventdispatcher.html#resumeSoon,Coroutine	proc resumeSoon(coro: Coroutine)		126
-nim	suspendUntilSoon	_._/src/nimgo/eventdispatcher.html#suspendUntilSoon,Coroutine	proc suspendUntilSoon(coro: Coroutine)		131
-nim	resumeLater	_._/src/nimgo/eventdispatcher.html#resumeLater,Coroutine	proc resumeLater(coro: Coroutine)		142
-nim	suspendUntilLater	_._/src/nimgo/eventdispatcher.html#suspendUntilLater,Coroutine	proc suspendUntilLater(coro: Coroutine = nil)		146
-nim	resumeOnTimer	_._/src/nimgo/eventdispatcher.html#resumeOnTimer,Coroutine,int	proc resumeOnTimer(coro: Coroutine; timeoutMs: int)		157
-nim	resumeOnTimer	_._/src/nimgo/eventdispatcher.html#resumeOnTimer,OneShotCoroutine,int	proc resumeOnTimer(oneShotCoro: OneShotCoroutine; timeoutMs: int)		166
-nim	suspendUntilTimer	_._/src/nimgo/eventdispatcher.html#suspendUntilTimer,Coroutine,int	proc suspendUntilTimer(coro: Coroutine; timeoutMs: int)		174
-nim	suspendUntilTimer	_._/src/nimgo/eventdispatcher.html#suspendUntilTimer,int	proc suspendUntilTimer(timeoutMs: int)		185
-nim	setCurrentThreadDispatcher	_._/src/nimgo/eventdispatcher.html#setCurrentThreadDispatcher,EvDispatcher	proc setCurrentThreadDispatcher(dispatcher: EvDispatcher)		190
-nim	getCurrentThreadDispatcher	_._/src/nimgo/eventdispatcher.html#getCurrentThreadDispatcher	proc getCurrentThreadDispatcher(): EvDispatcher		195
-nim	isDispatcherEmpty	_._/src/nimgo/eventdispatcher.html#isDispatcherEmpty,EvDispatcher	proc isDispatcherEmpty(dispatcher: EvDispatcher = ActiveDispatcher): bool		203
-nim	runOnce	_._/src/nimgo/eventdispatcher.html#runOnce,int	proc runOnce(timeoutMs = -1)		290
-nim	runEventLoop	_._/src/nimgo/eventdispatcher.html#runEventLoop,int	proc runEventLoop(timeoutMs = -1; dispatcher = ActiveDispatcher)		309
-nim	withEventLoop	_._/src/nimgo/eventdispatcher.html#withEventLoop.t,untyped	template withEventLoop(body: untyped)		333
-nim	insideNewEventLoop	_._/src/nimgo/eventdispatcher.html#insideNewEventLoop.t,EvDispatcher,untyped	template insideNewEventLoop(dispatcher: EvDispatcher; body: untyped)		338
-nim	insideNewEventLoop	_._/src/nimgo/eventdispatcher.html#insideNewEventLoop.t,untyped	template insideNewEventLoop(body: untyped)		349
-nim	running	_._/src/nimgo/eventdispatcher.html#running	proc running(dispatcher = ActiveDispatcher): bool		360
-nim	`==`	_._/src/nimgo/eventdispatcher.html#==,PollFd,PollFd	proc `==`(a, b: PollFd): bool		366
-nim	isInvalid	_._/src/nimgo/eventdispatcher.html#isInvalid,PollFd	proc isInvalid(pollFd: PollFd): bool		369
-nim	consumeCurrentEvent	_._/src/nimgo/eventdispatcher.html#consumeCurrentEvent	proc consumeCurrentEvent()		372
-nim	registerEvent	_._/src/nimgo/eventdispatcher.html#registerEvent,SelectEvent,seq[OneShotCoroutine]	proc registerEvent(ev: SelectEvent; coros: seq[OneShotCoroutine] = @[])		376
-nim	registerHandle	_._/src/nimgo/eventdispatcher.html#registerHandle,,set[Event]	proc registerHandle(fd: int | SocketHandle; events: set[Event]): PollFd		384
-nim	registerProcess	_._/src/nimgo/eventdispatcher.html#registerProcess,int,seq[OneShotCoroutine]	proc registerProcess(pid: int; coros: seq[OneShotCoroutine] = @[]): PollFd		392
-nim	registerSignal	_._/src/nimgo/eventdispatcher.html#registerSignal,int,seq[OneShotCoroutine]	proc registerSignal(signal: int; coros: seq[OneShotCoroutine] = @[]): PollFd		402
-nim	registerTimer	_._/src/nimgo/eventdispatcher.html#registerTimer,int,seq[OneShotCoroutine],bool	proc registerTimer(timeoutMs: int; coros: seq[OneShotCoroutine] = @[];\n              oneshot: bool = true): PollFd		412
-nim	unregister	_._/src/nimgo/eventdispatcher.html#unregister,PollFd	proc unregister(fd: PollFd)		427
-nim	addInsideSelector	_._/src/nimgo/eventdispatcher.html#addInsideSelector,PollFd,OneShotCoroutine,Event	proc addInsideSelector(fd: PollFd; oneShotCoro: OneShotCoroutine; event: Event)		439
-nim	addInsideSelector	_._/src/nimgo/eventdispatcher.html#addInsideSelector,PollFd,seq[OneShotCoroutine],Event	proc addInsideSelector(fd: PollFd; coros: seq[OneShotCoroutine]; event: Event)		447
-nim	updatePollFd	_._/src/nimgo/eventdispatcher.html#updatePollFd,PollFd,set[Event]	proc updatePollFd(fd: PollFd; events: set[Event])		461
-nim	sleepAsync	_._/src/nimgo/eventdispatcher.html#sleepAsync,int	proc sleepAsync(timeoutMs: int)		465
-nim	pollOnce	_._/src/nimgo/eventdispatcher.html#pollOnce	proc pollOnce()		471
-nim	wasWakeUpByTimer	_._/src/nimgo/eventdispatcher.html#wasWakeUpByTimer	proc wasWakeUpByTimer(): bool		479
-nim	suspendUntilAny	_._/src/nimgo/eventdispatcher.html#suspendUntilAny,seq[PollFd],seq[PollFd],int	proc suspendUntilAny(readFd: seq[PollFd]; writefd: seq[PollFd]; timeoutMs = -1): WakeUpInfo		483
-nim	suspendUntilRead	_._/src/nimgo/eventdispatcher.html#suspendUntilRead,PollFd,int	proc suspendUntilRead(fd: PollFd; timeoutMs = -1; consumeEvent = true): bool		495
-nim	suspendUntilWrite	_._/src/nimgo/eventdispatcher.html#suspendUntilWrite,PollFd,int	proc suspendUntilWrite(fd: PollFd; timeoutMs = -1; consumeEvent = true): bool		511
-nimgrp	resumeontimer	_._/src/nimgo/eventdispatcher.html#resumeOnTimer-procs-all	proc		157
-nimgrp	suspenduntiltimer	_._/src/nimgo/eventdispatcher.html#suspendUntilTimer-procs-all	proc		174
-nimgrp	addinsideselector	_._/src/nimgo/eventdispatcher.html#addInsideSelector-procs-all	proc		439
-nimgrp	insideneweventloop	_._/src/nimgo/eventdispatcher.html#insideNewEventLoop-templates-all	template		338
+nim	EvDispatcher	_._/src/nimgo/eventdispatcher.html#EvDispatcher	type EvDispatcher		45
+nim	InvalidFd	_._/src/nimgo/eventdispatcher.html#InvalidFd	const InvalidFd		49
+nim	newDispatcher	_._/src/nimgo/eventdispatcher.html#newDispatcher	proc newDispatcher(): EvDispatcher		53
+nim	toOneShot	_._/src/nimgo/eventdispatcher.html#toOneShot,Coroutine	proc toOneShot(coro: Coroutine): OneShotCoroutine		62
+nim	hasBeenResumed	_._/src/nimgo/eventdispatcher.html#hasBeenResumed,OneShotCoroutine	proc hasBeenResumed(oneShotCoro: OneShotCoroutine): bool		78
+nim	consumeAndGet	_._/src/nimgo/eventdispatcher.html#consumeAndGet,OneShotCoroutine	proc consumeAndGet(oneShotCoro: OneShotCoroutine): Coroutine		81
+nim	removeFromSelector	_._/src/nimgo/eventdispatcher.html#removeFromSelector,OneShotCoroutine,bool	proc removeFromSelector(oneShotCoro: OneShotCoroutine; byTimer: bool)		93
+nim	resumeImmediatly	_._/src/nimgo/eventdispatcher.html#resumeImmediatly,Coroutine	proc resumeImmediatly(coro: Coroutine)		106
+nim	suspendUntilImmediatly	_._/src/nimgo/eventdispatcher.html#suspendUntilImmediatly,Coroutine	proc suspendUntilImmediatly(coro: Coroutine = nil)		114
+nim	resumeSoon	_._/src/nimgo/eventdispatcher.html#resumeSoon,Coroutine	proc resumeSoon(coro: Coroutine)		125
+nim	suspendUntilSoon	_._/src/nimgo/eventdispatcher.html#suspendUntilSoon,Coroutine	proc suspendUntilSoon(coro: Coroutine)		130
+nim	resumeLater	_._/src/nimgo/eventdispatcher.html#resumeLater,Coroutine	proc resumeLater(coro: Coroutine)		141
+nim	suspendUntilLater	_._/src/nimgo/eventdispatcher.html#suspendUntilLater,Coroutine	proc suspendUntilLater(coro: Coroutine = nil)		145
+nim	resumeOnTimer	_._/src/nimgo/eventdispatcher.html#resumeOnTimer,Coroutine,int	proc resumeOnTimer(coro: Coroutine; timeoutMs: int; willBeAwaited = true)		156
+nim	resumeOnTimer	_._/src/nimgo/eventdispatcher.html#resumeOnTimer,OneShotCoroutine,int	proc resumeOnTimer(oneShotCoro: OneShotCoroutine; timeoutMs: int;\n              willBeAwaited = true)		166
+nim	suspendUntilTimer	_._/src/nimgo/eventdispatcher.html#suspendUntilTimer,Coroutine,int	proc suspendUntilTimer(coro: Coroutine; timeoutMs: int)		175
+nim	suspendUntilTimer	_._/src/nimgo/eventdispatcher.html#suspendUntilTimer,int	proc suspendUntilTimer(timeoutMs: int)		186
+nim	setCurrentThreadDispatcher	_._/src/nimgo/eventdispatcher.html#setCurrentThreadDispatcher,EvDispatcher	proc setCurrentThreadDispatcher(dispatcher: EvDispatcher)		191
+nim	getCurrentThreadDispatcher	_._/src/nimgo/eventdispatcher.html#getCurrentThreadDispatcher	proc getCurrentThreadDispatcher(): EvDispatcher		196
+nim	isDispatcherEmpty	_._/src/nimgo/eventdispatcher.html#isDispatcherEmpty,EvDispatcher	proc isDispatcherEmpty(dispatcher: EvDispatcher = ActiveDispatcher): bool		204
+nim	runOnce	_._/src/nimgo/eventdispatcher.html#runOnce,int	proc runOnce(timeoutMs = -1)		285
+nim	runEventLoop	_._/src/nimgo/eventdispatcher.html#runEventLoop,int	proc runEventLoop(timeoutMs = -1; dispatcher = ActiveDispatcher)		304
+nim	withEventLoop	_._/src/nimgo/eventdispatcher.html#withEventLoop.t,untyped	template withEventLoop(body: untyped)		328
+nim	insideNewEventLoop	_._/src/nimgo/eventdispatcher.html#insideNewEventLoop.t,EvDispatcher,untyped	template insideNewEventLoop(dispatcher: EvDispatcher; body: untyped)		334
+nim	insideNewEventLoop	_._/src/nimgo/eventdispatcher.html#insideNewEventLoop.t,untyped	template insideNewEventLoop(body: untyped)		346
+nim	running	_._/src/nimgo/eventdispatcher.html#running	proc running(dispatcher = ActiveDispatcher): bool		358
+nim	`==`	_._/src/nimgo/eventdispatcher.html#==,PollFd,PollFd	proc `==`(a, b: PollFd): bool		364
+nim	isInvalid	_._/src/nimgo/eventdispatcher.html#isInvalid,PollFd	proc isInvalid(pollFd: PollFd): bool		367
+nim	consumeCurrentEvent	_._/src/nimgo/eventdispatcher.html#consumeCurrentEvent	proc consumeCurrentEvent()		370
+nim	registerEvent	_._/src/nimgo/eventdispatcher.html#registerEvent,SelectEvent,seq[OneShotCoroutine]	proc registerEvent(ev: SelectEvent; coros: seq[OneShotCoroutine] = @[])		374
+nim	registerHandle	_._/src/nimgo/eventdispatcher.html#registerHandle,,set[Event]	proc registerHandle(fd: int | SocketHandle; events: set[Event]): PollFd		382
+nim	registerProcess	_._/src/nimgo/eventdispatcher.html#registerProcess,int,seq[OneShotCoroutine]	proc registerProcess(pid: int; coros: seq[OneShotCoroutine] = @[]): PollFd		390
+nim	registerSignal	_._/src/nimgo/eventdispatcher.html#registerSignal,int,seq[OneShotCoroutine]	proc registerSignal(signal: int; coros: seq[OneShotCoroutine] = @[]): PollFd		400
+nim	registerTimer	_._/src/nimgo/eventdispatcher.html#registerTimer,int,seq[OneShotCoroutine],bool	proc registerTimer(timeoutMs: int; coros: seq[OneShotCoroutine] = @[];\n              oneshot: bool = true): PollFd		410
+nim	unregister	_._/src/nimgo/eventdispatcher.html#unregister,PollFd	proc unregister(fd: PollFd)		424
+nim	addInsideSelector	_._/src/nimgo/eventdispatcher.html#addInsideSelector,PollFd,OneShotCoroutine,Event	proc addInsideSelector(fd: PollFd; oneShotCoro: OneShotCoroutine; event: Event)		436
+nim	addInsideSelector	_._/src/nimgo/eventdispatcher.html#addInsideSelector,PollFd,seq[OneShotCoroutine],Event	proc addInsideSelector(fd: PollFd; coros: seq[OneShotCoroutine]; event: Event)		444
+nim	updatePollFd	_._/src/nimgo/eventdispatcher.html#updatePollFd,PollFd,set[Event]	proc updatePollFd(fd: PollFd; events: set[Event])		458
+nim	sleepAsync	_._/src/nimgo/eventdispatcher.html#sleepAsync,int	proc sleepAsync(timeoutMs: int)		462
+nim	pollOnce	_._/src/nimgo/eventdispatcher.html#pollOnce	proc pollOnce()		468
+nimgrp	resumeontimer	_._/src/nimgo/eventdispatcher.html#resumeOnTimer-procs-all	proc		156
+nimgrp	suspenduntiltimer	_._/src/nimgo/eventdispatcher.html#suspendUntilTimer-procs-all	proc		175
+nimgrp	addinsideselector	_._/src/nimgo/eventdispatcher.html#addInsideSelector-procs-all	proc		436
+nimgrp	insideneweventloop	_._/src/nimgo/eventdispatcher.html#insideNewEventLoop-templates-all	template		334

@@ -7,18 +7,18 @@ nim	getFileSize	_._/src/nimgo/gofile.html#getFileSize,GoFile	proc getFileSize(f:
 nim	newGoFile	_._/src/nimgo/gofile.html#newGoFile,FileHandle,FileMode	proc newGoFile(fd: FileHandle; mode: FileMode; buffered = true): GoFile		74
 nim	createGoPipe	_._/src/nimgo/gofile.html#createGoPipe	proc createGoPipe(buffered = true): tuple[reader, writer: GoFile]		87
 nim	openGoFile	_._/src/nimgo/gofile.html#openGoFile,string	proc openGoFile(filename: string; mode = fmRead; buffered = true): GoFile		96
-nim	write	_._/src/nimgo/gofile.html#write,GoFile,sinkstring,int	proc write(f: GoFile; data: sink string; timeoutMs = -1): int		131
-nim	goStdin	_._/src/nimgo/gofile.html#goStdin	let goStdin		8
-nim	goStdout	_._/src/nimgo/gofile.html#goStdout	let goStdout		9
-nim	goStderr	_._/src/nimgo/gofile.html#goStderr	let goStderr		10
-nim	endOfFile	_._/src/nimgo/gofile.html#endOfFile,GoFile	proc endOfFile(f: GoFile): bool		13
-nim	closed	_._/src/nimgo/gofile.html#closed,GoFile	proc closed(f: GoFile): bool		16
-nim	error	_._/src/nimgo/gofile.html#error,GoFile	proc error(f: GoFile): bool		21
-nim	getError	_._/src/nimgo/gofile.html#getError,GoFile	proc getError(f: GoFile): OSErrorCode		24
-nim	getOsFileHandle	_._/src/nimgo/gofile.html#getOsFileHandle,GoFile	proc getOsFileHandle(f: GoFile): FileHandle		27
-nim	getSelectorFileHandle	_._/src/nimgo/gofile.html#getSelectorFileHandle,GoFile	proc getSelectorFileHandle(f: GoFile): PollFd		30
-nim	readAvailable	_._/src/nimgo/gofile.html#readAvailable,GoFile,Positive,int	proc readAvailable(f: GoFile; size: Positive; timeoutMs = -1; noAsync = false): string		33
-nim	readChunk	_._/src/nimgo/gofile.html#readChunk,GoFile,int	proc readChunk(f: GoFile; timeoutMs = -1; noAsync = false): string		43
-nim	read	_._/src/nimgo/gofile.html#read,GoFile,Positive,int	proc read(f: GoFile; size: Positive; timeoutMs = -1): string		53
-nim	readAll	_._/src/nimgo/gofile.html#readAll,GoFile,int	proc readAll(f: GoFile; timeoutMs = -1): string		62
-nim	readLine	_._/src/nimgo/gofile.html#readLine,GoFile,int	proc readLine(f: GoFile; timeoutMs = -1; keepNewLine = false): string		73
+nim	write	_._/src/nimgo/gofile.html#write,GoFile,sinkstring,GoTask	proc write(f: GoFile; data: sink string; canceller: GoTaskUntyped = nil): int		131
+nim	goStdin	_._/src/nimgo/gofile.html#goStdin	let goStdin		7
+nim	goStdout	_._/src/nimgo/gofile.html#goStdout	let goStdout		8
+nim	goStderr	_._/src/nimgo/gofile.html#goStderr	let goStderr		9
+nim	endOfFile	_._/src/nimgo/gofile.html#endOfFile,GoFile	proc endOfFile(f: GoFile): bool		12
+nim	closed	_._/src/nimgo/gofile.html#closed,GoFile	proc closed(f: GoFile): bool		15
+nim	error	_._/src/nimgo/gofile.html#error,GoFile	proc error(f: GoFile): bool		20
+nim	getError	_._/src/nimgo/gofile.html#getError,GoFile	proc getError(f: GoFile): OSErrorCode		23
+nim	getOsFileHandle	_._/src/nimgo/gofile.html#getOsFileHandle,GoFile	proc getOsFileHandle(f: GoFile): FileHandle		26
+nim	getSelectorFileHandle	_._/src/nimgo/gofile.html#getSelectorFileHandle,GoFile	proc getSelectorFileHandle(f: GoFile): PollFd		29
+nim	readAvailable	_._/src/nimgo/gofile.html#readAvailable,GoFile,Positive,GoTask	proc readAvailable(f: GoFile; size: Positive; canceller: GoTaskUntyped = nil;\n              noAsync = false): string		32
+nim	readChunk	_._/src/nimgo/gofile.html#readChunk,GoFile,GoTask	proc readChunk(f: GoFile; canceller: GoTaskUntyped = nil; noAsync = false): string		42
+nim	read	_._/src/nimgo/gofile.html#read,GoFile,Positive,GoTask	proc read(f: GoFile; size: Positive; canceller: GoTaskUntyped = nil): string		52
+nim	readAll	_._/src/nimgo/gofile.html#readAll,GoFile,GoTask	proc readAll(f: GoFile; canceller: GoTaskUntyped = nil): string		60
+nim	readLine	_._/src/nimgo/gofile.html#readLine,GoFile,GoTask	proc readLine(f: GoFile; canceller: GoTaskUntyped = nil; keepNewLine = false): string		70
