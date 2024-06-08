@@ -154,18 +154,20 @@ proc suspendUntilLater*(coro: Coroutine = nil) =
     resumeLater(coroToUse)
     suspend(coroToUse)
 
-proc resumeOnTimer*(coro: Coroutine, timeoutMs: int) =
+proc resumeOnTimer*(coro: Coroutine, timeoutMs: int, willBeAwaited = true) =
     ## Equivalent to a sleep directly handled by the dispatcher
     let oneShotCoro = coro.toOneShot()
-    oneShotCoro.notifyRegistration(ActiveDispatcher, false)
+    if willBeAwaited:
+        oneShotCoro.notifyRegistration(ActiveDispatcher, false)
     ActiveDispatcher.timers.push(
         (getMonoTime() + initDuration(milliseconds = timeoutMs),
         oneShotCoro)
     )
 
-proc resumeOnTimer*(oneShotCoro: OneShotCoroutine, timeoutMs: int) =
+proc resumeOnTimer*(oneShotCoro: OneShotCoroutine, timeoutMs: int, willBeAwaited = true) =
     ## Equivalent to a sleep directly handled by the dispatcher
-    oneShotCoro.notifyRegistration(ActiveDispatcher, false)
+    if willBeAwaited:
+        oneShotCoro.notifyRegistration(ActiveDispatcher, false)
     ActiveDispatcher.timers.push(
         (getMonoTime() + initDuration(milliseconds = timeoutMs),
         oneShotCoro)

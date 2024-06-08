@@ -1,5 +1,5 @@
 import ../[coroutines, eventdispatcher]
-import ../private/[coroutinepool, timeoutwatcher]
+import ../private/[coroutinepool]
 import std/[options, macros]
 
 export options
@@ -7,32 +7,37 @@ export options
 var coroPool = CoroutinePool()
 
 type
-    NextCoroutine = ref object
-        coro: OneShotCoroutine
+    Callbacks = ref object
+        list: seq[OneShotCoroutine]
 
-    GoTaskObj[T] = object
+    GoTaskObj = object of RootObj
         coro: Coroutine
-        next: NextCoroutine
+        callbacks: Callbacks
 
-    GoTask*[T] = ref GoTaskObj[T]
+    GoTaskUntyped = ref GoTaskObj
+    GoTask*[T] = GoTaskUntyped
 
-
+#[
+## Actually causing a bug
 when defined(nimAllowNonVarDestructor):
-    proc `=destroy`[T](gotaskObj: GoTaskObj[T]) =
+    proc `=destroy`(gotaskObj: GoTaskObj) =
         coroPool.releaseCoro(gotaskObj.coro)
 else:
-    proc `=destroy`[T](gotaskObj: var GoTaskObj[T]) =
+    proc `=destroy`(gotaskObj: var GoTaskObj) =
         coroPool.releaseCoro(gotaskObj.coro)
+]#
 
-proc goAsyncImpl(next: NextCoroutine, fn: proc()): GoTask[void] =
-    var coro = coroPool.acquireCoro(fn)
+proc goAsyncImpl(callbacks: Callbacks, fn: proc()): GoTask[void] =
+    #var coro = coroPool.acquireCoro(fn)
+    var coro = newCoroutine(fn)
     resumeLater(coro)
-    return GoTask[void](coro: coro, next: next)
+    return GoTask[void](coro: coro, callbacks: callbacks)
 
-proc goAsyncImpl[T](next: NextCoroutine, fn: proc(): T): GoTask[T] =
-    var coro = coroPool.acquireCoro(fn)
+proc goAsyncImpl[T](callbacks: Callbacks, fn: proc(): T): GoTask[T] =
+    #var coro = coroPool.acquireCoro(fn)
+    var coro = newCoroutine(fn)
     resumeLater(coro)
-    return GoTask[T](coro: coro, next: next)
+    return GoTask[T](coro: coro, callbacks: callbacks)
 
 macro goAsync*(fn: typed): untyped =
     if fn.kind == nnkCall:
@@ -41,13 +46,13 @@ macro goAsync*(fn: typed): untyped =
         if fnType.strVal() == "void":
             return quote do:
                 proc `closureSym`(): GoTask[void] {.discardable.} =
-                    let next = NextCoroutine()
+                    let callbacks = Callbacks()
                     result = goAsyncImpl(
-                        next,
+                        callbacks,
                         proc() =
                             `fn`
-                            if next.coro != nil:
-                                let coro = next.coro.consumeAndGet()
+                            for cb in callbacks.list:
+                                let coro = cb.consumeAndGet()
                                 if coro != nil:
                                     resumeLater(coro)
                     )
@@ -55,13 +60,13 @@ macro goAsync*(fn: typed): untyped =
         else:
             return quote do:
                 proc `closureSym`(): GoTask[`fnType`] =
-                    let next = NextCoroutine()
+                    let callbacks = Callbacks()
                     result = goAsyncImpl(
-                        next,
+                        callbacks,
                         proc(): `fnType` =
                             result = `fn`
-                            if next.coro != nil:
-                                let coro = next.coro.consumeAndGet()
+                            for cb in callbacks.list:
+                                let coro = cb.consumeAndGet()
                                 if coro != nil:
                                     resumeLater(coro)
                     )
@@ -75,13 +80,13 @@ macro goAsync*(fn: typed): untyped =
     if fnType.strVal() == "void":
         return quote do:
             proc `closureSym`(): GoTask[void] {.discardable.} =
-                let next = NextCoroutine()
+                let callbacks = Callbacks()
                 result = goAsyncImpl(
-                    next,
+                    callbacks,
                     proc() =
                         `fn`()
-                        if next.coro != nil:
-                            let coro = next.coro.consumeAndGet()
+                        for cb in callbacks.list:
+                            let coro = cb.consumeAndGet()
                             if coro != nil:
                                 resumeLater(coro)
                 )
@@ -89,95 +94,110 @@ macro goAsync*(fn: typed): untyped =
     else:
         return quote do:
             proc `closureSym`(): GoTask[`fnType`] =
-                let next = NextCoroutine()
+                let callbacks = Callbacks()
                 result = goAsyncImpl(
-                    next,
+                    callbacks,
                     proc(): `fnType` =
                         result = `fn`()
-                        if next.coro != nil:
-                            let coro = next.coro.consumeAndGet()
+                        for cb in callbacks.list:
+                            let coro = cb.consumeAndGet()
                             if coro != nil:
                                 resumeLater(coro)
                 )
             `closureSym`()
 
+proc sleepTask*(timeoutMs: int): GoTask[void] =
+    ## This is the only task the dispatcher won't wait for
+    let callbacks = Callbacks()
+    let coro = newCoroutine(proc() =
+        for cb in callbacks.list:
+            let coro = cb.consumeAndGet()
+            if coro != nil:
+                resumeLater(coro)
+    )
+    resumeOnTimer(coro, timeoutMs, willBeAwaited = false)
+    return GoTask[void](
+        coro: coro,
+        callbacks: callbacks,
+    )
+
+proc finished*(gotask: GoTaskUntyped): bool =
+    gotask.coro.finished()
+
 proc finished*[T](gotask: GoTask[T]): bool =
     gotask.coro.finished()
 
-proc waitImpl[T](gotask: GoTask[T], currentCoro: Coroutine, timeoutMs = -1): bool =
-    if not gotask.coro.finished():
-        var timeout = initTimeOutWatcher(timeoutMs)
-        if currentCoro == nil:
-            while not gotask.coro.finished():
-                runOnce(timeout.getRemainingMs())
-                if timeout.expired():
-                    break
-        else:
-            let oneShotCoro = currentCoro.toOneShot()
-            gotask.next.coro = oneShotCoro
-            if timeoutMs != -1:
-                resumeOnTimer(oneShotCoro, timeoutMs)
-            suspend(currentCoro)
-            if wasWakeUpByTimer():
-                return false
-    return true
-        
+proc waitAnyImpl(currentCoro: Coroutine, gotasks: seq[GoTaskUntyped]) =
+    let sleeper = toOneShot(currentCoro)
+    for task in gotasks:
+        if task.finished():
+            discard sleeper.consumeAndGet()
+            return
+        task.callbacks.list.add(sleeper)
+    if currentCoro == nil:
+        while not sleeper.hasBeenResumed():
+            runOnce()
+    else:
+        suspend(currentCoro)
 
-proc wait*[T](gotask: GoTask[T], timeoutMs: int): Option[T] =
-    if not waitImpl(goTask, getCurrentCoroutine(), timeoutMs):
+proc wait*[T](gotask: GoTask[T], canceller: GoTaskUntyped): Option[T] =
+    waitAnyImpl(getCurrentCoroutine(), @[gotask, canceller])
+    if canceller.finished():
         return none(T)
     else:
         return some(getReturnVal[T](gotask.coro))
 
 proc wait*[T](gotask: GoTask[T]): T =
-    discard waitImpl(goTask, getCurrentCoroutine(), -1)
+    waitAnyImpl(getCurrentCoroutine(), @[gotask])
     return getReturnVal[T](gotask.coro)
 
-proc wait*(gotask: GoTask[void], timeoutMs: int): bool =
-    return waitImpl(goTask, getCurrentCoroutine(), timeoutMs)
-
-proc wait*(gotask: GoTask[void]) =
-    discard waitImpl(goTask, getCurrentCoroutine(), -1)
-
-proc waitAllImpl[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
-    let currentCoro = getCurrentCoroutine()
-    var timeout = initTimeOutWatcher(timeoutMs)
-    for task in gotasks:
-        if not waitImpl(task, currentCoro, timeout.getRemainingMs()):
-            return false
+proc wait*(gotask: GoTask[void], canceller: GoTaskUntyped): bool =
+    waitAnyImpl(getCurrentCoroutine(), @[gotask, canceller])
+    if canceller.finished():
+        return false
     return true
 
-proc waitAll*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): seq[T] =
-    if not waitAllImpl(gotasks, timeoutMs):
+proc wait*(gotask: GoTask[void]) =
+    waitAnyImpl(getCurrentCoroutine(), @[gotask])
+
+proc waitAllImpl[T](gotasks: seq[GoTask[T]], canceller: GoTaskUntyped): bool =
+    let currentCoro = getCurrentCoroutine()
+    if canceller == nil:
+        for task in gotasks:
+            if not task.finished():
+                waitAnyImpl(currentCoro, @[task])
+    else:
+        for task in gotasks:
+            if not task.finished():
+                waitAnyImpl(currentCoro, @[task, canceller])
+                if canceller.finished():
+                    return false
+    return true
+
+proc waitAll*[T](gotasks: seq[GoTask[T]], canceller: GoTaskUntyped): seq[T] =
+    if not waitAllImpl(gotasks, canceller):
         return
     result = newSeqOfCap[T](gotasks.len())
     for task in gotasks:
         result.add getReturnVal[T](task.coro)
 
-proc waitAll*(gotasks: seq[GoTask[void]], timeoutMs: int): bool =
-    return waitAllImpl(gotasks, timeoutMs)
+proc waitAll*(gotasks: seq[GoTask[void]], canceller: GoTaskUntyped): bool =
+    return waitAllImpl(gotasks, canceller)
 
 proc waitAll*(gotasks: seq[GoTask[void]]) =
-    discard waitAllImpl(gotasks, -1)
+    discard waitAllImpl(gotasks, nil)
 
-proc waitAny*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): bool =
-    ## Ignores failed gotasks, return false if all failed
-    let coro = getCurrentCoroutine()
-    var timeout = initTimeOutWatcher(timeoutMs)
-    while true:
-        var allFailed = true
-        for task in gotasks:
-            let coroState = task.coro.getState()
-            if coroState == CsFinished:
-                return true
-        if allFailed or timeout.expired():
-            return false
-        if coro == nil:
-            runOnce(timeout.getRemainingMs())
-        else:
-            ## Slow busy waiting here to refactor
-            resumeLater(coro)
-            suspend(coro)
+proc waitAny*[T](gotasks: seq[GoTask[T]], canceller: GoTaskUntyped): bool =
+    var allTasks = newSeqOfCap[GoTaskUntyped](gotasks.len() + 1)
+    allTasks.add gotasks
+    allTasks.add canceller
+    waitAnyImpl(getCurrentCoroutine(), allTasks)
+    if canceller.finished():
+        return false
+    return true
+
+proc waitAny*[T](gotasks: seq[GoTask[T]]) =
+    waitAnyImpl(getCurrentCoroutine(), gotasks)
 
 template goAndwait*(fn: untyped): untyped =
     ## Shortcut for wait goAsync
