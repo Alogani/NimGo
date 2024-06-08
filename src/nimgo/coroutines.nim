@@ -12,6 +12,8 @@
     We disable stacktrace for this file because moving around coroutines before resuming/suspending can mess it up
 ]#
 
+import ./private/coroutinememory
+
 when not defined(gcArc) and not defined(gcOrc):
     {.warning: "coroutines is not tested without --mm:orc or --mm:arc".}
 
@@ -19,17 +21,9 @@ from std/os import parentDir, `/`
 const minicoroh = currentSourcePath().parentdir() / "private/minicoro.h"
     
 {.compile: "./private/minicoro.c".}
-when defined(coroUseVMem):
-    {.passC: "-DMCO_USE_VMEM_ALLOCATOR".}
 when not defined(debug):
     {.passC: "-DMCO_NO_DEBUG".}
 
-const coroMemratio {.intdefine.} = 10
-
-when defined(coroUseVMem):
-    const DefaultStackSize = 2040 * 1024 * coroMemratio div 10 ## Recommanded by MCO
-else:
-    const DefaultStackSize = 56 * 1024 * coroMemratio div 10 ## Recommanded by MCO
 
 type
     McoCoroDescriptor {.importc: "mco_desc", header: minicoroh.} = object
@@ -168,6 +162,7 @@ else:
             deallocShared(coroObj.returnedVal)
         coroObj.entryFn.destroy()
 
+#[
 proc reinitImpl[T](coro: Coroutine, entryFn: EntryFn[T]) =
     checkMcoReturnCode uninitMcoCoroutine(coro.mcoCoroutine)
     coro.entryFn = cast[SafeContainer[void]](entryFn.pushIntoContainer())
@@ -182,20 +177,24 @@ proc reinit*(coro: Coroutine, entryFn: EntryFn[void]) =
     ## Allow to reuse an existing coroutine without reallocating it
     ## However, please ensure it has correctly finished
     reinitImpl[void](coro, entryFn)
+]#
 
-proc newCoroutineImpl[T](entryFn: EntryFn[T], stacksize: int): Coroutine =
+proc newCoroutineImpl[T](entryFn: EntryFn[T]): Coroutine =
     result = Coroutine(
         entryFn: cast[SafeContainer[void]](entryFn.pushIntoContainer()),
     )
-    var mcoCoroDescriptor = initMcoDescriptor(coroutineMain[T], stacksize.uint)
+    var mcoCoroDescriptor = initMcoDescriptor(coroutineMain[T], McoStackSize)
+    mcoCoroDescriptor.alloc_cb = mcoAllocator
+    mcoCoroDescriptor.dealloc_cb = mcoDeallocator
     mcoCoroDescriptor.user_data = cast[ptr CoroutineObj](result)
     checkMcoReturnCode createMcoCoroutine(addr(result.mcoCoroutine), addr mcoCoroDescriptor)
 
-proc newCoroutine*[T](entryFn: EntryFn[T], stacksize = DefaultStackSize): Coroutine =
-    newCoroutineImpl[T](entryFn, stacksize)
 
-proc newCoroutine*(entryFn: EntryFn[void], stacksize = DefaultStackSize): Coroutine =
-    newCoroutineImpl[void](entryFn, stacksize)
+proc newCoroutine*[T](entryFn: EntryFn[T]): Coroutine =
+    newCoroutineImpl[T](entryFn)
+
+proc newCoroutine*(entryFn: EntryFn[void]): Coroutine =
+    newCoroutineImpl[void](entryFn)
 
 proc resume*(coro: Coroutine) =
     ## Will resume the coroutine where it stopped (or start it)
