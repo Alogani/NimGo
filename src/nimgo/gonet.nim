@@ -2,8 +2,8 @@
 ## This is a simple wrapper the socket defined std/net, with our own buffer component and added async features
 ## So all operations are not guaranteed to has been asyncified
 
-import ./eventdispatcher
-import ./private/[buffer, timeoutwatcher]
+import ./[eventdispatcher, gotaskscomplete]
+import ./private/buffer
 import std/[nativesockets, net, options, oserrors]
 
 export net
@@ -45,8 +45,8 @@ when defined(ssl):
         gosocket.socket.getPeerCertificates()
 
 proc accept*(gosocket: GoSocket, flags = {SafeDisconn};
-            inheritable = defined(nimInheritHandles), timeoutMs = -1): GoSocket =
-    if not suspendUntilRead(gosocket.pollFd, timeoutMs):
+            inheritable = defined(nimInheritHandles), canceller: GoTaskUntyped = nil): GoSocket =
+    if not suspendUntilRead(gosocket.pollFd, canceller, true):
         raise newException(ValueError, "Timeout occured")
     var client: Socket
     accept(gosocket.socket, client, flags, inheritable)
@@ -57,8 +57,8 @@ proc accept*(gosocket: GoSocket, flags = {SafeDisconn};
     )
 
 proc acceptAddr*(gosocket: GoSocket; flags = {SafeDisconn};
-                    inheritable = defined(nimInheritHandles), timeoutMs = -1): tuple[address: string, client: GoSocket] =
-    if not suspendUntilRead(gosocket.pollFd, timeoutMs):
+                    inheritable = defined(nimInheritHandles), canceller: GoTaskUntyped = nil): tuple[address: string, client: GoSocket] =
+    if not suspendUntilRead(gosocket.pollFd, canceller, true):
         raise newException(ValueError, "Timeout occured")
     var client: Socket
     var address = ""
@@ -79,13 +79,13 @@ proc close*(gosocket: GoSocket) =
     gosocket.socket.close()
     gosocket.closed = true
 
-proc connect*(gosocket: GoSocket; address: string; port: Port, timeoutMs = -1) =
-    if not suspendUntilRead(gosocket.pollFd, timeoutMs):
+proc connect*(gosocket: GoSocket; address: string; port: Port, canceller: GoTaskUntyped = nil) =
+    if not suspendUntilRead(gosocket.pollFd, canceller, true):
         raise newException(ValueError, "Timeout occured")
     connect(gosocket.socket, address, port)
 
-proc connectUnix*(gosocket: GoSocket; path: string, timeoutMs = -1) =
-    if not suspendUntilRead(gosocket.pollFd, timeoutMs):
+proc connectUnix*(gosocket: GoSocket; path: string, canceller: GoTaskUntyped = nil) =
+    if not suspendUntilRead(gosocket.pollFd, canceller, true):
         raise newException(ValueError, "Timeout occured")
     connectUnix(gosocket.socket, path)
 
@@ -128,7 +128,7 @@ proc dial*(address: string; port: Port; protocol = IPPROTO_TCP; buffered = true)
                 raiseOSError(err)
             fdPerDomain[ord(domain)] = lastFd
         pollFd = registerHandle(lastFd, {Event.Read, Event.Write})
-        discard suspendUntilRead(pollFd)
+        discard suspendUntilRead(pollFd, nil, true)
         if connect(lastFd, it.ai_addr, it.ai_addrlen.SockLen) == 0'i32:
             success = true
             break
@@ -174,50 +174,49 @@ proc isSsl*(gosocket: GoSocket): bool =
 proc listen*(gosocket: GoSocket; backlog = SOMAXCONN) =
     listen(gosocket.socket, backlog)
 
-proc recvBufferImpl(s: GoSocket; data: pointer, size: int, timeoutMs: int): int =
+proc recvBufferImpl(s: GoSocket; data: pointer, size: int, canceller: GoTaskUntyped = nil): int =
     ## Bypass the buffer
-    if not suspendUntilRead(s.pollFd, timeoutMs):
+    if not suspendUntilRead(s.pollFd, canceller, true):
         return -1
     assert(not s.closed, "Cannot `recv` on a closed socket")
     let bytesCount = recv(s.socket, data, size)
     return bytesCount
 
-proc recvImpl(s: GoSocket, size: Positive, timeoutMs: int): string =
+proc recvImpl(s: GoSocket, size: Positive, canceller: GoTaskUntyped = nil): string =
     result = newStringOfCap(size)
     result.setLen(1)
-    let bytesCount = s.recvBufferImpl(addr(result[0]), size, timeoutMs)
+    let bytesCount = s.recvBufferImpl(addr(result[0]), size, canceller)
     if bytesCount <= 0:
         return ""
     result.setLen(bytesCount)
 
-proc recv*(s: GoSocket; size: int, timeoutMs = -1): string =
+proc recv*(s: GoSocket; size: int, canceller: GoTaskUntyped = nil): string =
     if s.buffer != nil:
         if s.buffer.len() < size:
-            let data = s.recvImpl(max(size, DefaultBufferSize), timeoutMs)
+            let data = s.recvImpl(max(size, DefaultBufferSize), canceller)
             if data != "":
                 s.buffer.write(data)
         return s.buffer.read(size)
     else:
-        return s.recvImpl(size, timeoutMs)
+        return s.recvImpl(size, canceller)
 
 proc recvFrom*[T: string | IpAddress](s: GoSocket; data: var string;
             length: int; address: var T;
-            port: var Port; flags = 0'i32, timeoutMs = -1): int =
+            port: var Port; flags = 0'i32, canceller: GoTaskUntyped = nil): int =
     ## Always unbuffered, ignore if data is already in buffer
     ## Can raise exception
-    if not suspendUntilRead(s.pollFd, timeoutMs):
+    if not suspendUntilRead(s.pollFd, canceller, true):
         return -1
     return recvFrom(s.socket, data, length, address, port, flags)
 
 proc recvLine*(s: GoSocket; keepNewLine = false,
-              timeoutMs = -1): string =
-    var timeout = initTimeOutWatcher(timeoutMs)
+              canceller: GoTaskUntyped = nil): string =
     if s.buffer != nil:
         while true:
             let line = s.buffer.readLine(keepNewLine)
             if line.len() != 0:
                 return line
-            let data = s.recvImpl(DefaultBufferSize, timeout.getRemainingMs())
+            let data = s.recvImpl(DefaultBufferSize, canceller)
             if data.len() == 0:
                 return s.buffer.readAll()
             s.buffer.write(data)
@@ -227,12 +226,12 @@ proc recvLine*(s: GoSocket; keepNewLine = false,
         var length = 0
         while true:
             var c: char
-            let readCount = s.recvBufferImpl(addr(c), 1, timeout.getRemainingMs())
+            let readCount = s.recvBufferImpl(addr(c), 1, canceller)
             if readCount <= 0:
                 line.setLen(length)
                 return line
             if c == '\c':
-                discard s.recvBufferImpl(addr(c), 1, timeout.getRemainingMs())
+                discard s.recvBufferImpl(addr(c), 1, canceller)
                 if keepNewLine:
                     line[length] = '\n'
                     line.setLen(length + 1)
@@ -251,26 +250,26 @@ proc recvLine*(s: GoSocket; keepNewLine = false,
             line[length] = c
             length += 1
 
-proc sendImpl(s: GoSocket; data: string, timeoutMs: int): int =
+proc sendImpl(s: GoSocket; data: string, canceller: GoTaskUntyped = nil): int =
     ## Bypass the buffer
     if data.len() == 0:
         return 0
-    if not suspendUntilWrite(s.pollFd, timeoutMs):
+    if not suspendUntilWrite(s.pollFd, canceller, true):
         return -1
     let bytesCount = send(s.socket, addr(data[0]), data.len())
     return bytesCount
 
-proc send*(s: GoSocket; data: string, timeoutMs = -1): int =
+proc send*(s: GoSocket; data: string, canceller: GoTaskUntyped = nil): int =
     ## Send is unbuffered
-    return sendImpl(s, data, timeoutMs)
+    return sendImpl(s, data, canceller)
 
 proc sendTo*(s: GoSocket; address: IpAddress; port: Port; data: string,
-            flags = 0'i32, timeoutMs = -1): int {.discardable.} =
+            flags = 0'i32, canceller: GoTaskUntyped = nil): int {.discardable.} =
     ## Always unbuffered
     ## Can raise exception
     if data.len() == 0:
         return 0
-    if not suspendUntilWrite(s.pollFd, timeoutMs):
+    if not suspendUntilWrite(s.pollFd, canceller, true):
         return -1
     return sendTo(s.socket, address, port, data, flags)
 

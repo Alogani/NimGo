@@ -1,10 +1,10 @@
 import ../[coroutines, eventdispatcher]
-import ../private/[coroutinepool]
+#import ../private/[coroutinepool]
 import std/[options, macros]
 
 export options
 
-var coroPool = CoroutinePool()
+#var coroPool = CoroutinePool()
 
 type
     Callbacks = ref object
@@ -14,11 +14,11 @@ type
         coro: Coroutine
         callbacks: Callbacks
 
-    GoTaskUntyped = ref GoTaskObj
+    GoTaskUntyped* = ref GoTaskObj
     GoTask*[T] = GoTaskUntyped
 
 #[
-## Actually causing a bug
+## Coroutine Pool is actually causing a bug
 when defined(nimAllowNonVarDestructor):
     proc `=destroy`(gotaskObj: GoTaskObj) =
         coroPool.releaseCoro(gotaskObj.coro)

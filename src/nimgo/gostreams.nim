@@ -1,6 +1,5 @@
-import ./[coroutines, eventdispatcher, gofile]
-import ./private/[buffer, timeoutwatcher]
-import public/gotasks
+import ./[coroutines, eventdispatcher, gofile, gotaskscomplete]
+import ./private/[buffer]
 import std/deques
 
 type
@@ -23,14 +22,14 @@ type
 
 method close*(s: GoStream) {.base.} = discard
 method closed*(s: GoStream): bool {.base.} = discard
-method readAvailable*(s: GoStream, size: Positive, timeoutMs = -1): string {.base.} = discard
-method readChunk*(s: GoStream, timeoutMs = -1): string {.base.} = discard
+method readAvailable*(s: GoStream, size: Positive, canceller: GoTaskUntyped = nil): string {.base.} = discard
+method readChunk*(s: GoStream, canceller: GoTaskUntyped = nil): string {.base.} = discard
     ## Equivalent of readAvailable but with a size optimized for read speed.
     ## The size can vary for each read.
-method read*(s: GoStream, size: Positive, timeoutMs = -1): string {.base.} = discard
-method readAll*(s: GoStream, timeoutMs = -1): string {.base.} = discard
-method readLine*(s: GoStream, timeoutMs = -1, keepNewLine = false): string {.base.} = discard
-method write*(s: GoStream, data: sink string, timeoutMs = -1): int {.discardable, base.} = discard
+method read*(s: GoStream, size: Positive, canceller: GoTaskUntyped = nil): string {.base.} = discard
+method readAll*(s: GoStream, canceller: GoTaskUntyped = nil): string {.base.} = discard
+method readLine*(s: GoStream, canceller: GoTaskUntyped = nil, keepNewLine = false): string {.base.} = discard
+method write*(s: GoStream, data: sink string, canceller: GoTaskUntyped = nil): int {.discardable, base.} = discard
 
 
 #[ *** GoFileStream *** ]#
@@ -44,23 +43,23 @@ method close*(s: GoFileStream) =
 method closed*(s: GoFileStream): bool =
     s.file.closed()
 
-method readAvailable*(s: GoFileStream, size: Positive, timeoutMs = -1): string =
-    readAvailable(s.file, size, timeoutMs)
+method readAvailable*(s: GoFileStream, size: Positive, canceller: GoTaskUntyped = nil): string =
+    readAvailable(s.file, size, canceller)
 
-method readChunk*(s: GoFileStream, timeoutMs = -1): string =
-    readChunk(s.file, timeoutMs)
+method readChunk*(s: GoFileStream, canceller: GoTaskUntyped = nil): string =
+    readChunk(s.file, canceller)
 
-method read*(s: GoFileStream, size: Positive, timeoutMs = -1): string =
-    read(s.file, size, timeoutMs)
+method read*(s: GoFileStream, size: Positive, canceller: GoTaskUntyped = nil): string =
+    read(s.file, size, canceller)
 
-method readAll*(s: GoFileStream, timeoutMs = -1): string =
-    readAll(s.file, timeoutMs)
+method readAll*(s: GoFileStream, canceller: GoTaskUntyped = nil): string =
+    readAll(s.file, canceller)
 
-method readLine*(s: GoFileStream, timeoutMs = -1, keepNewLine = false): string =
-    readLine(s.file, timeoutMs, keepNewLine)
+method readLine*(s: GoFileStream, canceller: GoTaskUntyped = nil, keepNewLine = false): string =
+    readLine(s.file, canceller, keepNewLine)
 
-method write*(s: GoFileStream, data: sink string, timeoutMs = -1): int {.discardable.} =
-    write(s.file, data, timeoutMs)
+method write*(s: GoFileStream, data: sink string, canceller: GoTaskUntyped = nil): int {.discardable.} =
+    write(s.file, data, canceller)
 
 
 #[ *** GoBufferStream *** ]#
@@ -82,57 +81,57 @@ method close*(s: GoBufferStream) =
 method closed*(s: GoBufferStream): bool =
     s.closed
 
-proc fillBuffer(s: GoBufferStream, timeoutMs: int): bool =
+proc fillBuffer(s: GoBufferStream, canceller: GoTaskUntyped): bool =
     let coro = getCurrentCoroutineSafe()
     let oneShotCoro = toOneShot(coro)
+    if canceller != nil:
+        canceller.addCallback(oneShotCoro)
     s.waitersQueue.addLast oneShotCoro
-    if timeoutMs != -1:
-        resumeOnTimer(oneShotCoro, timeoutMs)
     suspend(coro)
-    return wasWakeUpByTimer()
+    if canceller != nil:
+        return not canceller.finished()
+    else:
+        return true
 
-method readAvailable*(s: GoBufferStream, size: Positive, timeoutMs = -1): string =
+method readAvailable*(s: GoBufferStream, size: Positive, canceller: GoTaskUntyped = nil): string =
     if s.buffer.empty() and not s.closed:
-        if not s.fillBuffer(timeoutMs):
+        if not s.fillBuffer(canceller):
             return ""
     s.buffer.read(size)
 
-method readChunk*(s: GoBufferStream, timeoutMs = -1): string =
+method readChunk*(s: GoBufferStream, canceller: GoTaskUntyped = nil): string =
     if s.buffer.empty() and not s.closed:
-        if not s.fillBuffer(timeoutMs):
+        if not s.fillBuffer(canceller):
             return ""
     s.buffer.readChunk()
     
-method read*(s: GoBufferStream, size: Positive, timeoutMs = -1): string =
+method read*(s: GoBufferStream, size: Positive, canceller: GoTaskUntyped = nil): string =
     result = newStringOfCap(size)
-    var timeout = initTimeOutWatcher(timeoutMs)
     while result.len() < size:
-        let data = s.readAvailable(size - result.len(), timeout.getRemainingMs())
+        let data = s.readAvailable(size - result.len(), canceller)
         if data.len() == 0:
             break
         result.add(data)
 
-method readAll*(s: GoBufferStream, timeoutMs = -1): string =
-    var timeout = initTimeOutWatcher(timeoutMs)
+method readAll*(s: GoBufferStream, canceller: GoTaskUntyped = nil): string =
     while true:
-        let data = s.readAvailable(DefaultBufferSize, timeout.getRemainingMs())
+        let data = s.readAvailable(DefaultBufferSize, canceller)
         if data.len() == 0:
             break
         result.add data
     
-method readLine*(s: GoBufferStream, timeoutMs = -1, keepNewLine = false): string =
-    var timeout = initTimeOutWatcher(timeoutMs)
+method readLine*(s: GoBufferStream, canceller: GoTaskUntyped = nil, keepNewLine = false): string =
     while true:
         let line = s.buffer.readLine(keepNewLine)
         if line.len() != 0:
             return line
-        if not s.fillBuffer(timeout.getRemainingMs()):
+        if not s.fillBuffer(canceller):
             if s.closed:
                 return s.buffer.readAll()
             else:
                 return ""
 
-method write*(s: GoBufferStream, data: sink string, timeoutMs = -1): int {.discardable.} =
+method write*(s: GoBufferStream, data: sink string, canceller: GoTaskUntyped = nil): int {.discardable.} =
     s.buffer.write(data)
     if s.waitersQueue.len() == 0:
         s.wakeupSignal = true

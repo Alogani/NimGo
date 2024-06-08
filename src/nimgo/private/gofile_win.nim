@@ -1,7 +1,8 @@
 {.warning: "gofile_win is completly untested. Please remove this line, use at your own risk and tell me if it works".}
 import std/[winlean, widestrs, oserrors]
 from std/syncio import FileHandle, FileMode, FileSeekPos
-import ../eventdispatcher
+import ../[eventdispatcher]
+import ../public/gotasks
 import ./buffer
 
 type
@@ -108,10 +109,10 @@ proc openGoFile*(filename: string, mode = fmRead, buffered = true): GoFile =
         buffer: if buffered: newBuffer() else: nil
     )
 
-proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, timeoutMs: int, noAsync: bool): int {.used.} =
+proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, canceller: GoTaskUntyped, noAsync: bool): int {.used.} =
     ## Bypass the buffer
     if not noAsync:
-        if not suspendUntilRead(f.pollFd, timeoutMs):
+        if not suspendUntilRead(f.pollFd, canceller, true):
             return -1
     var bytesCount: int32
     if readFile(f.fd, buf, int32(len), addr(bytesCount), nil) == 0:
@@ -122,20 +123,20 @@ proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, timeoutMs: int, noAs
         f.state = FsEof
     return bytesCount
 
-proc readImpl(f: GoFile, len: Positive, timeoutMs: int, noAsync: bool): string {.used.} =
+proc readImpl(f: GoFile, len: Positive, canceller: GoTaskUntyped, noAsync: bool): string {.used.} =
     ## Bypass the buffer
     result = newStringOfCap(len)
     result.setLen(1)
-    let bytesCount = f.readBufferImpl(addr(result[0]), len, timeoutMs, noAsync)
+    let bytesCount = f.readBufferImpl(addr(result[0]), len, canceller, noAsync)
     if bytesCount <= 0:
         return ""
     result.setLen(bytesCount)
 
-proc write*(f: GoFile, data: sink string, timeoutMs: int): int {.used.} =
+proc write*(f: GoFile, data: sink string, canceller: GoTaskUntyped = nil): int {.used.} =
     ## Bypass the buffer
     if data.len() == 0:
         return 0
-    if not suspendUntilWrite(f.pollFd, timeoutMs):
+    if not suspendUntilWrite(f.pollFd, canceller, true):
         return -1
     var bytesCount: int32
     if writeFile(f.fd, addr(data[0]), int32(data.len()), addr(bytesCount), nil) == 0:

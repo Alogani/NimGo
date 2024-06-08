@@ -143,3 +143,4 @@ test "inside coroutine waitany - success":
         var task = goasync coroFn()
         wait(task)
         check task.finished()
+    

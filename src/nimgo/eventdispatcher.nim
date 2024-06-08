@@ -28,9 +28,8 @@ type
     AsyncData = object
         readList: Deque[OneShotCoroutine] # Also stores all other event kind
         writeList: Deque[OneShotCoroutine]
-        isTimer: bool
 
-    WakeUpInfo = tuple[pollFd: PollFd, events: set[Event], byTimer: bool]
+    WakeUpInfo = tuple[pollFd: PollFd, events: set[Event]]
 
     CoroutineWithTimer = tuple[finishAt: MonoTime, coro: OneShotCoroutine]
 
@@ -212,7 +211,6 @@ proc processTimers(): TimeOutWatcher =
     ## Returns the timeout until the next timer
     if ActiveDispatcher.countInsideTimers < 0:
         return initTimeoutWatcher(-1)
-    ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, true)
     var monotimeInit: bool
     var monoTimeNow: MonoTime
     for i in 0..2: # To avoid starving the loop, but handling maximum number of coroutines
@@ -228,15 +226,12 @@ proc processTimers(): TimeOutWatcher =
             elif monoTimeNow <= nextFinishAt:
                 monoTimeNow = getMonoTime()
             if monoTimeNow <= nextFinishAt:
-                ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, false)
                 return initTimeoutWatcher((nextFinishAt - monoTimeNow).inMilliseconds())
             let coro = ActiveDispatcher.timers.pop().coro.consumeAndGet()
             resume(coro)
     if ActiveDispatcher.timers.len() == 0:
-        ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, false)
         return initTimeoutWatcher(-1)
     else:
-        ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, false)
         return timeoutWatcherFromFinishAt(ActiveDispatcher.timers[0].finishAt)
 
 proc processSelector(timeout: var TimeOutWatcher) =
@@ -258,7 +253,6 @@ proc processSelector(timeout: var TimeOutWatcher) =
                     ActiveDispatcher.lastWakeUpInfo = (
                         PollFd(readyKey.fd),
                         { Event.Write },
-                        asyncData.isTimer,
                     )
                     ActiveDispatcher.consumeEventFlag = false
                     while asyncData.writeList.len() != 0:
@@ -273,7 +267,6 @@ proc processSelector(timeout: var TimeOutWatcher) =
                     ActiveDispatcher.lastWakeUpInfo = (
                         PollFd(readyKey.fd),
                         readykey.events - { Event.Write },
-                        asyncData.isTimer,
                     )
                     ActiveDispatcher.consumeEventFlag = false
                     while asyncData.readList.len() != 0:
@@ -287,7 +280,7 @@ proc processSelector(timeout: var TimeOutWatcher) =
         if hasResumed or remainingMs == 0:
             break
         sleep(min(SelectorBusySleepMs, remainingMs))
-    ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {}, false)
+    ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {})
 
 proc runOnce*(timeoutMs = -1) =
     ## Run the event loop. The poll phase is done only once
@@ -334,30 +327,33 @@ proc runEventLoop*(
 
 template withEventLoop*(body: untyped) =
     ## Ensures all coroutines registered will be executed, contrary to wait
-    `body`
-    runEventLoop()
+    block:
+        `body`
+        runEventLoop()
 
 template insideNewEventLoop*(dispatcher: EvDispatcher, body: untyped) =
     ## Temporarly replace the current event loop.
     ## This means, you can't use any AsyncObjects defined before like `goStdin, `goStdout`.
     ## But we can register them in the new dispatcher.
     ## And no coroutines defined before will be executed
-    let oldDispatcher = ActiveDispatcher
-    ActiveDispatcher = dispatcher
-    `body`
-    runEventLoop()
-    ActiveDispatcher = oldDispatcher
+    block:
+        let oldDispatcher = ActiveDispatcher
+        ActiveDispatcher = dispatcher
+        `body`
+        runEventLoop()
+        ActiveDispatcher = oldDispatcher
 
 template insideNewEventLoop*(body: untyped) =
     ## Temporarly replace the current event loop.
     ## This means, you can't use any AsyncObjects defined before like `goStdin, `goStdout`.
     ## But we can register them in the new dispatcher.
     ## And no coroutines defined before will be executed
-    let oldDispatcher = ActiveDispatcher
-    ActiveDispatcher = newDispatcher()
-    `body`
-    runEventLoop()
-    ActiveDispatcher = oldDispatcher
+    block:
+        let oldDispatcher = ActiveDispatcher
+        ActiveDispatcher = newDispatcher()
+        `body`
+        runEventLoop()
+        ActiveDispatcher = oldDispatcher
 
 proc running*(dispatcher = ActiveDispatcher): bool =
     dispatcher.running
@@ -423,7 +419,6 @@ proc registerTimer*(
         oneShotCoro.notifyRegistration(ActiveDispatcher, true)
     result = PollFd(ActiveDispatcher.selector.registerTimer(timeoutMs, oneshot, AsyncData(
         readList: toDeque(coros),
-        isTimer: true,
     )))
 
 proc unregister*(fd: PollFd) =
@@ -477,51 +472,3 @@ proc pollOnce*() =
         runOnce()
     else:
         suspendUntilLater(coro)
-
-proc wasWakeUpByTimer*(): bool =
-    ## Only works inside a coroutine resumed by dispatcher
-    ActiveDispatcher.lastWakeUpInfo.byTimer
-
-proc suspendUntilAny*(readFd: seq[PollFd], writefd: seq[PollFd], timeoutMs = -1): WakeUpInfo =
-    let coro = getCurrentCoroutineSafe()
-    let oneShotCoro = toOneShot(coro)
-    for fd in readFd:
-        addInsideSelector(fd, oneShotCoro, Event.Read)
-    for fd in writefd:
-        addInsideSelector(fd, oneShotCoro, Event.Write)
-    if timeoutMs == -1:
-        resumeOnTimer(oneShotCoro, timeoutMs)
-    suspend(coro)
-    return ActiveDispatcher.lastWakeUpInfo
-
-proc suspendUntilRead*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
-    ## See also `consumeCurrentEvent` to avoid a data race if multiple coros are registered for same fd
-    ## If PollFd is not a file, by definition only the coros in the readList will be resumed
-    ## It will not try to update the kind of event waited inside the selector. Waiting for unregistered event will deadlock
-    let coro = getCurrentCoroutineSafe()
-    let oneShotCoro = toOneShot(coro)
-    addInsideSelector(fd, oneShotCoro, Event.Read)
-    if timeoutMs != -1:
-        resumeOnTimer(oneShotCoro, timeoutMs)
-    suspend(coro)
-    if ActiveDispatcher.lastWakeUpInfo.byTimer:
-        return false
-    if consumeEvent:
-        consumeCurrentEvent()
-    return true
-
-proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
-    ## If PollFd is not a file, by definition only the coros in the readList will be resumed
-    ## It will not try to update the kind of event waited inside the selector. Waiting for unregistered event will deadlock
-    ## consumeEvent permits to avoid a data race if multiple coros are registered for same fd
-    let coro = getCurrentCoroutineSafe()
-    let oneShotCoro = toOneShot(coro)
-    addInsideSelector(fd, oneShotCoro, Event.Write)
-    if timeoutMs != -1:
-        resumeOnTimer(oneShotCoro, timeoutMs)
-    suspend(coro)
-    if ActiveDispatcher.lastWakeUpInfo.byTimer:
-        return false
-    if consumeEvent:
-        consumeCurrentEvent()
-    return true
