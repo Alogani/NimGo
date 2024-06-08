@@ -2,7 +2,6 @@ when defined(windows):
     include ./private/gofile_win
 else:
     include ./private/gofile_posix
-import ./private/timeoutwatcher
 
 
 let goStdin* = newGoFile(stdin.getFileHandle(), fmRead, buffered = false)
@@ -30,55 +29,52 @@ proc getOsFileHandle*(f: GoFile): FileHandle =
 proc getSelectorFileHandle*(f: GoFile): PollFd =
     f.pollFd
 
-proc readAvailable*(f: Gofile, size: Positive, timeoutMs = -1, noAsync = false): string =
+proc readAvailable*(f: Gofile, size: Positive, canceller: GoTaskUntyped = nil, noAsync = false): string =
     if f.buffer != nil:
         if f.buffer.len() < size:
-            let data = f.readImpl(max(size, DefaultBufferSize), timeoutMs, noAsync)
+            let data = f.readImpl(max(size, DefaultBufferSize), canceller, noAsync)
             if data != "":
                 f.buffer.write(data)
         return f.buffer.read(size)
     else:
-        return f.readImpl(size, timeoutMs, noAsync)
+        return f.readImpl(size, canceller, noAsync)
 
-proc readChunk*(f: Gofile, timeoutMs = -1, noAsync = false): string =
+proc readChunk*(f: Gofile, canceller: GoTaskUntyped = nil, noAsync = false): string =
     ## More efficient, especially when file is buffered
     ## The returned read size is not predictable, but less than `buffer.DefaultBufferSize`
     if f.buffer != nil:
         if f.buffer.empty():
-            return f.readImpl(DefaultBufferSize, timeoutMs, noAsync)
+            return f.readImpl(DefaultBufferSize, canceller, noAsync)
         return f.buffer.readChunk()
     else:
-        return f.readImpl(DefaultBufferSize, timeoutMs, noAsync)
+        return f.readImpl(DefaultBufferSize, canceller, noAsync)
 
-proc read*(f: Gofile, size: Positive, timeoutMs = -1): string =
+proc read*(f: Gofile, size: Positive, canceller: GoTaskUntyped = nil): string =
     result = newStringOfCap(size)
-    var timeout = initTimeOutWatcher(timeoutMs)
     while result.len() < size:
-        let data = f.readAvailable(size - result.len(), timeout.getRemainingMs())
+        let data = f.readAvailable(size - result.len(), canceller)
         if data.len() == 0:
             break
         result.add(data)
 
-proc readAll*(f: Gofile, timeoutMs = -1): string =
+proc readAll*(f: Gofile, canceller: GoTaskUntyped = nil): string =
     ## Might return a string even if EOF has not been reached
-    var timeout = initTimeOutWatcher(timeoutMs)
     if f.buffer != nil:
         result = f.buffer.readAll()
     while true:
-        let data = f.readChunk(timeout.getRemainingMs())
+        let data = f.readChunk(canceller)
         if data.len() == 0:
             break
         result.add data
 
-proc readLine*(f: GoFile, timeoutMs = -1, keepNewLine = false): string =
+proc readLine*(f: GoFile, canceller: GoTaskUntyped = nil, keepNewLine = false): string =
     ## Newline is not kept. To distinguish between EOF, you can use `endOfFile`
-    var timeout = initTimeOutWatcher(timeoutMs)
     if f.buffer != nil:
         while true:
             let line = f.buffer.readLine(keepNewLine)
             if line.len() != 0:
                 return line
-            let data = f.readImpl(DefaultBufferSize, timeout.getRemainingMs(), false)
+            let data = f.readImpl(DefaultBufferSize, canceller, false)
             if data.len() == 0:
                 return f.buffer.readAll()
             f.buffer.write(data)
@@ -88,12 +84,12 @@ proc readLine*(f: GoFile, timeoutMs = -1, keepNewLine = false): string =
         var length = 0
         while true:
             var c: char
-            let readCount = f.readBufferImpl(addr(c), 1, timeout.getRemainingMs(), false)
+            let readCount = f.readBufferImpl(addr(c), 1, canceller, false)
             if readCount <= 0:
                 line.setLen(length)
                 return line
             if c == '\c':
-                discard f.readBufferImpl(addr(c), 1, timeout.getRemainingMs(), false)
+                discard f.readBufferImpl(addr(c), 1, canceller, false)
                 if keepNewLine:
                     line[length] = '\n'
                     line.setLen(length + 1)

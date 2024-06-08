@@ -1,6 +1,6 @@
 import std/[bitops, posix, oserrors]
 from std/syncio import FileHandle, FileMode, FileSeekPos
-import ../eventdispatcher
+import ../[eventdispatcher, gotaskscomplete]
 import ./buffer
 
 type
@@ -107,10 +107,10 @@ proc openGoFile*(filename: string, mode = fmRead, buffered = true): GoFile =
         buffer: if buffered: newBuffer() else: nil
     )
 
-proc readBufferImpl(f: GoFile, buf: pointer, size: Positive, timeoutMs: int, noAsync: bool): int {.used.} =
+proc readBufferImpl(f: GoFile, buf: pointer, size: Positive, canceller: GoTaskUntyped, noAsync: bool): int {.used.} =
     ## Bypass the buffer
     if f.pollable and not noAsync:
-        if not suspendUntilRead(f.pollFd, timeoutMs):
+        if not suspendUntilRead(f.pollFd, canceller, true):
             return -1
     let bytesCount = posix.read(f.fd, buf, size)
     if bytesCount == 0:
@@ -120,20 +120,20 @@ proc readBufferImpl(f: GoFile, buf: pointer, size: Positive, timeoutMs: int, noA
         f.errorCode = osLastError()
     return bytesCount
 
-proc readImpl(f: GoFile, size: Positive, timeoutMs: int, noAsync: bool): string {.used.} =
+proc readImpl(f: GoFile, size: Positive, canceller: GoTaskUntyped, noAsync: bool): string {.used.} =
     result = newStringOfCap(size)
     result.setLen(1)
-    let bytesCount = f.readBufferImpl(addr(result[0]), size, timeoutMs, noAsync)
+    let bytesCount = f.readBufferImpl(addr(result[0]), size, canceller, noAsync)
     if bytesCount <= 0:
         return ""
     result.setLen(bytesCount)
 
-proc write*(f: GoFile, data: sink string, timeoutMs = -1): int {.discardable, used.} =
+proc write*(f: GoFile, data: sink string, canceller: GoTaskUntyped = nil): int {.discardable, used.} =
     ## Bypass the buffer
     if data.len() == 0:
         return 0
     if f.pollable:
-        if not suspendUntilWrite(f.pollFd, timeoutMs):
+        if not suspendUntilWrite(f.pollFd, canceller, true):
             return -1
     let bytesCount = posix.write(f.fd, addr(data[0]), data.len())
     if bytesCount == -1:
