@@ -98,7 +98,7 @@ waitAll @[
 ## Timeout
 goAndWait proc() =
     echo "Please input from stdin: "
-    var data = goStdin.readChunk(timeoutMs = 500)
+    var data = goStdin.readChunk(sleepTask(500))
     if data.len() == 0:
         echo "> Too late"
     else:
