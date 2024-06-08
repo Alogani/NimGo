@@ -15,11 +15,9 @@ Only one word to remember : **goAsync** (and optionaly **wait**, but seriously w
 
 ## Future Roadmap
 
-- [ ] *Change of the cancellation works: not by using timeouts, but by using another task. Create sleepTask*
 - [ ] *Finish the implementation of goproc*
 - [ ] *add a PROT_NONE add the end of the stack to prevent stackoverflow issues -> see if it is possible to implement growable stack like Go*
 - [ ] Add goproc support for windows (certainly by doing a wrapper around osproc)
-- [ ] Create more error handling in various libraries
 - [ ] Adding more test cases
 - [ ] Amelioration of efficiency of gonet
 - [ ] Implement `GoChannel` a queue that can pass effienctly GC memory between coroutines and threads, without blocking the whole thread if waiting inside a coroutine. The thread queue has already been developped [here](https://github.com/Alogani/NimGo_multithreadingattempt/blob/main/src/nimgo/private/threadqueue.nim).
