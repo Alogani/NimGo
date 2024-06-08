@@ -50,10 +50,10 @@ proc readAndPrint(file: GoFile) =
 
 withEventLoop():
     var myFile = openGoFile(MyFilePath)
-    goAsync readAndPrint(myFile)
+    goAndWait readAndPrint(myFile)
     echo "I'm not waiting for readAndPrint to finish !"
+    echo "But `withEventLoop` ensures all registered tasks are executed"
     myFile.close()
-echo "But `withEventLoop` ensures all registered tasks are executed"
 
 ## # Coroutines communication
 
@@ -103,7 +103,6 @@ goAndWait proc() =
         echo "> Too late"
     else:
         echo "> So fast, you have succesfully written: ", data
-
 
 ```
 
