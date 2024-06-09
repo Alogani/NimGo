@@ -1,6 +1,6 @@
 # NimGo
 
-_NimGo: Asynchronous Library Inspired by Go's Asyncio. Or for Purists: Stackful Coroutines library associated with an I/O Pollable Event Loop and Dispatcher_
+_NimGo: Asynchronous Library Inspired by Go's Asyncio. Or for Purists: Stackful Coroutines library associated with an I/O Event Loop and Dispatcher_
 
 This repository is currently an alpha release. You can expect bugs and inefficiencies. Do not use in production !
 
@@ -17,7 +17,8 @@ Only one word to remember : **goAsync** (and optionaly **wait**, but seriously w
 - [ ] Add goproc support for windows (certainly by doing a wrapper around osproc)
 - [ ] Adding more test cases
 - [ ] Amelioration of efficiency of gonet
-- [ ] Implement `GoChannel` a queue that can pass effienctly GC memory between coroutines and threads, without blocking the whole thread if waiting inside a coroutine. The thread queue has already been developped [here](https://github.com/Alogani/NimGo_multithreadingattempt/blob/main/src/nimgo/private/threadqueue.nim).
+- [ ] Implement `GoChannel` a queue that can pass effienctly GC memory between coroutines and threads, without blocking the whole thread if waiting inside a coroutine. The thread queue has already been developped [here](https://github.com/Alogani/NimGo_multithreadingattempt/blob/main/src/nimgo/private/threadqueue.nim)
+- [ ] Have feedback from users. Especially windows users to see if NimGo works on that OS (I can't test on that platform)
 
 
 ## Documentation
@@ -150,10 +151,10 @@ No, the NimGo library is not more efficient than async/await. It is likely to be
 ### Is it more efficient than Os threads ?
 
 It depends on the task:
-- For I/O-bound tasks, async/await-based concurrency (e.g., std/asyncdispatch or NimGo) are generally faster threads, as they can handle multiple I/O events concurrently without the overhead of managing multiple threads.
+- For I/O-bound tasks, async/await-based concurrency (e.g., std/asyncdispatch or NimGo) are generally faster, as they can wait for multiple I/O events at the same time without the overhead of managing multiple threads.
 - For CPU-bound computation tasks, threads are generally faster than single-threaded async libraries, as they can leverage parallel execution across multiple CPU cores to speed up the code.
 
-Additionally, threads have a higher context switch cost compared to Coroutines. Threads also require more careful handling of deadlocks, synchronization, and have constraints when moving memory around. Please note that their usage are not exclusive.
+Additionally, threads have a higher context switch cost compared to Coroutines, requires a more careful handling of deadlocks, of synchronization, and have constraints when moving memory around. However, threads and NimGo can be used together.
 
 
 ### How to use NimGo in a multithreaded environment ?
@@ -198,7 +199,7 @@ The virtual memory usage may look high, but the actual RAM usage is much lower. 
 
 ### Why another async library, we already have std/asyncdispatch, chronos, etc ?
 
-The NimGo library provides an alternative approach to handling asynchronous code compared to the existing options like std/asyncdispatch and chronos. The main difference is that classical async library "colors" (see that [article](https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/)) functions, meaning it modifies the function signature to include the asynchronous context.
+The NimGo library provides an alternative approach to handling asynchronous code compared to the existing options like std/asyncdispatch and chronos. The main difference is that classical async library "colors" functions (that [article](https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/) provides more information about it), meaning it modifies the function signature to include the asynchronous context.
 
 This approach can offer some advantages, such as providing more control over the flow of data. However, it also comes with some drawbacks:
 - Increased verbosity in the codebase
@@ -210,16 +211,16 @@ This approach can offer some advantages, such as providing more control over the
 
 Yes, your code is indeed asynchronous when using NimGo, even if you don't explicitly see the asynchronous behavior. The asynchronicity is guaranteed by the type system, with types like GoFile and GoSocket abstractions that handle the underlying asynchronous operations.
 
-Unlike some other approaches that rely on futures, NimGo uses the powerful concept of stackful coroutines. This means that any I/O call will automatically suspend the current function, allowing the runtime to execute other tasks, and then resume the function later when the I/O operation has completed.
+When using stackless coroutines like std/asyncdispatch, an I/O call is capable of suspending only the current function, whereas stackful coroutines like NimGo can suspend an arbitrary number of function from any depth (this arbitrary number of functions is called a context). While suspended, the runtime is able to execute other tasks, and then resume the Coroutine/context later when the I/O operation has completed.
 
-You can control where the functions suspend and resume by using the goAsync and wait keywords provided by NimGo. This gives you a fine-grained control over the asynchronous flow of your code.
+You can control where the context start by using the `goAsync` keyword provided by NimGo. And wait for the while Coroutine to finish by using the `wait` keyword. This gives you a fine-grained control over the asynchronous flow of your code.
 
 
 ### But I heard all files operations were synchronous ?
 
-That's a common misconception. The operating system does consider regular file operations to be instantaneous, but that's not the case for all file-related tasks. Asynchronous I/O is generally not possible for regular files, which can impact the behavior of I/O libraries across programming languages (including std/asyncdispatch).
+A distinction has to be made between regular and special files. Special files can be asynchronous and NimGo will operates asynchronously on them if the OS permits it. Special files can represents, depending on the OS, pipes, sockets, etc. Regular files to the contrary stores plain text data or raw data on the filesystem. The operating system does consider regular file operations to be instantaneous, and asynchronous I/O is generally not possible for regular files, which can impact the behavior of I/O libraries across programming languages (including std/asyncdispatch).
 
-However, when there are potential sources of latency involved, such as reading from a remote server, the only solution is to use a separate thread. This allows the main application to continue running without being blocked by the file operation. There are plans to introduce a multi-threaded implementation of a channel in the future. This would allow the current coroutine to be blocked, without interrupting the entire event loop or dispatcher thread. This would simplify the handling of file operations with potential latency.
+So no single threaded I/O library can read in a asynchronous way regular files. In case of latency or for big files, you will have to rely on OS Threads. There are plans to introduce a multi-threaded implementation of a channel in the future. This would allow the current coroutine to be blocked, without interrupting the entire event loop or dispatcher thread. This would simplify the handling of file operations with potential latency.
 
 
 ### Is NimGo multithreaded ?
@@ -251,12 +252,34 @@ You can see https://github.com/nim-works/cps for more details. It also seems to 
 
 In NimGo, the behavior is different from the standard std/asyncdispatch library. When you use goAsync, your function is not executed immediately (but this behaviour could change in the future if it makes more sense). Instead, it is only executed when:
 
-- You explicitly call wait on the specific task in your code.
-- You call runEventLoop(), which is implicitly called when you use the withEventLoop template.
+- You explicitly call `wait` on the specific task in your code.
+- You call `runEventLoop()`, which is implicitly called when you use the withEventLoop template.
 
 It is generally recommended to rely more on `withEventLoop()` or `runEventLoop()` rather than `wait`, to ensure that all coroutines created with goAsync are executed, even if you didn't explicitly wait for them.
 
-Another key difference is that in NimGo, when your code is suspended, it doesn't pause the actual function itself. Instead, it can pause the entire code block executed with goAsync, allowing you to have an arbitrary depth of paused code (This recursion depth is limited by the implementation of the coroutines API in NimGo, which is typically between 1,000 and 5,000 levels, but could be lower if large stack variables like arrays are created inside a coroutine). You can think of goAsync as a checkpoint in your code, where the execution can be suspended and resumed later.
+Another key difference with std/asyncdispatch is that NimGo will not suspend only one function, but the whole Coroutine, which can represent an arbitrary number of nested functions (but limited, see below). You can think of goAsync as a checkpoint in your code, where the execution can be suspended and resumed later.
+
+
+### What is the recursion limit ?
+
+In the current implementation, NimGo allocates 4 MiB of virtual memory by coroutines, allowing you to either:
+- Allocate an array of 500_000 int64 in one function
+- Allocate an array of 1024 int64 recursively in 500 functions
+- Recursively go into 500_000 function (if you don't use tail-recursion)
+
+Going beyond those limits will crash your program:
+```
+# If you go over the limit by less than 4 Kib
+Fatal error: Coroutine stackoverflow
+Coroutine creation stacktrace:
+[Stacktrace not of the error, but of the creation of the coroutine causing the overflow]
+Error: execution of an external program failed: [Name_of_the_program]
+
+# If you go over the limit by more han 4 Kib (allocating huge stack arrays for example):
+Error: execution of an external program failed:[Name_of_the_program]
+```
+
+Of course those numbers could vary depending of how much stack variables were created and their size. If you use heap variables like Ref T and tail recursion, you will probably never reach those limits. 
 
 
 ### Just Give Me the Coroutines, No Boilerplate
@@ -272,10 +295,12 @@ However, it's important to note that by using only the coroutines API, you'll be
 
 The safety of using stackful coroutines, like those provided by NimGo, depends on how you write your code. The risk of a stack overflow attack is not inherently higher with coroutines than with other programming techniques.
 
-NimGo employs various techniques to male stack overflow attacks more difficult.
+NimGo employs various techniques to make stack overflow attacks more difficult.
 - Heap-based stack allocation: NimGo allocates the coroutines' stacks using heap memory, rather than the process stack. This makes it harder for an attacker to inject code or modify other parts of the program's memory.
 - Large default stack size: NimGo allocates a large chunk of (virtual) memory for each coroutine's stack by default. This reduces the likelihood of a stack overflow, even when using deep recursion or large stack variables.
 - Stack page protection: NimGo marks the last page of each coroutine's stack as protected. This means the operating system will kill the program before a stack overflow can occur, preventing potential attacks.
+
+Stackoverflow can still happen if you try to allocate stack variables of more than 4 KiB at the end of the stack
 
 ## NimGo available flags
 
