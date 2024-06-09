@@ -6,22 +6,27 @@
 # Choice has been made to rely on minicoroutines for numerous reasons (efficient, single file, clear API, cross platform, virtual memory, etc.)
 # Inspired freely from https://git.envs.net/iacore/minicoro-nim
 
+when defined(release):
+    const NimGoNoDebug = true
+else:
+    const NimGoNoDebug {.booldefine.} = false
 
-{.push stackTrace:off.}
-#[
-    We disable stacktrace for this file because moving around coroutines before resuming/suspending can mess it up
-]#
-
-import ./private/coroutinememory
+const OnWindows = defined(windows) #-> to faciliate cross platform type debugging
 
 when not defined(gcArc) and not defined(gcOrc):
     {.warning: "coroutines is not tested without --mm:orc or --mm:arc".}
 
+import std/[bitops, oserrors, tables]
+import ./private/[safecontainer, utils]
+when OnWindows:
+    import std/winlean
+else:
+    import std/posix
+
 from std/os import parentDir, `/` 
 const minicoroh = currentSourcePath().parentdir() / "private/minicoro.h"
-    
 {.compile: "./private/minicoro.c".}
-when not defined(debug):
+when NimGoNoDebug:
     {.passC: "-DMCO_NO_DEBUG".}
 
 
@@ -83,6 +88,7 @@ type
 
     cstring_const {.importc:"const char*", header: minicoroh.} = cstring
 
+{.push used.}
 proc initMcoDescriptor(entryFn: proc (coro: ptr McoCoroutine) {.cdecl.}, stackSize: uint): McoCoroDescriptor {.importc: "mco_desc_init", header: minicoroh.}
 proc initMcoCoroutine(coro: ptr McoCoroutine, descriptor: ptr McoCoroDescriptor): McoReturnCode {.importc: "mco_init", header: minicoroh.}
 proc uninitMcoCoroutine(coro: ptr McoCoroutine): McoReturnCode {.importc: "mco_uninit", header: minicoroh.}
@@ -94,15 +100,13 @@ proc getState(coro: ptr McoCoroutine): McoCoroState {.importc: "mco_status", hea
 proc getUserData(coro: ptr McoCoroutine): pointer {.importc: "mco_get_user_data", header: minicoroh.}
 proc getRunningMco(): ptr McoCoroutine {.importc: "mco_running", header: minicoroh.}
 proc prettyError(returnCode: McoReturnCode): cstring_const {.importc: "mco_result_description", header: minicoroh.}
+{.pop.}
 
 proc checkMcoReturnCode(returnCode: McoReturnCode) =
     if returnCode != Success:
         raise newException(CoroutineError, $returnCode.prettyError())
 
-
-#[ ********* API ********* ]#
-
-import ./private/[safecontainer, utils]
+#[ ********* Types ********* ]#
 
 type
     CoroState* = enum
@@ -118,10 +122,226 @@ type
         entryFn: SafeContainer[void]
         returnedVal: pointer
         mcoCoroutine: ptr McoCoroutine
+        when not NimGoNoDebug:
+            creationStacktrace: string
     Coroutine* = ref CoroutineObj
         ## Basic coroutine object
         ## Thread safety: unstarted coroutine can be moved between threads
         ## Moving started coroutine, using resume/suspend are completely thread unsafe in ORC (and maybe ARC too)
+
+
+#[ ********* Page size ********* ]#
+
+when OnWindows:
+    type
+        SystemInfo {.importc: "_SYSTEM_INFO", header: "sysinfoapi.h".} = object 
+            u1: uint32
+            dwPageSize: uint32
+            lpMinimumApplicationAddress: pointer
+            lpMaximumApplicationAddress: pointer
+            dwActiveProcessorMask: ptr uint32
+            dwNumberOfProcessors*: uint32
+            dwProcessorType: uint32
+            dwAllocationGranularity*: uint32
+            wProcessorLevel: uint16
+            wProcessorRevision: uint16
+
+    proc getSystemInfo(lpSystemInfo: ptr SystemInfo) {.stdcall,
+                        importc: "GetSystemInfo", header: "sysinfoapi.h".}
+
+    proc getSystemPageSize(): uint32 =
+        var sysInfo: SystemInfo
+        getSystemInfo(addr(sysInfo))
+        return sysInfo.dwPageSize
+
+    var PageSize = getSystemPageSize()
+else:
+    var PageSize = sysconf(SC_PAGESIZE)
+
+
+#[ ********* Stack overflow handling ********* ]#
+
+when defined(NimGoNoDebug):
+    template recordProtectedPage*(coroPtr, protectedPage: pointer) = discard
+    template unrecordProtectedPage*(coroPtr: pointer) = discard
+else:
+    var SegvWatcherMap: Table[ptr CoroutineObj, pointer]
+
+    proc recordProtectedPage(coroPtr: ptr CoroutineObj, protectedPage: pointer) =
+        SegvWatcherMap[coroPtr] = protectedPage
+
+    proc unrecordProtectedPage(coroPtr: ptr CoroutineObj) =
+        SegvWatcherMap.del(coroPtr)
+
+    proc retrieveCoroutineAddr(segvAddress: pointer): pointer =
+        ## Complexity O(n), but not important at this point
+        ## Maybe unsafe, GC might be triggered between SIGSEGV and signal handler
+        let segvAddrInt = cast[int](segvAddress)
+        for (coroPtr, protectedPage) in pairs(SegvWatcherMap):
+            let protectedPageInt = cast[int](protectedPage)
+            if segvAddrInt >= protectedPageInt and segvAddrInt < protectedPageInt + int(PageSize):
+                return coroPtr
+
+when OnWindows and not defined(NimGoNoDebug):
+    {.warning: "Untested on windows".}
+    type ExceptionRecord {.importc: "EXCEPTION_RECORD", header: "winnt.h".} = object 
+        exceptionCode: int32
+        exceptionFlags: int32
+        exceptionRecord: ptr ExceptionRecord
+        exceptionAddress: pointer
+        numberOfParameters: int32
+        exceptionInformation: pointer
+
+    type ExceptionPointers {.importc: "_EXCEPTION_POINTERS", header: "winnt.h".} = object 
+        exceptionRecord: ptr ExceptionRecord
+        contextRecord: pointer
+    
+    const EXCEPTION_CONTINUE_SEARCH {.used.}: int64 = 0x0
+    const EXCEPTION_EXECUTE_HANDLER: int64 = 0x1
+    type UnhandledExceptionFilter = proc(exceptionInfo: ptr ExceptionPointers): int64 {.cdecl.}
+    proc setUnhandledExceptionFilter(lpTopLevelExceptionFilter: UnhandledExceptionFilter): UnhandledExceptionFilter {.importc: "SetUnhandledExceptionFilter", header: "errhandlingapi.h".}
+
+    proc segvHandler(exceptionInfo: ptr ExceptionPointers): int64 {.cdecl.} =
+        let coroAddr = retrieveCoroutineAddr(exceptionInfo[].exceptionRecord[].exceptionAddress)
+        if coroAddr != nil:
+            stderr.write("Fatal error: Coroutine stackoverflow\n")
+            stderr.write("Created on: ")
+            stderr.write(coroAddr[].creationStacktrace)
+            stderr.flushFile()
+        return EXCEPTION_EXECUTE_HANDLER
+
+    discard setUnhandledExceptionFilter(segvHandler)
+
+when not(OnWindows or defined(NimGoNoDebug)):
+    var SegvStackSize = MINSIGSTKSZ * 2
+    # We redefine, because stackB can be nilable
+    proc sigaltstack(stackA, stackB: ptr Stack): cint {.importc, header: "<signal.h>".}
+    # Having to redefine it, because amd64 SigAction on nim miss field `sa_sigaction`
+    type Sigaction {.importc: "struct sigaction",
+                    header: "<signal.h>", final, pure.} = object ## struct sigaction
+        sa_handler*: proc (x: cint) {.noconv.}  ## Pointer to a signal-catching
+                                                ## function or one of the macros
+                                                ## SIG_IGN or SIG_DFL.
+        sa_mask*: Sigset ## Set of signals to be blocked during execution of
+                        ## the signal handling function.
+        sa_flags*: cint   ## Special flags.
+        sa_sigaction*: proc (x: cint, y: ptr SigInfo, z: pointer) {.noconv.}
+    proc sigaction(a1: cint, a2, a3: ptr Sigaction): cint {.importc, header: "<signal.h>".}
+
+    proc segvHandler(signum: cint, info: ptr SigInfo, data: pointer) {.noconv.} =
+        ## Even if stacktrace or SegvWatcherMap were huge, they won't grow handler stack, so it should be safe
+        let coroAddr = cast[ptr CoroutineObj](retrieveCoroutineAddr(info[].si_addr))
+        if coroAddr != nil:
+            stderr.write("Fatal error: Coroutine stackoverflow\n")
+            stderr.write("Created on: ")
+            stderr.write(coroAddr[].creationStacktrace)
+            stderr.flushFile()
+        exitnow(1)
+
+    proc addSegvHandler() =
+        var segvStack = Stack(
+            ss_sp: alloc0(SegvStackSize),
+            ss_size: SegvStackSize,
+            ss_flags: 0,
+        )
+        discard sigaltstack(addr(segvStack), nil)
+        var action = Sigaction(
+            sa_flags: bitor(SA_SIGINFO, SA_ONSTACK),
+            sa_sigaction: segvHandler,
+        )
+        discard sigaction(SIGSEGV, addr(action), nil)
+
+    addSegvHandler()
+
+
+#[ ********* Memory handling ********* ]#
+
+const NimGoNoVMem* {.booldefine.} = false
+const PhysicalMemKib {.intdefine.} = 64 ## Should be ideally a multiple of 2
+const VirtualStackSize: uint = 4 * 1024 * 1024 # 4 MB should be more than enough and doesn't cost much more than 1 MB
+
+var McoStackSize*: uint = (
+    if NimGoNoVMem:
+        PhysicalMemKib.uint * 1024'u
+    else:
+        VirtualStackSize
+)
+
+proc mcoAllocator*(size: uint, allocatorData: ptr CoroutineObj): pointer {.cdecl.}
+proc mcoDeallocator*(p: pointer, size: uint, allocatorData: ptr CoroutineObj) {.cdecl.}
+
+when OnWindows:
+    {.warning: "Untested on windows".}
+    var MEM_COMMIT {.importc: "MEM_COMMIT", header: "<memoryapi.h>".}: cint
+    var MEM_RESERVE {.importc: "MEM_RESERVE", header: "<memoryapi.h>".}: cint
+    var MEM_RELEASE {.importc: "MEM_RESERVE", header: "<memoryapi.h>".}: cint
+
+    proc VirtualAlloc(lpAddress: pointer, dwSize: uint, flAllocationType, flProtect: cint): pointer {.importc: "VirtualAlloc", header: "<memoryapi.h>".}
+    proc VirtualFree(lpAdress: pointer, dwSize: uint, dwFreeType: cint): bool {.importc: "VirtualFree", header: "<memoryapi.h>".}
+    proc VirtualProtect(lpAddress: pointer, dwSize: uint, flNewProtect: cint, lpflOldProect: var cint): bool {.importc: "VirtualProtect", header: "<memoryapi.h>".}
+
+    proc mcoDeallocator*(p: pointer, size: uint, allocatorData: ptr CoroutineObj) {.cdecl.} =
+        if not VirtualFree(p, 0, MEM_RELEASE):
+            raiseOSError(osLastError())
+        when not NimGoNoDebug:
+            unrecordProtectedPage(allocatorData)
+
+    proc mcoAllocator*(size: uint, allocatorData: ptr CoroutineObj): pointer {.cdecl.} =
+        ## On windows, we will always use virtual memory
+        result = VirtualAlloc(nil, size, bitor(MEM_COMMIT, MEM_RESERVE), PAGE_READWRITE)
+        if result == nil:
+            raiseOSError(osLastError())
+        var oldProtect: cint
+        if not VirtualProtect(result, 0x1000, PAGE_NOACCESS, oldProtect):
+            ## Stack begins at its bottom
+            mcoDeallocator(result, size, nil)
+            raiseOSError(osLastError())
+        when not NimGoNoDebug:
+            recordProtectedPage(allocatorData, result)
+
+else:
+    var SC_PHYS_PAGES {.importc: "_SC_PHYS_PAGES", header: "<unistd.h>".}: cint
+
+    var AvailableMemory = PageSize * sysconf(SC_PHYS_PAGES)
+
+    if AvailableMemory > 0:
+        McoStackSize = min(McoStackSize, (
+            var res: uint
+            setBit(res, fastlog2(AvailableMemory - 1))
+            res
+        )) ## For low memory systems
+    if PageSize <= 0:
+        raise newException(OSError, "Couldn't find the page size of a memory block")
+
+    proc mcoDeallocator*(p: pointer, size: uint, allocatorData: ptr CoroutineObj) {.cdecl.} =
+        when NimGoNoVMem:
+            dealloc(p)
+        else:
+            if munmap(p, size.int) != 0:
+                raiseOSError(osLastError())
+        when not NimGoNoDebug:
+            unrecordProtectedPage(allocatorData)
+
+    proc mcoAllocator*(size: uint, allocatorData: ptr CoroutineObj): pointer {.cdecl.} =
+        when NimGoNoVMem:
+            result = alloc0(size)
+        else:
+            result = mmap(nil, size.int,
+                bitor(PROT_READ, PROT_WRITE),
+                bitor(MAP_PRIVATE, MAP_ANONYMOUS),
+                -1, 0
+            )
+            if result == MAP_FAILED:
+                raiseOSError(osLastError())
+        if mprotect(result, PageSize, PROT_NONE) != 0:
+            ## Stack begins at its bottom
+            mcoDeallocator(result, size, nil)
+            raiseOSError(osLastError())
+        when not NimGoNoDebug:
+            recordProtectedPage(allocatorData, result)
+
+
+#[ ********* API ********* ]#
 
 proc coroutineMain[T](mcoCoroutine: ptr McoCoroutine) {.cdecl.} =
     ## Start point of the coroutine.
@@ -187,6 +407,9 @@ proc newCoroutineImpl[T](entryFn: EntryFn[T]): Coroutine =
     mcoCoroDescriptor.alloc_cb = mcoAllocator
     mcoCoroDescriptor.dealloc_cb = mcoDeallocator
     mcoCoroDescriptor.user_data = cast[ptr CoroutineObj](result)
+    when not NimGoNoDebug:
+        result.creationStacktrace = getStackTrace()
+        mcoCoroDescriptor.allocator_data = mcoCoroDescriptor.user_data
     checkMcoReturnCode createMcoCoroutine(addr(result.mcoCoroutine), addr mcoCoroDescriptor)
 
 
@@ -196,6 +419,8 @@ proc newCoroutine*[T](entryFn: EntryFn[T]): Coroutine =
 proc newCoroutine*(entryFn: EntryFn[void]): Coroutine =
     newCoroutineImpl[void](entryFn)
 
+{.push stackTrace:off.}
+# We disable stacktrace because moving around coroutines before resuming/suspending can mess it up
 proc resume*(coro: Coroutine) =
     ## Will resume the coroutine where it stopped (or start it)
     let frame = getFrameState()
@@ -214,6 +439,7 @@ proc suspend*(coro: Coroutine) =
     let frame = getFrameState()
     checkMcoReturnCode suspend(coro.mcoCoroutine)
     setFrameState(frame)
+{.pop.}
 
 proc getCurrentCoroutine*(): Coroutine =
     ## Get the actual running coroutine
@@ -222,12 +448,12 @@ proc getCurrentCoroutine*(): Coroutine =
 
 proc getCurrentCoroutineSafe*(): Coroutine =
     ## Additional check on debug to verify we are inside a coroutine
-    when defined(debug):
+    when NimGoNoDebug:
+        getCurrentCoroutine()
+    else:
         result = getCurrentCoroutine()
         if result == nil:
             raise newException(ValueError, "We are not inside a coroutine")
-    else:
-        getCurrentCoroutine()
 
 proc getReturnVal*[T](coro: Coroutine): T =
     if coro.returnedVal == nil:
