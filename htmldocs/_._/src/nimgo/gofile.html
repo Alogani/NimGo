@@ -61,11 +61,11 @@
 </li>
 <li>
   <details open>
-    <summary><a class="reference reference-toplevel" href="#9" id="59">Lets</a></summary>
+    <summary><a class="reference reference-toplevel" href="#8" id="58">Vars</a></summary>
     <ul class="simple simple-toc-section">
-      <li><a class="reference" href="#goStderr" title="goStderr = newGoFile(getFileHandle(stderr), fmWrite, false)">goStderr</a></li>
-<li><a class="reference" href="#goStdin" title="goStdin = newGoFile(getFileHandle(stdin), fmRead, false)">goStdin</a></li>
-<li><a class="reference" href="#goStdout" title="goStdout = newGoFile(getFileHandle(stdout), fmWrite, false)">goStdout</a></li>
+      <li><a class="reference" href="#goStderr" title="goStderr {.threadvar.}: GoFile">goStderr</a></li>
+<li><a class="reference" href="#goStdin" title="goStdin: GoFile">goStdin</a></li>
+<li><a class="reference" href="#goStdout" title="goStdout: GoFile">goStdout</a></li>
 
     </ul>
   </details>
@@ -190,21 +190,21 @@
 
   </dl>
 </div>
-<div class="section" id="9">
-  <h1><a class="toc-backref" href="#9">Lets</a></h1>
+<div class="section" id="8">
+  <h1><a class="toc-backref" href="#8">Vars</a></h1>
   <dl class="item">
     <div id="goStderr">
-  <dt><pre><a href="gofile.html#goStderr"><span class="Identifier">goStderr</span></a> <span class="Other">=</span> <span class="Identifier">newGoFile</span><span class="Other">(</span><span class="Identifier">getFileHandle</span><span class="Other">(</span><span class="Identifier">stderr</span><span class="Other">)</span><span class="Other">,</span> <span class="Identifier">fmWrite</span><span class="Other">,</span> <span class="Identifier">false</span><span class="Other">)</span></pre></dt>
+  <dt><pre><a href="gofile.html#goStderr"><span class="Identifier">goStderr</span></a> {.<span class="Identifier">threadvar</span>.}<span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a></pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L9" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L9" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L7" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L7" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 <div id="goStdin">
-  <dt><pre><a href="gofile.html#goStdin"><span class="Identifier">goStdin</span></a> <span class="Other">=</span> <span class="Identifier">newGoFile</span><span class="Other">(</span><span class="Identifier">getFileHandle</span><span class="Other">(</span><span class="Identifier">stdin</span><span class="Other">)</span><span class="Other">,</span> <span class="Identifier">fmRead</span><span class="Other">,</span> <span class="Identifier">false</span><span class="Other">)</span></pre></dt>
+  <dt><pre><a href="gofile.html#goStdin"><span class="Identifier">goStdin</span></a><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a></pre></dt>
   <dd>
     
     
@@ -214,12 +214,12 @@
   </dd>
 </div>
 <div id="goStdout">
-  <dt><pre><a href="gofile.html#goStdout"><span class="Identifier">goStdout</span></a> <span class="Other">=</span> <span class="Identifier">newGoFile</span><span class="Other">(</span><span class="Identifier">getFileHandle</span><span class="Other">(</span><span class="Identifier">stdout</span><span class="Other">)</span><span class="Other">,</span> <span class="Identifier">fmWrite</span><span class="Other">,</span> <span class="Identifier">false</span><span class="Other">)</span></pre></dt>
+  <dt><pre><a href="gofile.html#goStdout"><span class="Identifier">goStdout</span></a><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a></pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L8" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L8" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L7" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L7" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -248,8 +248,8 @@
   <dd>
     
     Only return true if file was closed using <tt class="docutils literal"><span class="pre"><span class="Identifier">gofile</span><span class="Operator">.</span><span class="Identifier">close</span><span class="Punctuation">(</span><span class="Punctuation">)</span></span></tt>. Closing directly the underlying file or file descriptor won't be detected
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L15" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L15" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L16" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L16" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -275,8 +275,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L12" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L12" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L13" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L13" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -288,8 +288,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L20" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L20" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L21" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L21" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -301,8 +301,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L23" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L23" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L24" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L24" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -340,8 +340,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L26" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L26" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L27" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L27" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -354,8 +354,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L29" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L29" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L30" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L30" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -396,8 +396,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L52" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L52" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L53" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L53" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -410,8 +410,8 @@
   <dd>
     
     Might return a string even if EOF has not been reached
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L60" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L60" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L61" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L61" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -425,8 +425,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L32" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L32" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L33" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L33" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -439,8 +439,8 @@
   <dd>
     
     More efficient, especially when file is buffered The returned read size is not predictable, but less than <tt class="docutils literal"><span class="pre"><span class="Identifier">buffer</span><span class="Operator">.</span><span class="Identifier">DefaultBufferSize</span></span></tt>
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L42" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L42" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L43" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L43" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -453,8 +453,8 @@
   <dd>
     
     Newline is not kept. To distinguish between EOF, you can use <tt class="docutils literal"><span class="pre"><span class="Identifier">endOfFile</span></span></tt>
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L70" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L70" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L71" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L71" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -498,7 +498,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-08 07:53:08 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-09 15:43:22 UTC</small>
       </div>
     </div>
   </div>

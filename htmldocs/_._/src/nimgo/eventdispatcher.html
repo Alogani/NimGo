@@ -438,7 +438,8 @@
 </div>
 <div id="pollOnce-procs-all">
   <div id="pollOnce">
-  <dt><pre><span class="Keyword">proc</span> <a href="#pollOnce"><span class="Identifier">pollOnce</span></a><span class="Other">(</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#pollOnce"><span class="Identifier">pollOnce</span></a><span class="Other">(</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+                  <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Works both inside and outside dispatcher
@@ -659,8 +660,8 @@
 </div>
 <div id="sleepAsync-procs-all">
   <div id="sleepAsync,int">
-  <dt><pre><span class="Keyword">proc</span> <a href="#sleepAsync%2Cint"><span class="Identifier">sleepAsync</span></a><span class="Other">(</span><span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
-                                  <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#sleepAsync%2Cint"><span class="Identifier">sleepAsync</span></a><span class="Other">(</span><span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span>
+                                  <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
@@ -673,8 +674,8 @@
 </div>
 <div id="suspendUntilImmediatly-procs-all">
   <div id="suspendUntilImmediatly,Coroutine">
-  <dt><pre><span class="Keyword">proc</span> <a href="#suspendUntilImmediatly%2CCoroutine"><span class="Identifier">suspendUntilImmediatly</span></a><span class="Other">(</span><span class="Identifier">coro</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#suspendUntilImmediatly%2CCoroutine"><span class="Identifier">suspendUntilImmediatly</span></a><span class="Other">(</span><span class="Identifier">coro</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     See <tt class="docutils literal"><span class="pre"><span class="Identifier">resumeImmediatly</span></span></tt>
@@ -687,8 +688,8 @@
 </div>
 <div id="suspendUntilLater-procs-all">
   <div id="suspendUntilLater,Coroutine">
-  <dt><pre><span class="Keyword">proc</span> <a href="#suspendUntilLater%2CCoroutine"><span class="Identifier">suspendUntilLater</span></a><span class="Other">(</span><span class="Identifier">coro</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#suspendUntilLater%2CCoroutine"><span class="Identifier">suspendUntilLater</span></a><span class="Other">(</span><span class="Identifier">coro</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     See <tt class="docutils literal"><span class="pre"><span class="Identifier">resumeLater</span></span></tt>
@@ -701,8 +702,8 @@
 </div>
 <div id="suspendUntilSoon-procs-all">
   <div id="suspendUntilSoon,Coroutine">
-  <dt><pre><span class="Keyword">proc</span> <a href="#suspendUntilSoon%2CCoroutine"><span class="Identifier">suspendUntilSoon</span></a><span class="Other">(</span><span class="Identifier">coro</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#suspendUntilSoon%2CCoroutine"><span class="Identifier">suspendUntilSoon</span></a><span class="Other">(</span><span class="Identifier">coro</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     See <tt class="docutils literal"><span class="pre"><span class="Identifier">resumeSoon</span></span></tt>
@@ -716,7 +717,7 @@
 <div id="suspendUntilTimer-procs-all">
   <div id="suspendUntilTimer,Coroutine,int">
   <dt><pre><span class="Keyword">proc</span> <a href="#suspendUntilTimer%2CCoroutine%2Cint"><span class="Identifier">suspendUntilTimer</span></a><span class="Other">(</span><span class="Identifier">coro</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a><span class="Other">;</span> <span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     See <tt class="docutils literal"><span class="pre"><span class="Identifier">resumeOnTimer</span></span></tt>
@@ -726,7 +727,7 @@
   </dd>
 </div>
 <div id="suspendUntilTimer,int">
-  <dt><pre><span class="Keyword">proc</span> <a href="#suspendUntilTimer%2Cint"><span class="Identifier">suspendUntilTimer</span></a><span class="Other">(</span><span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span>
+  <dt><pre><span class="Keyword">proc</span> <a href="#suspendUntilTimer%2Cint"><span class="Identifier">suspendUntilTimer</span></a><span class="Other">(</span><span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
@@ -831,7 +832,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-08 07:53:08 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-09 15:43:22 UTC</small>
       </div>
     </div>
   </div>

@@ -66,6 +66,24 @@
 </li>
 <li>
   <details open>
+    <summary><a class="reference reference-toplevel" href="#8" id="58">Vars</a></summary>
+    <ul class="simple simple-toc-section">
+      <li><a class="reference" href="#McoStackSize" title="McoStackSize: uint = if NimGoNoVMem: 65536'u else: 4194304">McoStackSize</a></li>
+
+    </ul>
+  </details>
+</li>
+<li>
+  <details open>
+    <summary><a class="reference reference-toplevel" href="#10" id="60">Consts</a></summary>
+    <ul class="simple simple-toc-section">
+      <li><a class="reference" href="#NimGoNoVMem" title="NimGoNoVMem {.booldefine.} = false">NimGoNoVMem</a></li>
+
+    </ul>
+  </details>
+</li>
+<li>
+  <details open>
     <summary><a class="reference reference-toplevel" href="#12" id="62">Procs</a></summary>
     <ul class="simple simple-toc-section">
       <ul class="simple nested-toc-section">=destroy
@@ -92,14 +110,17 @@
   <li><a class="reference" href="#getState%2CCoroutine" title="getState(coro: Coroutine): CoroState">getState(coro: Coroutine): CoroState</a></li>
 
 </ul>
-<ul class="simple nested-toc-section">newCoroutine
-  <li><a class="reference" href="#newCoroutine%2CEntryFn%5Bvoid%5D" title="newCoroutine(entryFn: EntryFn[void]; stacksize = DefaultStackSize): Coroutine">newCoroutine(entryFn: EntryFn[void]; stacksize = DefaultStackSize): Coroutine</a></li>
-<li><a class="reference" href="#newCoroutine%2CEntryFn%5BT%5D" title="newCoroutine[T](entryFn: EntryFn[T]; stacksize = DefaultStackSize): Coroutine">newCoroutine[T](entryFn: EntryFn[T]; stacksize = DefaultStackSize): Coroutine</a></li>
+<ul class="simple nested-toc-section">mcoAllocator
+  <li><a class="reference" href="#mcoAllocator%2Cuint%2Cptr.CoroutineObj" title="mcoAllocator(size: uint; allocatorData: ptr CoroutineObj): pointer">mcoAllocator(size: uint; allocatorData: ptr CoroutineObj): pointer</a></li>
 
 </ul>
-<ul class="simple nested-toc-section">reinit
-  <li><a class="reference" href="#reinit%2CCoroutine%2CEntryFn%5Bvoid%5D" title="reinit(coro: Coroutine; entryFn: EntryFn[void])">reinit(coro: Coroutine; entryFn: EntryFn[void])</a></li>
-<li><a class="reference" href="#reinit%2CCoroutine%2CEntryFn%5BT%5D" title="reinit[T](coro: Coroutine; entryFn: EntryFn[T])">reinit[T](coro: Coroutine; entryFn: EntryFn[T])</a></li>
+<ul class="simple nested-toc-section">mcoDeallocator
+  <li><a class="reference" href="#mcoDeallocator%2Cpointer%2Cuint%2Cptr.CoroutineObj" title="mcoDeallocator(p: pointer; size: uint; allocatorData: ptr CoroutineObj)">mcoDeallocator(p: pointer; size: uint; allocatorData: ptr CoroutineObj)</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">newCoroutine
+  <li><a class="reference" href="#newCoroutine%2CEntryFn%5Bvoid%5D" title="newCoroutine(entryFn: EntryFn[void]): Coroutine">newCoroutine(entryFn: EntryFn[void]): Coroutine</a></li>
+<li><a class="reference" href="#newCoroutine%2CEntryFn%5BT%5D" title="newCoroutine[T](entryFn: EntryFn[T]): Coroutine">newCoroutine[T](entryFn: EntryFn[T]): Coroutine</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">resume
@@ -125,7 +146,7 @@
 
     <div id="tocRoot"></div>
     
-    <p class="module-desc">Stackful asymmetric coroutines implementation, inspired freely from some language and relying on minicoro c library. Lighweight and efficient thanks to direct asm code and optional support for virtual memory. Push, pop and return value were not implemented, because type and GC safety cannot be guaranted, especially in multithreaded environment. Use Channels instead.</p>
+    <p class="module-desc">Stackful asymmetric coroutines implementation, inspired freely from some language and relying on minicoro c library. Lighweight and efficient thanks to direct asm code and optional support for virtual memory. Push, pop and return value were not implemented, because type and GC safety cannot be guaranted, especially in multithreaded environment. Use Channels instead.Initial implementation of minicoro.h uses those functions to allocates the McoCoroutineStruct, its context and its stack alongside We ship our own modified version of minicoro.h where those functions only allocates the stack</p>
     <div class="section" id="6">
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
@@ -142,8 +163,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L114" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L114" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L113" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L113" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -152,8 +173,8 @@
   <dd>
     
     Basic coroutine object Thread safety: unstarted coroutine can be moved between threads Moving started coroutine, using resume/suspend are completely thread unsafe in ORC (and maybe ARC too)
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L127" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L127" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L128" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L128" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -172,8 +193,40 @@
   <dd>
     
     Supports at least closure and nimcall calling convention
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L120" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L120" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L119" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L119" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+<div class="section" id="8">
+  <h1><a class="toc-backref" href="#8">Vars</a></h1>
+  <dl class="item">
+    <div id="McoStackSize">
+  <dt><pre><a href="coroutines.html#McoStackSize"><span class="Identifier">McoStackSize</span></a><span class="Other">:</span> <span class="Identifier">uint</span> <span class="Other">=</span> <span class="Keyword">if</span> <a href="coroutines.html#NimGoNoVMem"><span class="Identifier">NimGoNoVMem</span></a><span class="Other">:</span> <span class="DecNumber">65536'u</span><span class="Keyword"> else</span><span class="Other">:</span> <span class="DecNumber">4194304</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L273" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L273" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+<div class="section" id="10">
+  <h1><a class="toc-backref" href="#10">Consts</a></h1>
+  <dl class="item">
+    <div id="NimGoNoVMem">
+  <dt><pre><a href="coroutines.html#NimGoNoVMem"><span class="Identifier">NimGoNoVMem</span></a> {.<span class="Identifier">booldefine</span>.} <span class="Other">=</span> <span class="DecNumber">false</span></pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L269" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L269" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -189,8 +242,8 @@
   <dd>
     
     Unfinished coroutines clean themselves. However, it is not sure its heap memory will be cleaned up, resulting in a leakage It is always better to resume a coroutine until its end
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L147" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L147" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L405" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L405" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -202,8 +255,8 @@
   <dd>
     
     Finished either with error or success
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L240" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L240" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L509" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L509" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -215,8 +268,8 @@
   <dd>
     
     Get the actual running coroutine If we are not inside a coroutine, nil is retuned
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L219" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L219" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L488" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L488" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -224,12 +277,13 @@
 </div>
 <div id="getCurrentCoroutineSafe-procs-all">
   <div id="getCurrentCoroutineSafe">
-  <dt><pre><span class="Keyword">proc</span> <a href="#getCurrentCoroutineSafe"><span class="Identifier">getCurrentCoroutineSafe</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#getCurrentCoroutineSafe"><span class="Identifier">getCurrentCoroutineSafe</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Additional check on debug to verify we are inside a coroutine
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L224" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L224" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L493" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L493" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -241,8 +295,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L233" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L233" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L502" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L502" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -254,8 +308,36 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L244" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L244" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L513" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L513" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="mcoAllocator-procs-all">
+  <div id="mcoAllocator,uint,ptr.CoroutineObj">
+  <dt><pre><span class="Keyword">proc</span> <a href="#mcoAllocator%2Cuint%2Cptr.CoroutineObj"><span class="Identifier">mcoAllocator</span></a><span class="Other">(</span><span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">uint</span><span class="Other">;</span> <span class="Identifier">allocatorData</span><span class="Other">:</span> <span class="Keyword">ptr</span> <span class="Identifier">CoroutineObj</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">pointer</span> {.<span class="Identifier">cdecl</span><span class="Other">,</span>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L282" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L282" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="mcoDeallocator-procs-all">
+  <div id="mcoDeallocator,pointer,uint,ptr.CoroutineObj">
+  <dt><pre><span class="Keyword">proc</span> <a href="#mcoDeallocator%2Cpointer%2Cuint%2Cptr.CoroutineObj"><span class="Identifier">mcoDeallocator</span></a><span class="Other">(</span><span class="Identifier">p</span><span class="Other">:</span> <span class="Identifier">pointer</span><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">uint</span><span class="Other">;</span> <span class="Identifier">allocatorData</span><span class="Other">:</span> <span class="Keyword">ptr</span> <span class="Identifier">CoroutineObj</span><span class="Other">)</span> {.
+    <span class="Identifier">cdecl</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L283" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L283" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -263,47 +345,23 @@
 </div>
 <div id="newCoroutine-procs-all">
   <div id="newCoroutine,EntryFn[void]">
-  <dt><pre><span class="Keyword">proc</span> <a href="#newCoroutine%2CEntryFn%5Bvoid%5D"><span class="Identifier">newCoroutine</span></a><span class="Other">(</span><span class="Identifier">entryFn</span><span class="Other">:</span> <a href="coroutines.html#EntryFn"><span class="Identifier">EntryFn</span></a><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">stacksize</span> <span class="Other">=</span> <span class="Identifier">DefaultStackSize</span><span class="Other">)</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#newCoroutine%2CEntryFn%5Bvoid%5D"><span class="Identifier">newCoroutine</span></a><span class="Other">(</span><span class="Identifier">entryFn</span><span class="Other">:</span> <a href="coroutines.html#EntryFn"><span class="Identifier">EntryFn</span></a><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L197" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L197" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L465" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L465" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 <div id="newCoroutine,EntryFn[T]">
-  <dt><pre><span class="Keyword">proc</span> <a href="#newCoroutine%2CEntryFn%5BT%5D"><span class="Identifier">newCoroutine</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">entryFn</span><span class="Other">:</span> <a href="coroutines.html#EntryFn"><span class="Identifier">EntryFn</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">stacksize</span> <span class="Other">=</span> <span class="Identifier">DefaultStackSize</span><span class="Other">)</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a></pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#newCoroutine%2CEntryFn%5BT%5D"><span class="Identifier">newCoroutine</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">entryFn</span><span class="Other">:</span> <a href="coroutines.html#EntryFn"><span class="Identifier">EntryFn</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a></pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L194" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L194" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
-
-  </dd>
-</div>
-
-</div>
-<div id="reinit-procs-all">
-  <div id="reinit,Coroutine,EntryFn[void]">
-  <dt><pre><span class="Keyword">proc</span> <a href="#reinit%2CCoroutine%2CEntryFn%5Bvoid%5D"><span class="Identifier">reinit</span></a><span class="Other">(</span><span class="Identifier">coro</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a><span class="Other">;</span> <span class="Identifier">entryFn</span><span class="Other">:</span> <a href="coroutines.html#EntryFn"><span class="Identifier">EntryFn</span></a><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
-  <dd>
-    
-    Allow to reuse an existing coroutine without reallocating it However, please ensure it has correctly finished
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L181" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L181" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
-
-  </dd>
-</div>
-<div id="reinit,Coroutine,EntryFn[T]">
-  <dt><pre><span class="Keyword">proc</span> <a href="#reinit%2CCoroutine%2CEntryFn%5BT%5D"><span class="Identifier">reinit</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">coro</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a><span class="Other">;</span> <span class="Identifier">entryFn</span><span class="Other">:</span> <a href="coroutines.html#EntryFn"><span class="Identifier">EntryFn</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span></pre></dt>
-  <dd>
-    
-    
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L178" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L178" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L462" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L462" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -315,8 +373,8 @@
   <dd>
     
     Will resume the coroutine where it stopped (or start it)
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L200" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L200" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L468" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L468" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -328,8 +386,8 @@
   <dd>
     
     Suspend the actual running coroutine
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L206" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L206" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L474" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L474" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -338,8 +396,8 @@
   <dd>
     
     Optimization to avoid calling getRunningMco() twice which has some overhead Never use if coro is different than current coroutine
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L212" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L212" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/coroutines.nim#L480" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/coroutines.nim#L480" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -355,7 +413,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-08 07:53:08 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-09 15:43:22 UTC</small>
       </div>
     </div>
   </div>

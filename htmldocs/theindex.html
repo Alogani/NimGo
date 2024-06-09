@@ -324,15 +324,15 @@
           </ul></dd>
 <dt><a name="goStderr" href="#goStderr"><span>goStderr:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gofile: let goStderr" href="_._/src/nimgo/gofile.html#goStderr">gofile: let goStderr</a></li>
+          data-doc-search-tag="gofile: var goStderr" href="_._/src/nimgo/gofile.html#goStderr">gofile: var goStderr</a></li>
           </ul></dd>
 <dt><a name="goStdin" href="#goStdin"><span>goStdin:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gofile: let goStdin" href="_._/src/nimgo/gofile.html#goStdin">gofile: let goStdin</a></li>
+          data-doc-search-tag="gofile: var goStdin" href="_._/src/nimgo/gofile.html#goStdin">gofile: var goStdin</a></li>
           </ul></dd>
 <dt><a name="goStdout" href="#goStdout"><span>goStdout:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gofile: let goStdout" href="_._/src/nimgo/gofile.html#goStdout">gofile: let goStdout</a></li>
+          data-doc-search-tag="gofile: var goStdout" href="_._/src/nimgo/gofile.html#goStdout">gofile: var goStdout</a></li>
           </ul></dd>
 <dt><a name="GoStream" href="#GoStream"><span>GoStream:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -410,15 +410,27 @@
 <li><a class="reference external"
           data-doc-search-tag="gonet: proc listen(gosocket: GoSocket; backlog = SOMAXCONN)" href="_._/src/nimgo/gonet.html#listen%2CGoSocket">gonet: proc listen(gosocket: GoSocket; backlog = SOMAXCONN)</a></li>
           </ul></dd>
+<dt><a name="mcoAllocator" href="#mcoAllocator"><span>mcoAllocator:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="coroutines: proc mcoAllocator(size: uint; allocatorData: ptr CoroutineObj): pointer" href="_._/src/nimgo/coroutines.html#mcoAllocator%2Cuint%2Cptr.CoroutineObj">coroutines: proc mcoAllocator(size: uint; allocatorData: ptr CoroutineObj): pointer</a></li>
+          </ul></dd>
+<dt><a name="mcoDeallocator" href="#mcoDeallocator"><span>mcoDeallocator:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="coroutines: proc mcoDeallocator(p: pointer; size: uint; allocatorData: ptr CoroutineObj)" href="_._/src/nimgo/coroutines.html#mcoDeallocator%2Cpointer%2Cuint%2Cptr.CoroutineObj">coroutines: proc mcoDeallocator(p: pointer; size: uint; allocatorData: ptr CoroutineObj)</a></li>
+          </ul></dd>
+<dt><a name="McoStackSize" href="#McoStackSize"><span>McoStackSize:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="coroutines: var McoStackSize" href="_._/src/nimgo/coroutines.html#McoStackSize">coroutines: var McoStackSize</a></li>
+          </ul></dd>
 <dt><a name="newBuffer" href="#newBuffer"><span>newBuffer:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="buffer: proc newBuffer(): Buffer" href="_._/src/nimgo/private/buffer.html#newBuffer">buffer: proc newBuffer(): Buffer</a></li>
           </ul></dd>
 <dt><a name="newCoroutine" href="#newCoroutine"><span>newCoroutine:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="coroutines: proc newCoroutine[T](entryFn: EntryFn[T]; stacksize = DefaultStackSize): Coroutine" href="_._/src/nimgo/coroutines.html#newCoroutine%2CEntryFn%5BT%5D">coroutines: proc newCoroutine[T](entryFn: EntryFn[T]; stacksize = DefaultStackSize): Coroutine</a></li>
+          data-doc-search-tag="coroutines: proc newCoroutine[T](entryFn: EntryFn[T]): Coroutine" href="_._/src/nimgo/coroutines.html#newCoroutine%2CEntryFn%5BT%5D">coroutines: proc newCoroutine[T](entryFn: EntryFn[T]): Coroutine</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="coroutines: proc newCoroutine(entryFn: EntryFn[void]; stacksize = DefaultStackSize): Coroutine" href="_._/src/nimgo/coroutines.html#newCoroutine%2CEntryFn%5Bvoid%5D">coroutines: proc newCoroutine(entryFn: EntryFn[void]; stacksize = DefaultStackSize): Coroutine</a></li>
+          data-doc-search-tag="coroutines: proc newCoroutine(entryFn: EntryFn[void]): Coroutine" href="_._/src/nimgo/coroutines.html#newCoroutine%2CEntryFn%5Bvoid%5D">coroutines: proc newCoroutine(entryFn: EntryFn[void]): Coroutine</a></li>
           </ul></dd>
 <dt><a name="newDispatcher" href="#newDispatcher"><span>newDispatcher:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -443,6 +455,10 @@
             inheritable = defined(nimInheritHandles)): GoSocket" href="_._/src/nimgo/gonet.html#newGoSocket%2CDomain%2CSockType%2CProtocol">gonet: proc newGoSocket(domain: Domain = AF_INET; sockType: SockType = SOCK_STREAM;
             protocol: Protocol = IPPROTO_TCP; buffered = true;
             inheritable = defined(nimInheritHandles)): GoSocket</a></li>
+          </ul></dd>
+<dt><a name="NimGoNoVMem" href="#NimGoNoVMem"><span>NimGoNoVMem:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="coroutines: const NimGoNoVMem" href="_._/src/nimgo/coroutines.html#NimGoNoVMem">coroutines: const NimGoNoVMem</a></li>
           </ul></dd>
 <dt><a name="OneShotCoroutine" href="#OneShotCoroutine"><span>OneShotCoroutine:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -569,12 +585,6 @@
           data-doc-search-tag="eventdispatcher: proc registerTimer(timeoutMs: int; coros: seq[OneShotCoroutine] = @[];
               oneshot: bool = true): PollFd" href="_._/src/nimgo/eventdispatcher.html#registerTimer%2Cint%2Cseq%5BOneShotCoroutine%5D%2Cbool">eventdispatcher: proc registerTimer(timeoutMs: int; coros: seq[OneShotCoroutine] = @[];
               oneshot: bool = true): PollFd</a></li>
-          </ul></dd>
-<dt><a name="reinit" href="#reinit"><span>reinit:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="coroutines: proc reinit[T](coro: Coroutine; entryFn: EntryFn[T])" href="_._/src/nimgo/coroutines.html#reinit%2CCoroutine%2CEntryFn%5BT%5D">coroutines: proc reinit[T](coro: Coroutine; entryFn: EntryFn[T])</a></li>
-          <li><a class="reference external"
-          data-doc-search-tag="coroutines: proc reinit(coro: Coroutine; entryFn: EntryFn[void])" href="_._/src/nimgo/coroutines.html#reinit%2CCoroutine%2CEntryFn%5Bvoid%5D">coroutines: proc reinit(coro: Coroutine; entryFn: EntryFn[void])</a></li>
           </ul></dd>
 <dt><a name="releaseCoro" href="#releaseCoro"><span>releaseCoro:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -828,7 +838,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-08 07:53:08 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-09 15:43:22 UTC</small>
       </div>
     </div>
   </div>

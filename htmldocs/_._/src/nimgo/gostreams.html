@@ -385,7 +385,7 @@
   <div id="readAvailable.e,GoBufferStream,Positive,GoTask">
   <dt><pre><span class="Keyword">method</span> <a href="#readAvailable.e%2CGoBufferStream%2CPositive%2CGoTask"><span class="Identifier">readAvailable</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gostreams.html#GoBufferStream"><span class="Identifier">GoBufferStream</span></a><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">;</span>
                      <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
@@ -422,7 +422,7 @@
 <div id="readChunk-methods-all">
   <div id="readChunk.e,GoBufferStream,GoTask">
   <dt><pre><span class="Keyword">method</span> <a href="#readChunk.e%2CGoBufferStream%2CGoTask"><span class="Identifier">readChunk</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gostreams.html#GoBufferStream"><span class="Identifier">GoBufferStream</span></a><span class="Other">;</span> <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
@@ -458,8 +458,8 @@
 <div id="readLine-methods-all">
   <div id="readLine.e,GoBufferStream,GoTask">
   <dt><pre><span class="Keyword">method</span> <a href="#readLine.e%2CGoBufferStream%2CGoTask"><span class="Identifier">readLine</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gostreams.html#GoBufferStream"><span class="Identifier">GoBufferStream</span></a><span class="Other">;</span> <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span>
-                <span class="Identifier">keepNewLine</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+                <span class="Identifier">keepNewLine</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
@@ -540,7 +540,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-08 07:53:08 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-09 15:43:22 UTC</small>
       </div>
     </div>
   </div>
