@@ -4,7 +4,7 @@ else:
     include ./private/gofile_posix
 
 
-var goStdin*, goStdout*, goStderr* {.threadvar.}: GoFile
+var goStdin* {.threadvar.}, goStdout* {.threadvar.}, goStderr* {.threadvar.}: GoFile
 goStdin = newGoFile(stdin.getFileHandle(), fmRead, buffered = false)
 goStdout = newGoFile(stdout.getFileHandle(), fmWrite, buffered = false)
 goStderr = newGoFile(stderr.getFileHandle(), fmWrite, buffered = false)
