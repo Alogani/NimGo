@@ -1,3 +1,4 @@
+// Sligthly modified version by Alogani
 /*
 Minimal asymmetric stackful cross-platform coroutine library in pure C.
 minicoro - v0.2.0 - 15/Nov/2023
@@ -354,6 +355,8 @@ MCO_API const char* mco_result_description(mco_result res); /* Get the descripti
 extern "C" {
 #endif
 
+#include <stdlib.h>
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* Minimum stack size when creating a coroutine. */
@@ -511,7 +514,6 @@ extern "C" {
     }
   #else /* C allocator */
     #ifndef MCO_ALLOC
-      #include <stdlib.h>
       /* We use calloc() so we give a chance for the OS to reserve virtual memory without really using physical memory,
          calloc() also has the nice property of initializing the stack to zeros. */
       #define MCO_ALLOC(size) calloc(1, size)
@@ -1330,7 +1332,7 @@ static mco_result _mco_create_context(mco_coro* co, mco_desc* desc) {
   size_t co_addr = (size_t)co;
   size_t context_addr = _mco_align_forward(co_addr + sizeof(mco_coro), 16);
   size_t storage_addr = _mco_align_forward(context_addr + sizeof(_mco_context), 16);
-  size_t stack_addr = _mco_align_forward(storage_addr + desc->storage_size, 16);
+  size_t stack_addr = _mco_align_forward((size_t)desc->alloc_cb(desc->stack_size, desc->allocator_data), 16);
   /* Initialize context. */
   _mco_context* context = (_mco_context*)context_addr;
   memset(context, 0, sizeof(_mco_context));
@@ -1356,6 +1358,7 @@ static mco_result _mco_create_context(mco_coro* co, mco_desc* desc) {
 }
 
 static void _mco_destroy_context(mco_coro* co) {
+  co->dealloc_cb(co->stack_base, co->stack_size, co->allocator_data);
 #ifdef MCO_USE_VALGRIND
   _mco_context* context = (_mco_context*)co->context;
   if(context && context->valgrind_stack_id != 0) {
@@ -1517,7 +1520,7 @@ static mco_result _mco_create_context(mco_coro* co, mco_desc* desc) {
   size_t co_addr = (size_t)co;
   size_t context_addr = _mco_align_forward(co_addr + sizeof(mco_coro), 16);
   size_t storage_addr = _mco_align_forward(context_addr + sizeof(_mco_context), 16);
-  size_t stack_addr = _mco_align_forward(storage_addr + desc->storage_size, 16);
+  size_t stack_addr = (size_t)desc->alloc_cb(desc->stack_size, desc->allocator_data);
   size_t asyncify_stack_addr = _mco_align_forward(stack_addr + desc->stack_size, 16);
   /* Initialize context. */
   _mco_context* context = (_mco_context*)context_addr;
@@ -1540,7 +1543,7 @@ static mco_result _mco_create_context(mco_coro* co, mco_desc* desc) {
 }
 
 static void _mco_destroy_context(mco_coro* co) {
-  /* Nothing to do. */
+  co->dealloc_cb(co->stack_base, co->stack_size, co->allocator_data);
   _MCO_UNUSED(co);
 }
 
@@ -1620,7 +1623,7 @@ static mco_result _mco_create_context(mco_coro* co, mco_desc* desc) {
   size_t co_addr = (size_t)co;
   size_t context_addr = _mco_align_forward(co_addr + sizeof(mco_coro), 16);
   size_t storage_addr = _mco_align_forward(context_addr + sizeof(_mco_context), 16);
-  size_t stack_addr = _mco_align_forward(storage_addr + desc->storage_size, 16);
+  size_t stack_addr = (size_t)desc->alloc_cb(desc->stack_size, desc->allocator_data);;
   /* Initialize context. */
   _mco_context* context = (_mco_context*)context_addr;
   memset(context, 0, sizeof(_mco_context));
@@ -1640,7 +1643,7 @@ static mco_result _mco_create_context(mco_coro* co, mco_desc* desc) {
 }
 
 static void _mco_destroy_context(mco_coro* co) {
-  /* Nothing to do. */
+  co->dealloc_cb(co->stack_base, co->stack_size, co->allocator_data);
   _MCO_UNUSED(co);
 }
 
@@ -1755,13 +1758,13 @@ mco_result mco_create(mco_coro** out_co, mco_desc* desc) {
     MCO_LOG("coroutine output pointer is NULL");
     return MCO_INVALID_POINTER;
   }
-  if(!desc || !desc->alloc_cb || !desc->dealloc_cb) {
+  if(!desc) {
     *out_co = NULL;
     MCO_LOG("coroutine allocator description is not set");
     return MCO_INVALID_ARGUMENTS;
   }
   /* Allocate the coroutine. */
-  mco_coro* co = (mco_coro*)desc->alloc_cb(desc->coro_size, desc->allocator_data);
+  mco_coro* co = (mco_coro*)calloc(1, desc->coro_size - desc->stack_size);
   if(!co) {
     MCO_LOG("coroutine allocation failed");
     *out_co = NULL;
@@ -1770,7 +1773,7 @@ mco_result mco_create(mco_coro** out_co, mco_desc* desc) {
   /* Initialize the coroutine. */
   mco_result res = mco_init(co, desc);
   if(res != MCO_SUCCESS) {
-    desc->dealloc_cb(co, desc->coro_size, desc->allocator_data);
+    free(co);
     *out_co = NULL;
     return res;
   }
@@ -1788,11 +1791,7 @@ mco_result mco_destroy(mco_coro* co) {
   if(res != MCO_SUCCESS)
     return res;
   /* Free the coroutine. */
-  if(!co->dealloc_cb) {
-    MCO_LOG("attempt destroy a coroutine that has no free callback");
-    return MCO_INVALID_POINTER;
-  }
-  co->dealloc_cb(co, co->coro_size, co->allocator_data);
+  free(co);
   return MCO_SUCCESS;
 }
 

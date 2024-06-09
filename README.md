@@ -2,8 +2,6 @@
 
 _NimGo: Asynchronous Library Inspired by Go's Asyncio. Or for Purists: Stackful Coroutines library associated with an I/O Pollable Event Loop and Dispatcher_
 
-**Warning: there might exists for now an attack surface by overflowing the stack (which is limited). I can affirm if that kind of attack is possible with the current implementation. However, it is planned to handle that case in a future release to prevent this kind of attack.**
-
 This repository is currently an alpha release. You can expect bugs and inefficiencies. Do not use in production !
 
 ## Goal
@@ -16,7 +14,6 @@ Only one word to remember : **goAsync** (and optionaly **wait**, but seriously w
 ## Future Roadmap
 
 - [ ] *Finish the implementation of goproc*
-- [ ] *add a PROT_NONE add the end of the stack to prevent stackoverflow issues -> see if it is possible to implement growable stack like Go*
 - [ ] Add goproc support for windows (certainly by doing a wrapper around osproc)
 - [ ] Adding more test cases
 - [ ] Amelioration of efficiency of gonet
@@ -130,7 +127,7 @@ Most users will primarily interact with the higher-level modules like nimgo, nim
 
 ### What are coroutines? Can you explain the difference between stackful and stackless coroutines?
 
-Coroutines are a way to have multiple tasks running within a single thread of execution. They allow you to pause a task, save its state, and then resume it later.
+Coroutines are a way to have multiple tasks running within a single thread of execution. They allow you to pause a task, save its state, and then resume it later. NimGo use them internally and more precisely stackful coroutines.
 
 **Stackful Coroutines:**
 - These coroutines have their own call stack, which is managed by the coroutine library.
@@ -148,6 +145,55 @@ In the case of NimGo, the library uses stackful coroutines, which provide more p
 ### Is it more efficient than async/await ?
 
 No, the NimGo library is not more efficient than async/await. It is likely to be a bit slower and consume more memory than async/await. For most typical use cases, the performance difference will be negligible. However, for highly demanding scenarios like managing thousands of concurrent socket connections, you may notice a more significant impact.
+
+
+### Is it more efficient than Os threads ?
+
+It depends on the task:
+- For I/O-bound tasks, async/await-based concurrency (e.g., std/asyncdispatch or NimGo) are generally faster threads, as they can handle multiple I/O events concurrently without the overhead of managing multiple threads.
+- For CPU-bound computation tasks, threads are generally faster than single-threaded async libraries, as they can leverage parallel execution across multiple CPU cores to speed up the code.
+
+Additionally, threads have a higher context switch cost compared to Coroutines. Threads also require more careful handling of deadlocks, synchronization, and have constraints when moving memory around. Please note that their usage are not exclusive.
+
+
+### How to use NimGo in a multithreaded environment ?
+
+Using NimGo's coroutines in a multithreaded environment requires some additional setup and considerations:
+
+1. Set a new dispatcher for each thread:
+  - For each new thread, you need to create a new global dispatcher using `newDispatcher()` and set it as the current dispatcher with `setCurrentThreadDispatcher()`.
+  - Alternatively, you can use the `insideNewEventLoop` template, which will set up a new dispatcher for the duration of the block.
+  - You must not use the same dispatcher in multiple threads, as it is not thread-safe.
+
+2. Don't shared async objects across threads:
+- Do not use any async objects (like GoTasks[T] or GoFile) that were defined before setting the new thread's dispatcher.
+- Coroutines and the Dispatcher itself are not safe to move between threads.
+
+3. Register shared objects in each thread using its file descriptor
+- If you want to use an object (like goStdin) that was defined in another thread, you must register it again in the current thread. Here is an example with `goStdin`: 
+```nim
+## Thread 1:
+var fd = goStdin.getOsFileHandle()
+var myChan.send(fd)
+## Thread 2:
+var fd = myChan.recv()
+var goStdin2 = newGoFile(fd, fmRead)
+```
+- However this approach could lead to data races if locks are not used. The event dispatcher could think an I/O object is ready and perform a blocking I/O call, effectivly blocking the whole thread is data was stolen by another thread.
+
+All the other rules concerning sharing safely data between threads applies (use channels !)
+
+### NimGo's memory usage skyrocket?
+
+NimGo coroutines use a lot of virtual memory, but not much actual physical memory (RAM).
+
+Here's why:
+- NimGo gives each coroutine a large amount of virtual memory, just in case they need it.
+- But coroutines only use the physical memory they actually need.
+- The operating system only allocates physical memory pages as the coroutines use them.
+- So the high virtual memory usage doesn't mean high RAM usage. It's just a way to let the coroutines grow if they need to.
+
+The virtual memory usage may look high, but the actual RAM usage is much lower. This design doesn't prevent other programs from running. You can see the real memory usage by NimGo by looking at RESIDENT (RES) memory in the top command.
 
 
 ### Why another async library, we already have std/asyncdispatch, chronos, etc ?
@@ -222,14 +268,25 @@ By importing only nimgo/coroutines, you'll have access to the core coroutines AP
 However, it's important to note that by using only the coroutines API, you'll be limited in what you can do. The full power of NimGo comes from its integration with the event dispatcher/loop, which provide additional functionality for managing asynchronous tasks. If you want to leverage the dispatcher and event loop features, you can also import the nimgo/eventdispatcher module. This will give you access to the higher-level APIs for working with asynchronous code, while still allowing you to use the low-level coroutines primitives from the nimgo/coroutines module.
 
 
-### Customizing Coroutine Memory Usage
+## Is it safe to use ? Stackful coroutines don't provide a high surface attack ?
 
-In NimGo, you can tweak the memory usage of coroutines in a few different ways:
+The safety of using stackful coroutines, like those provided by NimGo, depends on how you write your code. The risk of a stack overflow attack is not inherently higher with coroutines than with other programming techniques.
 
-- Virtual Memory Usage `-d:coroUseVMem`: By defining the coroUseVMem compile-time flag, you can make coroutines use virtual memory instead of physical memory. This is available on Linux and Windows systems, but may not work on other platforms. When using virtual memory, each coroutine will request significantly more memory from the system (around 36x more), but the physical memory used will be slower and will only grow with the coroutine's stack. This can be seen in the difference between the VIRT (virtual) and RES (resident) memory usage reported by the top program.
-- Memory Allocation Ratio `d:coroMemratio:10`: You can use the coroMemratio compile-time flag to adjust the amount of memory allocated for each coroutine. The number you provide is a ratio, where 10 is the default. Values below 10 will allocate less memory, and values above 10 will allocate more. This allows you to control how much the coroutine's stack can grow, which is important for functions with a lot of local variables, large stack variables like arrays or deep recursions.
-- Specifying Stack Size `newCoroutine(fn, stacksize)`: If you're using the lower-level nimgo/coroutines module directly, you can specify the raw number of bytes to allocate for the coroutine's stack when creating a new coroutine. For a reference point, you can check the value of the DefaultStackSize constant, which represents the default stack size used by NimGo.
+NimGo employs various techniques to male stack overflow attacks more difficult.
+- Heap-based stack allocation: NimGo allocates the coroutines' stacks using heap memory, rather than the process stack. This makes it harder for an attacker to inject code or modify other parts of the program's memory.
+- Large default stack size: NimGo allocates a large chunk of (virtual) memory for each coroutine's stack by default. This reduces the likelihood of a stack overflow, even when using deep recursion or large stack variables.
+- Stack page protection: NimGo marks the last page of each coroutine's stack as protected. This means the operating system will kill the program before a stack overflow can occur, preventing potential attacks.
 
+## NimGo available flags
+
+Here are what can be tweaked in NimGo (flags are case insensitive):
+
+- `d:NimGoNoDebug` (already set on release mode): if this flags is set on:
+  - a certain number of checks will be disabled inside NimGo, mainly to avoid nil deference
+  - the creation stacktrace of Coroutines will not be recorded, so it will not be added to exceptions raised from inside a coroutine
+  - no error message will be print in case of a stackoverflow within a Coroutine
+- `-d:NimGoNoVMem` (only available on posix): If this flags is set, the Coroutines' stack won't be allocated using a virtual memory allocator but will use Nim's allocator (which use also generally virtual memory). The stack size of Coroutines won't be set by the internal value `VirtualStackSize`, but by the flag `PhysicalMemKib`
+- `d:PhysicalMemKib:64` (only available on posix and when NimGoNoVMem flag is set. this is the default value): Allow to tweak the stack's size of each Coroutines. Lower value augments the risk of stackoverflow. Ideally, it would be a power of 2, but any value can be used. Please note that 4 Kib are always reserved to handle stackoverflow errors.
 
 ### Can I contribute
 

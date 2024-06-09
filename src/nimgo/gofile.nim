@@ -4,9 +4,10 @@ else:
     include ./private/gofile_posix
 
 
-let goStdin* = newGoFile(stdin.getFileHandle(), fmRead, buffered = false)
-let goStdout* = newGoFile(stdout.getFileHandle(), fmWrite, buffered = false)
-let goStderr* = newGoFile(stderr.getFileHandle(), fmWrite, buffered = false)
+var goStdin*, goStdout*, goStderr* {.threadvar.}: GoFile
+goStdin = newGoFile(stdin.getFileHandle(), fmRead, buffered = false)
+goStdout = newGoFile(stdout.getFileHandle(), fmWrite, buffered = false)
+goStderr = newGoFile(stderr.getFileHandle(), fmWrite, buffered = false)
 
 
 proc endOfFile*(f: Gofile): bool =
