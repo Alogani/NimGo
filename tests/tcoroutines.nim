@@ -2,22 +2,21 @@ import nimgo/coroutines
 
 import std/unittest
 
-var coro: Coroutine
 test "Coroutine - closures":
-    coro = newCoroutine(proc() = discard)
+    var coro = newCoroutine(proc() = discard)
     check coro.getState() == CsSuspended
     coro.resume()
     check coro.getState() == CsFinished
 
 test "Coroutine - nimcall":
     proc echoHello() {.nimcall.} = discard
-    coro.reinit(echoHello)
+    var coro = newCoroutine(echoHello)
     check coro.getState() == CsSuspended
     coro.resume()
     check coro.getState() == CsFinished
 
 test "Coroutine - closures with return val":
-    coro.reinit(proc(): string = return "42")
+    var coro = newCoroutine(proc(): string = return "42")
     check coro.getState() == CsSuspended
     coro.resume()
     check coro.getState() == CsFinished
@@ -25,7 +24,7 @@ test "Coroutine - closures with return val":
 
 test "Coroutine - nimcall with return val":
     proc getMagicInt(): int {.nimcall.} = return 42
-    coro.reinit(getMagicInt)
+    var coro = newCoroutine(getMagicInt)
     check coro.getState() == CsSuspended
     coro.resume()
     check coro.getState() == CsFinished
