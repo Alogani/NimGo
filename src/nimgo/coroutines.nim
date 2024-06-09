@@ -366,14 +366,23 @@ template enhanceExceptions(coroPtr: ptr CoroutineObj, body: untyped) =
         except:
             var err = getCurrentException()
             # We will do dirty things. Not efficient, but at least very explicit
+            # It may be overkill to handle the case of nested coroutines, because with goAsync, none are nested, they are all executed by the dispatcher
             {.warning[InheritFromException]:off.}
             type ChildException = ref object of Exception 
                 gcmemory: seq[string]
-            var newErr = cast[ChildException](err)
-            for entry in mitems(newErr.trace):
+            var newErr = ChildException(
+                parent: err.parent,
+                name: err.name,
+                msg: err.msg
+            )
+            for entry in err.trace:
                 var newFilename = ">" & $entry.filename
+                newErr.trace.add(StackTraceEntry(
+                    procname: entry.procname,
+                    line: entry.line,
+                    filename: cstring(newFilename),
+                ))
                 newErr.gcmemory.add newFilename
-                entry.filename = cstring(newErr.gcmemory[^1])
             for entry in mitems(coroPtr[].creationStacktraceEntries):
                 var newFilename = ">" & $entry.filename
                 newErr.gcmemory.add newFilename
@@ -382,7 +391,7 @@ template enhanceExceptions(coroPtr: ptr CoroutineObj, body: untyped) =
                 @[StackTraceEntry(filename: cstring"Coroutine creation:")] &
                 coroPtr[].creationStacktraceEntries &
                 @[StackTraceEntry(filename: cstring"Coroutine execution:")] &
-                err.trace)
+                newErr.trace)
             setCurrentException(newErr)
             raise
 

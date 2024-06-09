@@ -143,6 +143,20 @@ Coroutines are a way to have multiple tasks running within a single thread of ex
 In the case of NimGo, the library uses stackful coroutines, which provide more power and flexibility, but also require more careful management. The lower-level modules expose the details of the stackful coroutines, while the higher-level modules abstract away the complexity for most users.
 
 
+### What are the drawbacks of stackful Coroutines ?
+
+I won't say I have warned you ;-)
+
+This full paper is certainly the more in-depth explanation about drawbacks of stackful Coroutines: https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1364r0.pdf. But those drawbacks should be mitigated by this other paper than comes in response: https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p0866r0.pdf
+
+The valid points are:
+- Stackoverflow errors are confusing and hard to debug
+- It is less efficient than stackless coroutines
+- The higher memory usage of stackful coroutines can make thread usage more relevant
+- Using it across threads is shooting you in the foot
+
+In my humble opinion, those points are not enough to make stackful coroutines irrelevant, and I still trust in it. But depending on your usage, you might take those drawbacks under considerations.
+
 ### Is it more efficient than async/await ?
 
 No, the NimGo library is not more efficient than async/await. It is likely to be a bit slower and consume more memory than async/await. For most typical use cases, the performance difference will be negligible. However, for highly demanding scenarios like managing thousands of concurrent socket connections, you may notice a more significant impact.
