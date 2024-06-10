@@ -11,27 +11,27 @@ goStdout = newGoFile(stdout.getFileHandle(), fmWrite, buffered = false)
 goStderr = newGoFile(stderr.getFileHandle(), fmWrite, buffered = false)
 
 
-proc endOfFile*(f: Gofile): bool =
+func endOfFile*(f: Gofile): bool =
     f.state == FsEof
 
-proc closed*(f: Gofile): bool =
+func closed*(f: Gofile): bool =
     ## Only return true if file was closed using `gofile.close()`.
     ## Closing directly the underlying file or file descriptor won't be detected
     f.state == FsClosed
 
-proc error*(f: Gofile): bool =
+func error*(f: Gofile): bool =
     f.state == FsError
 
-proc getError*(f: Gofile): OSErrorCode =
+func getError*(f: Gofile): OSErrorCode =
     f.errorCode
 
-proc getOsFileHandle*(f: GoFile): FileHandle =
+func getOsFileHandle*(f: GoFile): FileHandle =
     FileHandle(f.fd)
 
-proc getSelectorFileHandle*(f: GoFile): PollFd =
+func getSelectorFileHandle*(f: GoFile): PollFd =
     f.pollFd
 
-proc readAvailable*(f: Gofile, size: Positive, timeoutMs = -1, noAsync = false): string =
+proc readAvailable*(f: var Gofile, size: Positive, timeoutMs = -1, noAsync = false): string =
     if f.buffer != nil:
         if f.buffer.len() < size:
             let data = f.readImpl(max(size, DefaultBufferSize), timeoutMs, noAsync)
@@ -41,7 +41,7 @@ proc readAvailable*(f: Gofile, size: Positive, timeoutMs = -1, noAsync = false):
     else:
         return f.readImpl(size, timeoutMs, noAsync)
 
-proc readChunk*(f: Gofile, timeoutMs = -1, noAsync = false): string =
+proc readChunk*(f: var Gofile, timeoutMs = -1, noAsync = false): string =
     ## More efficient, especially when file is buffered
     ## The returned read size is not predictable, but less than `buffer.DefaultBufferSize`
     if f.buffer != nil:
@@ -51,7 +51,7 @@ proc readChunk*(f: Gofile, timeoutMs = -1, noAsync = false): string =
     else:
         return f.readImpl(DefaultBufferSize, timeoutMs, noAsync)
 
-proc read*(f: Gofile, size: Positive, timeoutMs = -1): string =
+proc read*(f: var Gofile, size: Positive, timeoutMs = -1): string =
     result = newStringOfCap(size)
     var timeout = initTimeOutWatcher(timeoutMs)
     while result.len() < size:
@@ -60,7 +60,7 @@ proc read*(f: Gofile, size: Positive, timeoutMs = -1): string =
             break
         result.add(data)
 
-proc readAll*(f: Gofile, timeoutMs = -1): string =
+proc readAll*(f: var Gofile, timeoutMs = -1): string =
     ## Might return a string even if EOF has not been reached
     var timeout = initTimeOutWatcher(timeoutMs)
     if f.buffer != nil:
@@ -71,7 +71,7 @@ proc readAll*(f: Gofile, timeoutMs = -1): string =
             break
         result.add data
 
-proc readLine*(f: GoFile, timeoutMs = -1, keepNewLine = false): string =
+proc readLine*(f: var GoFile, timeoutMs = -1, keepNewLine = false): string =
     ## Newline is not kept. To distinguish between EOF, you can use `endOfFile`
     var timeout = initTimeOutWatcher(timeoutMs)
     if f.buffer != nil:
@@ -112,3 +112,4 @@ proc readLine*(f: GoFile, timeoutMs = -1, keepNewLine = false): string =
                 line.setLen(line.len() * 2)
             line[length] = c
             length += 1
+    
