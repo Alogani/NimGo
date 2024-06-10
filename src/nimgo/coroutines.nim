@@ -123,6 +123,7 @@ type
         entryFn: SafeContainer[void]
         returnedVal: pointer
         mcoCoroutine: ptr McoCoroutine
+        exception: ref Exception
         when not NimGoNoDebug:
             parent: ptr CoroutineObj
             creationStacktraceEntries: seq[StackTraceEntry]
@@ -383,7 +384,8 @@ template enhanceExceptions(coroPtr: ptr CoroutineObj, body: untyped) =
                 err.trace = (mergeStackTraceEntries(coroPtr) &
                     @[StackTraceEntry(filename: StackTraceHeaderExecution)] &
                     err.trace)
-            raise
+            Gc_ref(err)
+            coroPtr.exception = err
 
 proc coroutineMain[T](mcoCoroutine: ptr McoCoroutine) {.cdecl.} =
     ## Start point of the coroutine.
@@ -475,12 +477,22 @@ proc resume*(coro: Coroutine) =
     let frame = getFrameState()
     checkMcoReturnCode resume(coro.mcoCoroutine)
     setFrameState(frame)
+    if coro.exception != nil:
+        GC_unref(coro.exception)
+        setCurrentException(coro.exception)
+        raise
 
 proc suspend*() =
     ## Suspend the actual running coroutine
     let frame = getFrameState()
-    checkMcoReturnCode suspend(getRunningMco())
+    let currentMco = getRunningMco()
+    checkMcoReturnCode suspend(currentMco)
     setFrameState(frame)
+    let coroPtr = cast[ptr CoroutineObj](currentMco.getUserData())
+    if coroPtr[].exception != nil:
+        GC_unref(coroPtr[].exception)
+        setCurrentException(coroPtr[].exception)
+        raise
 
 proc suspend*(coro: Coroutine) =
     ## Optimization to avoid calling getRunningMco() twice which has some overhead
@@ -488,6 +500,10 @@ proc suspend*(coro: Coroutine) =
     let frame = getFrameState()
     checkMcoReturnCode suspend(coro.mcoCoroutine)
     setFrameState(frame)
+    if coro.exception != nil:
+        GC_unref(coro.exception)
+        setCurrentException(coro.exception)
+        raise
 {.pop.}
 
 proc getCurrentCoroutine*(): Coroutine =
