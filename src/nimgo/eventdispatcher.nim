@@ -472,3 +472,49 @@ proc pollOnce*() =
         runOnce()
     else:
         suspendUntilLater(coro)
+
+
+proc suspendUntilAny*(readFd: seq[PollFd], writefd: seq[PollFd], timeoutMs = -1): WakeUpInfo =
+    ## This function returns the first fd responsible of a wake up
+    let coro = getCurrentCoroutineSafe()
+    let oneShotCoro = toOneShot(coro)
+    for fd in readFd:
+        addInsideSelector(fd, oneShotCoro, Event.Read)
+    for fd in writefd:
+        addInsideSelector(fd, oneShotCoro, Event.Write)
+    if timeoutMs == -1:
+        resumeOnTimer(oneShotCoro, timeoutMs)
+    suspend(coro)
+    return ActiveDispatcher.lastWakeUpInfo
+
+proc suspendUntilRead*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
+    ## See also `consumeCurrentEvent` to avoid a data race if multiple coros are registered for same fd
+    ## If PollFd is not a file, by definition only the coros in the readList will be resumed
+    ## It will not try to update the kind of event waited inside the selector. Waiting for unregistered event will deadlock
+    let coro = getCurrentCoroutineSafe()
+    let oneShotCoro = toOneShot(coro)
+    addInsideSelector(fd, oneShotCoro, Event.Read)
+    if timeoutMs != -1:
+        resumeOnTimer(oneShotCoro, timeoutMs)
+    suspend(coro)
+    if ActiveDispatcher.lastWakeUpInfo.pollFd == InvalidFd:
+        return false
+    if consumeEvent:
+        consumeCurrentEvent()
+    return true
+
+proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
+    ## See also `consumeCurrentEvent` to avoid a data race if multiple coros are registered for same fd
+    ## If PollFd is not a file, by definition only the coros in the readList will be resumed
+    ## It will not try to update the kind of event waited inside the selector. Waiting for unregistered event will deadlock
+    let coro = getCurrentCoroutineSafe()
+    let oneShotCoro = toOneShot(coro)
+    addInsideSelector(fd, oneShotCoro, Event.Write)
+    if timeoutMs != -1:
+        resumeOnTimer(oneShotCoro, timeoutMs)
+    suspend(coro)
+    if ActiveDispatcher.lastWakeUpInfo.pollFd == InvalidFd:
+        return false
+    if consumeEvent:
+        consumeCurrentEvent()
+    return true

@@ -1,8 +1,7 @@
 {.warning: "gofile_win is completly untested. Please remove this line, use at your own risk and tell me if it works".}
 import std/[winlean, widestrs, oserrors]
 from std/syncio import FileHandle, FileMode, FileSeekPos
-import ../[eventdispatcher]
-import ../public/gotasks
+import ../eventdispatcher
 import ./buffer
 
 type
@@ -10,7 +9,7 @@ type
         FsOpen, FsClosed, FsEof, FsError
 
     GoFile* = ref object
-        pollFd: PollFd
+        pollFd = InvalidFd
         fd: Handle
         state: FileState
         errorCode: OSErrorCode
@@ -39,7 +38,7 @@ proc syncioModeToWin(mode: FileMode): tuple[dwDesiredAccess: cint, dwCreationDis
         (GENERIC_WRITE, OPEN_ALWAYS)
 
 proc close*(f: GoFile) =
-    if f.state != FsClosed:
+    if f.state != FsClosed and f.pollFd != InvalidFd:
         f.pollFd.unregister()
         if winlean.closeHandle(f.fd) == 0:
             raiseOSError(osLastError())
@@ -74,19 +73,6 @@ proc newGoFile*(fd: FileHandle, mode: FileMode, buffered = true): GoFile =
         buffer: if buffered: newBuffer() else: nil
     )
 
-proc createGoPipe*(buffered = true): tuple[reader, writer: GoFile] =
-    var sa: SECURITY_ATTRIBUTES
-    sa.nLength = sizeof(SECURITY_ATTRIBUTES).cint
-    sa.lpSecurityDescriptor = nil
-    sa.bInheritHandle = 1
-    var readHandle, writeHandle: Handle
-    if createPipe(readHandle, writeHandle, sa, 0) == 0'i32:
-        raiseOSError(osLastError())
-    return (
-        newGoFile(FileHandle(readHandle), fmRead, buffered),
-        newGoFile(FileHandle(writeHandle), fmWrite, buffered),
-    )
-
 proc openGoFile*(filename: string, mode = fmRead, buffered = true): GoFile =
     let winMode = syncioModeToWin(mode)
     let fd = createFileW(
@@ -109,10 +95,10 @@ proc openGoFile*(filename: string, mode = fmRead, buffered = true): GoFile =
         buffer: if buffered: newBuffer() else: nil
     )
 
-proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, canceller: GoTaskUntyped, noAsync: bool): int {.used.} =
+proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, timeoutMs: int, noAsync: bool): int {.used.} =
     ## Bypass the buffer
     if not noAsync:
-        if not suspendUntilRead(f.pollFd, canceller, true):
+        if not suspendUntilRead(f.pollFd, timeoutMs):
             return -1
     var bytesCount: int32
     if readFile(f.fd, buf, int32(len), addr(bytesCount), nil) == 0:
@@ -123,20 +109,20 @@ proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, canceller: GoTaskUnt
         f.state = FsEof
     return bytesCount
 
-proc readImpl(f: GoFile, len: Positive, canceller: GoTaskUntyped, noAsync: bool): string {.used.} =
+proc readImpl(f: GoFile, len: Positive, timeoutMs: int, noAsync: bool): string {.used.} =
     ## Bypass the buffer
     result = newStringOfCap(len)
     result.setLen(1)
-    let bytesCount = f.readBufferImpl(addr(result[0]), len, canceller, noAsync)
+    let bytesCount = f.readBufferImpl(addr(result[0]), len, timeoutMs, noAsync)
     if bytesCount <= 0:
         return ""
     result.setLen(bytesCount)
 
-proc write*(f: GoFile, data: sink string, canceller: GoTaskUntyped = nil): int {.used.} =
+proc write*(f: GoFile, data: sink string, timeoutMs: int): int {.used.} =
     ## Bypass the buffer
     if data.len() == 0:
         return 0
-    if not suspendUntilWrite(f.pollFd, canceller, true):
+    if not suspendUntilWrite(f.pollFd, timeoutMs):
         return -1
     var bytesCount: int32
     if writeFile(f.fd, addr(data[0]), int32(data.len()), addr(bytesCount), nil) == 0:

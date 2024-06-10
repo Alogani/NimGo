@@ -202,3 +202,12 @@ proc waitAny*[T](gotasks: seq[GoTask[T]]) =
 template goAndwait*(fn: untyped): untyped =
     ## Shortcut for wait goAsync
     wait(goAsync(`fn`))
+
+proc addCallback*(goTask: GoTaskUntyped, oneShotCoro: OneShotCoroutine) =
+    if goTask.finished():
+        let coro = oneShotCoro.consumeAndGet()
+        if coro != nil:
+            resumeLater(coro)
+    else:
+        gotask.callbacks.list.add oneShotCoro
+        

@@ -19,3 +19,7 @@ test "Producer/consumer":
     withEventLoop:
         goAsync producer()
         goAsync consumer()
+
+test "Timeout":
+    var s = newGoBufferStream()
+    check (goAndWait s.readChunk(10)) == ""
