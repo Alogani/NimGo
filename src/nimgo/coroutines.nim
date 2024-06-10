@@ -124,12 +124,28 @@ type
         returnedVal: pointer
         mcoCoroutine: ptr McoCoroutine
         when not NimGoNoDebug:
+            parent: ptr CoroutineObj
             creationStacktraceEntries: seq[StackTraceEntry]
     Coroutine* = ref CoroutineObj
         ## Basic coroutine object
         ## Thread safety: unstarted coroutine can be moved between threads
         ## Moving started coroutine, using resume/suspend are completely thread unsafe in ORC (and maybe ARC too)
 
+const StackTraceHeaderCreation = cstring"> Coroutine creation stacktrace"
+const StackTraceHeaderExecution = cstring"> Coroutine execution stacktrace"
+
+proc mergeStackTraceEntries(coroPtr: ptr CoroutineObj): seq[StackTraceEntry] =
+    var stack: seq[ptr CoroutineObj]
+    var actualCoro = coroPtr
+    var entries: seq[StackTraceEntry]
+    while actualCoro != nil:
+        stack.add actualCoro
+        actualCoro = actualCoro.parent
+    var z = stack.len()
+    for i in countdown(z - 1, 0):
+        entries.add StackTraceEntry(filename: StackTraceHeaderCreation, line: z - i)
+        entries.add stack[i][].creationStacktraceEntries
+    entries
 
 #[ ********* Page size ********* ]#
 
@@ -163,8 +179,8 @@ else:
 #[ ********* Stack overflow handling ********* ]#
 
 proc writeStackTraceEntries(entries: seq[StackTraceEntry]) =
-    var entryStr: string
     for entry in entries:
+        var entryStr: string
         entryStr.add entry.filename
         entryStr.add "("
         entryStr.add $entry.line
@@ -217,9 +233,8 @@ when OnWindows and not NimGoNoDebug:
         let coroAddr = retrieveCoroutineAddr(exceptionInfo[].exceptionRecord[].exceptionAddress)
         if coroAddr != nil:
             stderr.write("Fatal error: Coroutine stackoverflow\n")
-            stderr.write("Coroutine creation stacktrace:\n")
-            writeStackTraceEntries(coroAddr[].creationStacktraceEntries)
             stderr.flushFile()
+            writeStackTraceEntries(mergeStackTraceEntries(coroAddr))
         return EXCEPTION_EXECUTE_HANDLER
 
     discard setUnhandledExceptionFilter(segvHandler)
@@ -243,8 +258,7 @@ when not(OnWindows or NimGoNoDebug):
         let coroAddr = cast[ptr CoroutineObj](retrieveCoroutineAddr(info[].si_addr))
         if coroAddr != nil:
             stderr.write("Fatal error: Coroutine stackoverflow\n")
-            stderr.write("Coroutine creation stacktrace:\n")
-            writeStackTraceEntries(coroAddr[].creationStacktraceEntries)
+            writeStackTraceEntries(mergeStackTraceEntries(coroAddr))
             stderr.flushFile()
         exitnow(1)
 
@@ -365,34 +379,10 @@ template enhanceExceptions(coroPtr: ptr CoroutineObj, body: untyped) =
             `body`
         except:
             var err = getCurrentException()
-            # We will do dirty things. Not efficient, but at least very explicit
-            # It may be overkill to handle the case of nested coroutines, because with goAsync, none are nested, they are all executed by the dispatcher
-            {.warning[InheritFromException]:off.}
-            type ChildException = ref object of Exception 
-                gcmemory: seq[string]
-            var newErr = ChildException(
-                parent: err.parent,
-                name: err.name,
-                msg: err.msg
-            )
-            for entry in err.trace:
-                var newFilename = ">" & $entry.filename
-                newErr.trace.add(StackTraceEntry(
-                    procname: entry.procname,
-                    line: entry.line,
-                    filename: cstring(newFilename),
-                ))
-                newErr.gcmemory.add newFilename
-            for entry in mitems(coroPtr[].creationStacktraceEntries):
-                var newFilename = ">" & $entry.filename
-                newErr.gcmemory.add newFilename
-                entry.filename = cstring(newErr.gcmemory[^1])
-            newErr.trace = (
-                @[StackTraceEntry(filename: cstring"Coroutine creation:")] &
-                coroPtr[].creationStacktraceEntries &
-                @[StackTraceEntry(filename: cstring"Coroutine execution:")] &
-                newErr.trace)
-            setCurrentException(newErr)
+            if err.trace[0].filename != StackTraceHeaderCreation:
+                err.trace = (mergeStackTraceEntries(coroPtr) &
+                    @[StackTraceEntry(filename: StackTraceHeaderExecution)] &
+                    err.trace)
             raise
 
 proc coroutineMain[T](mcoCoroutine: ptr McoCoroutine) {.cdecl.} =
@@ -454,6 +444,9 @@ proc reinit*(coro: Coroutine, entryFn: EntryFn[void]) =
     reinitImpl[void](coro, entryFn)
 ]#
 
+proc getCurrentCoroutine*(): Coroutine
+
+
 proc newCoroutineImpl[T](entryFn: EntryFn[T]): Coroutine =
     result = Coroutine(
         entryFn: cast[SafeContainer[void]](entryFn.pushIntoContainer()),
@@ -463,6 +456,9 @@ proc newCoroutineImpl[T](entryFn: EntryFn[T]): Coroutine =
     mcoCoroDescriptor.dealloc_cb = mcoDeallocator
     mcoCoroDescriptor.user_data = cast[ptr CoroutineObj](result)
     when not NimGoNoDebug:
+        let coro = getCurrentCoroutine()
+        if coro != nil:
+            result.parent = cast[ptr CoroutineObj](coro)
         result.creationStacktraceEntries = getStackTraceEntries()
         mcoCoroDescriptor.allocator_data = mcoCoroDescriptor.user_data
     checkMcoReturnCode createMcoCoroutine(addr(result.mcoCoroutine), addr mcoCoroDescriptor)
