@@ -8,7 +8,7 @@ type
     FileState = enum
         FsOpen, FsClosed, FsEof, FsError
 
-    GoFile* = ref object
+    GoFile* = object
         pollFd = InvalidFd
         fd: Handle
         state: FileState
@@ -37,7 +37,7 @@ proc syncioModeToWin(mode: FileMode): tuple[dwDesiredAccess: cint, dwCreationDis
     of fmAppend: # And we shall move cursor to its end
         (GENERIC_WRITE, OPEN_ALWAYS)
 
-proc close*(f: GoFile) =
+proc close*(f: var GoFile) =
     if f.state != FsClosed and f.pollFd != InvalidFd:
         f.pollFd.unregister()
         if winlean.closeHandle(f.fd) == 0:
@@ -95,7 +95,7 @@ proc openGoFile*(filename: string, mode = fmRead, buffered = true): GoFile =
         buffer: if buffered: newBuffer() else: nil
     )
 
-proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, timeoutMs: int, noAsync: bool): int {.used.} =
+proc readBufferImpl(f: var GoFile, buf: pointer, len: Positive, timeoutMs: int, noAsync: bool): int {.used.} =
     ## Bypass the buffer
     if not noAsync:
         if not suspendUntilRead(f.pollFd, timeoutMs):
@@ -109,7 +109,7 @@ proc readBufferImpl(f: GoFile, buf: pointer, len: Positive, timeoutMs: int, noAs
         f.state = FsEof
     return bytesCount
 
-proc readImpl(f: GoFile, len: Positive, timeoutMs: int, noAsync: bool): string {.used.} =
+proc readImpl(f: var GoFile, len: Positive, timeoutMs: int, noAsync: bool): string {.used.} =
     ## Bypass the buffer
     result = newStringOfCap(len)
     result.setLen(1)
@@ -118,7 +118,7 @@ proc readImpl(f: GoFile, len: Positive, timeoutMs: int, noAsync: bool): string {
         return ""
     result.setLen(bytesCount)
 
-proc write*(f: GoFile, data: sink string, timeoutMs: int): int {.used.} =
+proc write*(f: var GoFile, data: sink string, timeoutMs: int): int {.used.} =
     ## Bypass the buffer
     if data.len() == 0:
         return 0
