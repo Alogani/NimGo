@@ -4,7 +4,7 @@ import std/[deques, heapqueue]
 import std/[os, selectors, nativesockets]
 import std/[times, monotimes]
 
-export Event, SocketHandle
+export Event, SocketHandle, SelectEvent, trigger, close
 
 #[
     {.push stackTrace:off.}
