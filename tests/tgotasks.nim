@@ -30,7 +30,7 @@ test "outside coroutine with timeout":
 
         check wait(
             goasync(coroFn()),
-            sleepTask(100)
+            100
             ).isNone()
 
 test "inside coroutine with timeout":
@@ -42,7 +42,7 @@ test "inside coroutine with timeout":
             return 42
 
         proc coroFn() =
-            check wait(goasync(innerCoroFn()), sleepTask(100)).isNone()
+            check wait(goasync(innerCoroFn()), 100).isNone()
 
         var task = goasync coroFn()
         wait(task)
@@ -61,7 +61,7 @@ test "inside coroutine with nested timeout":
 
     check wait(
         goasync(coroFn()),
-        sleepTask(100)
+        100
         ) == false
 
 test "inside coroutine waitall - success":
@@ -78,7 +78,7 @@ test "inside coroutine waitall - success":
                     goasync(innerCoroFn()),
                     goasync(innerCoroFn())
                 ],
-                sleepTask(300)) == @[42, 42]
+                300) == @[42, 42]
 
         var task = goasync coroFn()
         wait(task)
@@ -98,7 +98,7 @@ test "inside coroutine waitall - fail":
                     goasync(innerCoroFn(100)),
                     goasync(innerCoroFn(500))
                 ],
-                sleepTask(300)).len() == 0
+                300).len() == 0
 
         var task = goasync coroFn()
         wait(task)
@@ -118,7 +118,7 @@ test "inside coroutine waitany - fail":
                     goasync(innerCoroFn(400)),
                     goasync(innerCoroFn(500))
                 ],
-                sleepTask(300)) == false
+                300) == false
 
         var task = goasync coroFn()
         wait(task)
@@ -138,7 +138,7 @@ test "inside coroutine waitany - success":
                     goasync(innerCoroFn(100)),
                     goasync(innerCoroFn(500))
                 ],
-                sleepTask(300))
+                300)
 
         var task = goasync coroFn()
         wait(task)
