@@ -96,13 +96,13 @@ method readAvailable*(s: GoBufferStream, size: Positive, timeoutMs = -1): string
     if s.buffer.empty() and not s.closed:
         if not s.fillBuffer(timeoutMs):
             return ""
-    s.buffer.read(size)
+    s.buffer.read(result, size)
 
 method readChunk*(s: GoBufferStream, timeoutMs = -1): string =
     if s.buffer.empty() and not s.closed:
         if not s.fillBuffer(timeoutMs):
             return ""
-    s.buffer.readChunk()
+    s.buffer.readChunk(result)
     
 method read*(s: GoBufferStream, size: Positive, timeoutMs = -1): string =
     result = newStringOfCap(size)
@@ -124,12 +124,14 @@ method readAll*(s: GoBufferStream, timeoutMs = -1): string =
 method readLine*(s: GoBufferStream, timeoutMs = -1, keepNewLine = false): string =
     var timeout = initTimeOutWatcher(timeoutMs)
     while true:
-        let line = s.buffer.readLine(keepNewLine)
+        var line: string
+        s.buffer.readLine(line, keepNewLine)
         if line.len() != 0:
             return line
         if not s.fillBuffer(timeout.getRemainingMs()):
             if s.closed:
-                return s.buffer.readAll()
+                s.buffer.readAll(result)
+                return
             else:
                 return ""
 

@@ -31,57 +31,73 @@ func getOsFileHandle*(f: GoFile): FileHandle =
 func getSelectorFileHandle*(f: GoFile): PollFd =
     f.pollFd
 
-proc readAvailable*(f: GoFile, size: Positive, timeoutMs = -1, noAsync = false): string =
+proc readAvailable*(f: GoFile, buffer: var string, size: Positive, timeoutMs = -1, noAsync = false) =
     if f.buffered:
         if f.buffer.len() < size:
             let data = f.readImpl(max(size, DefaultBufferSize), timeoutMs, noAsync)
             if data != "":
                 f.buffer.write(data)
-        return f.buffer.read(size)
+        f.buffer.read(buffer, size)
     else:
-        return f.readImpl(size, timeoutMs, noAsync)
+        buffer = f.readImpl(size, timeoutMs, noAsync)
 
-proc readChunk*(f: GoFile, timeoutMs = -1, noAsync = false): string =
+proc readAvailable*(f: GoFile, size: Positive, timeoutMs = -1, noAsync = false): string =
+    readAvailable(f, result, size, timeoutMs, noAsync)
+
+proc readChunk*(f: GoFile, buffer: var string, timeoutMs = -1, noAsync = false) =
     ## More efficient, especially when file is buffered
     ## The returned read size is not predictable, but less than `buffer.DefaultBufferSize`
     if f.buffered:
         if f.buffer.empty():
-            return f.readImpl(DefaultBufferSize, timeoutMs, noAsync)
-        return f.buffer.readChunk()
+            buffer = f.readImpl(DefaultBufferSize, timeoutMs, noAsync)
+            return
+        f.buffer.readChunk(buffer)
     else:
-        return f.readImpl(DefaultBufferSize, timeoutMs, noAsync)
+        buffer = f.readImpl(DefaultBufferSize, timeoutMs, noAsync)
 
-proc read*(f: GoFile, size: Positive, timeoutMs = -1): string =
-    result = newStringOfCap(size)
+proc readChunk*(f: GoFile, timeoutMs = -1, noAsync = false): string =
+    readChunk(f, result, timeoutMs, noAsync)
+
+proc read*(f: GoFile, buffer: var string, size: Positive, timeoutMs = -1) =
+    buffer = newStringOfCap(size)
     var timeout = initTimeOutWatcher(timeoutMs)
-    while result.len() < size:
-        let data = f.readAvailable(size - result.len(), timeout.getRemainingMs())
+    while buffer.len() < size:
+        let data = f.readAvailable(size - buffer.len(), timeout.getRemainingMs())
         if data.len() == 0:
             break
-        result.add(data)
+        buffer.add(data)
 
-proc readAll*(f: GoFile, timeoutMs = -1): string =
+proc read*(f: GoFile, size: Positive, timeoutMs = -1): string =
+    read(f, result, size, timeoutMs)
+
+proc readAll*(f: GoFile, buffer: var string, timeoutMs = -1) =
     ## Might return a string even if EOF has not been reached
     var timeout = initTimeOutWatcher(timeoutMs)
     if f.buffered:
-        result = f.buffer.readAll()
+        f.buffer.readAll(buffer)
     while true:
         let data = f.readChunk(timeout.getRemainingMs())
         if data.len() == 0:
             break
-        result.add data
+        buffer.add data
 
-proc readLine*(f: GoFile, timeoutMs = -1, keepNewLine = false): string =
+proc readAll*(f: GoFile, timeoutMs = -1): string =
+    readAll(f, result, timeoutMs)
+
+proc readLine*(f: GoFile, buffer: var string, timeoutMs = -1, keepNewLine = false) =
     ## Newline is not kept. To distinguish between EOF, you can use `endOfFile`
     var timeout = initTimeOutWatcher(timeoutMs)
     if f.buffered:
         while true:
-            let line = f.buffer.readLine(keepNewLine)
+            var line: string
+            f.buffer.readLine(line, keepNewLine)
             if line.len() != 0:
-                return line
+                buffer = line
+                return
             let data = f.readImpl(DefaultBufferSize, timeout.getRemainingMs(), false)
             if data.len() == 0:
-                return f.buffer.readAll()
+                f.buffer.readAll(buffer)
+                return
             f.buffer.write(data)
     else:
         const BufSizeLine = 100
@@ -92,7 +108,8 @@ proc readLine*(f: GoFile, timeoutMs = -1, keepNewLine = false): string =
             let readCount = f.readBufferImpl(addr(c), 1, timeout.getRemainingMs(), false)
             if readCount <= 0:
                 line.setLen(length)
-                return line
+                buffer = line
+                return
             if c == '\c':
                 discard f.readBufferImpl(addr(c), 1, timeout.getRemainingMs(), false)
                 if keepNewLine:
@@ -100,16 +117,20 @@ proc readLine*(f: GoFile, timeoutMs = -1, keepNewLine = false): string =
                     line.setLen(length + 1)
                 else:
                     line.setLen(length)
-                return line
+                buffer = line
+                return
             if c == '\L':
                 if keepNewLine:
                     line[length] = '\n'
                     line.setLen(length + 1)
                 else:
                     line.setLen(length)
-                return line
+                buffer = line
+                return
             if length == line.len():
                 line.setLen(line.len() * 2)
             line[length] = c
             length += 1
-    
+
+proc readLine*(f: GoFile, timeoutMs = -1, keepNewLine = false): string =
+    readLine(f, result, timeoutMs, keepNewLine)

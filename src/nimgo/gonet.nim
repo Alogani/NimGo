@@ -210,7 +210,8 @@ proc recv*(s: GoSocket; size: int, timeoutMs = -1): string =
             let data = s.recvImpl(max(size, DefaultBufferSize), timeoutMs)
             if data != "":
                 s.buffer.write(data)
-        return s.buffer.read(size)
+        s.buffer.read(result, size)
+        return
     else:
         return s.recvImpl(size, timeoutMs)
 
@@ -228,12 +229,14 @@ proc recvLine*(s: GoSocket; keepNewLine = false,
     var timeout = initTimeOutWatcher(timeoutMs)
     if s.buffered:
         while true:
-            let line = s.buffer.readLine(keepNewLine)
+            var line: string
+            s.buffer.readLine(line, keepNewLine)
             if line.len() != 0:
                 return line
             let data = s.recvImpl(DefaultBufferSize, timeout.getRemainingMs())
             if data.len() == 0:
-                return s.buffer.readAll()
+                s.buffer.readAll(result)
+                return
             s.buffer.write(data)
     else:
         const BufSizeLine = 100
