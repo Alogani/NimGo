@@ -1,11 +1,9 @@
 import ../[coroutines, eventdispatcher]
 import ../private/timeoutwatcher
-#import ../private/[coroutinepool]
 import std/[options, macros]
 
 export options
 
-#var coroPool = CoroutinePool()
 
 type
     Callbacks = ref object
@@ -18,24 +16,13 @@ type
     GoTaskUntyped* = ref GoTaskObj
     GoTask*[T] = GoTaskUntyped
 
-#[
-## Coroutine Pool is actually causing a bug
-when defined(nimAllowNonVarDestructor):
-    proc `=destroy`(gotaskObj: GoTaskObj) =
-        coroPool.releaseCoro(gotaskObj.coro)
-else:
-    proc `=destroy`(gotaskObj: var GoTaskObj) =
-        coroPool.releaseCoro(gotaskObj.coro)
-]#
 
 proc goAsyncImpl(callbacks: Callbacks, fn: proc()): GoTask[void] =
-    #var coro = coroPool.acquireCoro(fn)
     var coro = newCoroutine(fn)
     resumeLater(coro)
     return GoTask[void](coro: coro, callbacks: callbacks)
 
 proc goAsyncImpl[T](callbacks: Callbacks, fn: proc(): T): GoTask[T] =
-    #var coro = coroPool.acquireCoro(fn)
     var coro = newCoroutine(fn)
     resumeLater(coro)
     return GoTask[T](coro: coro, callbacks: callbacks)
