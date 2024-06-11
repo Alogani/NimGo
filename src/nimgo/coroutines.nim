@@ -7,9 +7,9 @@
 # Inspired freely from https://git.envs.net/iacore/minicoro-nim
 
 when defined(release):
-    const NimGoNoDebug = true
+    const NimGoNoDebug* = true
 else:
-    const NimGoNoDebug {.booldefine.} = false
+    const NimGoNoDebug* {.booldefine.} = false
 
 const OnWindows = defined(windows) #-> to faciliate cross platform type debugging
 
@@ -135,18 +135,19 @@ type
 const StackTraceHeaderCreation = cstring"> Coroutine creation stacktrace"
 const StackTraceHeaderExecution = cstring"> Coroutine execution stacktrace"
 
-proc mergeStackTraceEntries(coroPtr: ptr CoroutineObj): seq[StackTraceEntry] =
-    var stack: seq[ptr CoroutineObj]
-    var actualCoro = coroPtr
-    var entries: seq[StackTraceEntry]
-    while actualCoro != nil:
-        stack.add actualCoro
-        actualCoro = actualCoro.parent
-    var z = stack.len()
-    for i in countdown(z - 1, 0):
-        entries.add StackTraceEntry(filename: StackTraceHeaderCreation, line: z - i)
-        entries.add stack[i][].creationStacktraceEntries
-    entries
+when not NimGoNoDebug:
+    proc mergeStackTraceEntries(coroPtr: ptr CoroutineObj): seq[StackTraceEntry] =
+        var stack: seq[ptr CoroutineObj]
+        var actualCoro = coroPtr
+        var entries: seq[StackTraceEntry]
+        while actualCoro != nil:
+            stack.add actualCoro
+            actualCoro = actualCoro.parent
+        var z = stack.len()
+        for i in countdown(z - 1, 0):
+            entries.add StackTraceEntry(filename: StackTraceHeaderCreation, line: z - i)
+            entries.add stack[i][].creationStacktraceEntries
+        entries
 
 #[ ********* Page size ********* ]#
 
@@ -282,20 +283,20 @@ when not(OnWindows or NimGoNoDebug):
 #[ ********* Memory handling ********* ]#
 
 const NimGoNoVMem* {.booldefine.} = false
-const PhysicalMemKib {.intdefine.} = 64
+const PhysicalMemKib* {.intdefine.} = 64
 const VirtualStackSize: uint = 4 * 1024 * 1024 # 4 MB should be more than enough and doesn't cost much more than 1 MB
 
 var McoStackSize*: uint = (
     if NimGoNoVMem:
         PhysicalMemKib.uint * 1024'u
     else:
-        VirtualStackSize
+        VirtualStackSize.uint
 )
 
 ## Initial implementation of minicoro.h uses those functions to allocates the McoCoroutineStruct, its context and its stack alongside
 ## We ship our own modified version of minicoro.h where those functions only allocates the stack
-proc mcoAllocator*(size: uint, allocatorData: ptr CoroutineObj): pointer {.cdecl.}
-proc mcoDeallocator*(p: pointer, size: uint, allocatorData: ptr CoroutineObj) {.cdecl.}
+proc mcoAllocator(size: uint, allocatorData: ptr CoroutineObj): pointer {.cdecl.}
+proc mcoDeallocator(p: pointer, size: uint, allocatorData: ptr CoroutineObj) {.cdecl.}
 
 when OnWindows:
     var MEM_COMMIT {.importc: "MEM_COMMIT", header: "<memoryapi.h>".}: cint
@@ -306,13 +307,13 @@ when OnWindows:
     proc VirtualFree(lpAdress: pointer, dwSize: uint, dwFreeType: cint): bool {.importc: "VirtualFree", header: "<memoryapi.h>".}
     proc VirtualProtect(lpAddress: pointer, dwSize: uint, flNewProtect: cint, lpflOldProect: var cint): bool {.importc: "VirtualProtect", header: "<memoryapi.h>".}
 
-    proc mcoDeallocator*(p: pointer, size: uint, allocatorData: ptr CoroutineObj) {.cdecl.} =
+    proc mcoDeallocator(p: pointer, size: uint, allocatorData: ptr CoroutineObj) {.cdecl.} =
         if not VirtualFree(p, 0, MEM_RELEASE):
             raiseOSError(osLastError())
         when not NimGoNoDebug:
             unrecordProtectedPage(allocatorData)
 
-    proc mcoAllocator*(size: uint, allocatorData: ptr CoroutineObj): pointer {.cdecl.} =
+    proc mcoAllocator(size: uint, allocatorData: ptr CoroutineObj): pointer {.cdecl.} =
         ## On windows, we will always use virtual memory
         result = VirtualAlloc(nil, size, bitor(MEM_COMMIT, MEM_RESERVE), PAGE_READWRITE)
         if result == nil:
@@ -339,7 +340,7 @@ else:
     if PageSize <= 0:
         raise newException(OSError, "Couldn't find the page size of a memory block")
 
-    proc mcoDeallocator*(p: pointer, size: uint, allocatorData: ptr CoroutineObj) {.cdecl.} =
+    proc mcoDeallocator(p: pointer, size: uint, allocatorData: ptr CoroutineObj) {.cdecl.} =
         when NimGoNoVMem:
             dealloc(p)
         else:
@@ -348,7 +349,7 @@ else:
         when not NimGoNoDebug:
             unrecordProtectedPage(allocatorData)
 
-    proc mcoAllocator*(size: uint, allocatorData: ptr CoroutineObj): pointer {.cdecl.} =
+    proc mcoAllocator(size: uint, allocatorData: ptr CoroutineObj): pointer {.cdecl.} =
         when NimGoNoVMem:
             result = alloc0(size)
         else:

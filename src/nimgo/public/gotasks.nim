@@ -114,55 +114,106 @@ proc finished*(gotask: GoTaskUntyped): bool =
 proc finished*[T](gotask: GoTask[T]): bool =
     gotask.coro.finished()
 
+proc waitImpl[T](currentCoro: Coroutine, gotask: GoTask[T], timeoutMs: int): bool =
+    if currentCoro == nil:
+        if timeoutMs == -1:
+            while not gotask.finished():
+                runOnce()
+            return true
+        elif timeoutMs == 0:
+            runOnce()
+            return gotask.finished()
+        else:
+            var timeout = initTimeoutWatcher(timeoutMs)
+            while not timeout.expired():
+                runOnce()
+                if gotask.finished():
+                    return true
+            return false
+    else:
+        let sleeper = toOneShot(currentCoro)
+        gotask.callbacks.list.add(sleeper)
+        if timeoutMs == -1:
+            suspend(currentCoro)
+            return true
+        elif timeoutMs == 0:
+            resumeAfterLoop(sleeper)
+            suspend(currentCoro)
+            return gotask.finished()
+        else:
+            resumeOnTimer(sleeper, timeoutMs, false)
+            suspend(currentCoro)
+            return gotask.finished()
+
 proc waitAnyImpl(currentCoro: Coroutine, gotasks: seq[GoTaskUntyped], timeoutMs: int): bool =
-    let sleeper = toOneShot(currentCoro)
-    var timeout = initTimeoutWatcher(timeoutMs)
+    ## Avoid the worst case complexity of O(n x t), but instead O(2n)
+    let sleeper = toOneShot(currentCoro) # Will work even if currentCoro is nil
     for task in gotasks:
         if task.finished():
             discard sleeper.consumeAndGet()
             return
         task.callbacks.list.add(sleeper)
     if currentCoro == nil:
-        while not sleeper.hasBeenResumed():
+        if timeoutMs == -1:
+            while not sleeper.hasBeenResumed():
+                runOnce()
+        elif timeoutMs == 0:
             runOnce()
-            if timeout.expired():
-                return false
+            return sleeper.hasBeenResumed()
+        else:
+            var timeout = initTimeoutWatcher(timeoutMs)
+            while not timeout.expired():
+                runOnce()
+                if  sleeper.hasBeenResumed():
+                    return true
+            return false
     else:
-        if timeoutMs != -1:
-            resumeOnTimer(sleeper, timeoutMs)
-        suspend(currentCoro)
-    if timeoutMs == -1:
-        return true
-    ## Not really good:
-    return timeout.getRemainingMs() != 0
+        if timeoutMs == -1:
+            suspend()
+            return true
+        elif timeoutMs == 0:
+            resumeAfterLoop(sleeper)
+            suspend(currentCoro)
+            # Certainly possible to avoid again this loop, but this would break encapsulation
+            for task in gotasks:
+                if task.finished():
+                    return true
+            return false
+        else:
+            resumeOnTimer(sleeper, timeoutMs, false)
+            suspend(currentCoro)
+            for task in gotasks:
+                if task.finished():
+                    return true
+            return false
 
 proc wait*[T](gotask: GoTask[T], timeoutMs: Positive): Option[T] =
-    if not waitAnyImpl(getCurrentCoroutine(), @[GoTaskUntyped(gotask)], timeoutMs):
+    if not waitImpl(getCurrentCoroutine(), gotask, timeoutMs):
         return none(T)
     else:
         return some(getReturnVal[T](gotask.coro))
 
 proc wait*[T](gotask: GoTask[T]): T =
-    discard waitAnyImpl(getCurrentCoroutine(), @[gotask], -1)
+    discard waitImpl(getCurrentCoroutine(), gotask, -1)
     return getReturnVal[T](gotask.coro)
 
 proc wait*(gotask: GoTask[void], timeoutMs: Positive): bool =
-    return waitAnyImpl(getCurrentCoroutine(), @[GoTaskUntyped(gotask)], timeoutMs)
+    return waitImpl(getCurrentCoroutine(), gotask, timeoutMs)
 
 proc wait*(gotask: GoTask[void]) =
-    discard waitAnyImpl(getCurrentCoroutine(), @[gotask], -1)
+    discard waitImpl(getCurrentCoroutine(), gotask, -1)
 
 proc waitAllImpl[T](gotasks: seq[GoTask[T]], timeoutMs: int): bool =
     let currentCoro = getCurrentCoroutine()
     if timeoutMs == -1:
         for task in gotasks:
             if not task.finished():
-                discard waitAnyImpl(currentCoro, @[task], -1)
+                discard waitImpl(currentCoro, task, -1)
     else:
         var timeout = initTimeoutWatcher(timeoutMs)
         for task in gotasks:
             if not task.finished():
-                if not waitAnyImpl(currentCoro, @[GoTaskUntyped(task)], timeout.getRemainingMs()):
+                if not waitImpl(currentCoro, task, timeout.getRemainingMs()):
                     return false
     return true
 

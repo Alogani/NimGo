@@ -42,6 +42,7 @@ type
         pending: Deque[Coroutine]
         timers: HeapQueue[CoroutineWithTimer] # Thresold and not exact time
         countInsideTimers: int
+        closingQueue: Deque[OneShotCoroutine] # Guaranteed to be run last
     EvDispatcher* = ref EvDispatcherObj
         ## Cannot be shared or moved around threads
 
@@ -140,6 +141,7 @@ proc suspendUntilSoon*(coro: Coroutine) =
 
 proc resumeLater*(coro: Coroutine) =
     ## Will be put at the end of the queue
+    ## Will still be resumed after timers and event loop
     ActiveDispatcher.pending.addLast coro
 
 proc suspendUntilLater*(coro: Coroutine = nil) =
@@ -163,7 +165,7 @@ proc resumeOnTimer*(coro: Coroutine, timeoutMs: int, willBeAwaited = true) =
         oneShotCoro)
     )
 
-proc resumeOnTimer*(oneShotCoro: OneShotCoroutine, timeoutMs: int, willBeAwaited = true) =
+proc resumeOnTimer*(oneShotCoro: OneShotCoroutine, timeoutMs: int, willBeAwaited: bool) =
     ## Equivalent to a sleep directly handled by the dispatcher
     if willBeAwaited:
         oneShotCoro.notifyRegistration(ActiveDispatcher, false)
@@ -185,6 +187,10 @@ proc suspendUntilTimer*(coro: Coroutine, timeoutMs: int) =
 
 proc suspendUntilTimer*(timeoutMs: int) =
     suspendUntilTimer(nil, timeoutMs)
+
+proc resumeAfterLoop*(oneShotCoro: OneShotCoroutine) =
+    ## Will be put in a special queue executed after all I/O events and pending coroutines
+    ActiveDispatcher.closingQueue.addLast oneShotCoro
 
 #[ *** Dispatcher API *** ]#
 
@@ -300,6 +306,10 @@ proc runOnce*(timeoutMs = -1) =
         for i in 0 ..< ActiveDispatcher.pending.len():
             let coro = ActiveDispatcher.pending.popFirst()
             resume(coro)
+    for oneShotCoro in ActiveDispatcher.closingQueue:
+        let coro = oneShotCoro.consumeAndGet()
+        if coro != nil:
+            coro.resume()
 
 proc runEventLoop*(
         timeoutMs = -1,
@@ -482,8 +492,10 @@ proc suspendUntilAny*(readFd: seq[PollFd], writefd: seq[PollFd], timeoutMs = -1)
         addInsideSelector(fd, oneShotCoro, Event.Read)
     for fd in writefd:
         addInsideSelector(fd, oneShotCoro, Event.Write)
-    if timeoutMs == -1:
-        resumeOnTimer(oneShotCoro, timeoutMs)
+    if timeoutMs == 0:
+        resumeAfterLoop(oneShotCoro)
+    elif timeoutMs != -1:
+        resumeOnTimer(oneShotCoro, timeoutMs, false)
     suspend(coro)
     return ActiveDispatcher.lastWakeUpInfo
 
@@ -494,8 +506,10 @@ proc suspendUntilRead*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
     let coro = getCurrentCoroutineSafe()
     let oneShotCoro = toOneShot(coro)
     addInsideSelector(fd, oneShotCoro, Event.Read)
-    if timeoutMs != -1:
-        resumeOnTimer(oneShotCoro, timeoutMs)
+    if timeoutMs == 0:
+        resumeAfterLoop(oneShotCoro)
+    elif timeoutMs != -1:
+        resumeOnTimer(oneShotCoro, timeoutMs, false)
     suspend(coro)
     if ActiveDispatcher.lastWakeUpInfo.pollFd == InvalidFd:
         return false
@@ -510,8 +524,10 @@ proc suspendUntilWrite*(fd: PollFd, timeoutMs = -1, consumeEvent = true): bool =
     let coro = getCurrentCoroutineSafe()
     let oneShotCoro = toOneShot(coro)
     addInsideSelector(fd, oneShotCoro, Event.Write)
-    if timeoutMs != -1:
-        resumeOnTimer(oneShotCoro, timeoutMs)
+    if timeoutMs == 0:
+        resumeAfterLoop(oneShotCoro)
+    elif timeoutMs != -1:
+        resumeOnTimer(oneShotCoro, timeoutMs, false)
     suspend(coro)
     if ActiveDispatcher.lastWakeUpInfo.pollFd == InvalidFd:
         return false

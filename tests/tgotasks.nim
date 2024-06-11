@@ -24,7 +24,7 @@ test "outside coroutine with timeout":
     withEventLoop():
         proc coroFn(): int =
             var coro = getCurrentCoroutine()
-            resumeOnTimer(coro.toOneShot(), 200)
+            resumeOnTimer(coro.toOneShot(), 200, true)
             suspend(coro)
             return 42
 
@@ -37,7 +37,7 @@ test "inside coroutine with timeout":
     withEventLoop():
         proc innerCoroFn(): int =
             var coro = getCurrentCoroutine()
-            resumeOnTimer(coro.toOneShot(), 200)
+            resumeOnTimer(coro.toOneShot(), 200, true)
             suspend(coro)
             return 42
 
@@ -52,7 +52,7 @@ test "inside coroutine with timeout":
 test "inside coroutine with nested timeout":
     proc innerCoroFn(): int =
         var coro = getCurrentCoroutine()
-        resumeOnTimer(coro.toOneShot(), 200)
+        resumeOnTimer(coro.toOneShot(), 200, true)
         suspend(coro)
         return 42
 
@@ -68,7 +68,7 @@ test "inside coroutine waitall - success":
     withEventLoop():
         proc innerCoroFn(): int =
             var coro = getCurrentCoroutine()
-            resumeOnTimer(coro.toOneShot(), 200)
+            resumeOnTimer(coro.toOneShot(), 200, true)
             suspend(coro)
             return 42
 
@@ -88,7 +88,7 @@ test "inside coroutine waitall - fail":
     withEventLoop():
         proc innerCoroFn(timeoutMs: int): int =
             var coro = getCurrentCoroutine()
-            resumeOnTimer(coro.toOneShot(), timeoutMs)
+            resumeOnTimer(coro.toOneShot(), timeoutMs, true)
             suspend(coro)
             return 42
 
@@ -108,7 +108,7 @@ test "inside coroutine waitany - fail":
     withEventLoop():
         proc innerCoroFn(timeoutMs: int): int =
             var coro = getCurrentCoroutine()
-            resumeOnTimer(coro.toOneShot(), timeoutMs)
+            resumeOnTimer(coro.toOneShot(), timeoutMs, true)
             suspend(coro)
             return 42
 
@@ -128,7 +128,7 @@ test "inside coroutine waitany - success":
     withEventLoop():
         proc innerCoroFn(timeoutMs: int): int =
             var coro = getCurrentCoroutine()
-            resumeOnTimer(coro.toOneShot(), timeoutMs)
+            resumeOnTimer(coro.toOneShot(), timeoutMs, true)
             suspend(coro)
             return 42
 

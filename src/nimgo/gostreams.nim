@@ -103,30 +103,33 @@ method closed*(s: GoBufferStream): bool =
     s.closed
 
 proc fillBuffer(s: GoBufferStream, timeoutMs: int): bool =
-    var timeout = initTimeoutWatcher(timeoutMs)
+    if not s.buffer.empty():
+        return true
+    if s.closed:
+        return false
     let coro = getCurrentCoroutineSafe()
     let oneShotCoro = toOneShot(coro)
     s.waitersQueue.addLast oneShotCoro
-    if timeoutMs != -1:
-        resumeOnTimer(oneShotCoro, timeout.getRemainingMs())
+    if timeoutMs == 0:
+        resumeAfterLoop(oneShotCoro)
+    elif timeoutMs != -1:
+        resumeOnTimer(oneShotCoro, timeoutMs, false)
     suspend(coro)
-    return not timeout.expired()
+    return not s.buffer.empty()
 
 method readAvailable*(s: GoBufferStream, buffer: var string, size: Positive, timeoutMs = -1) =
-    if s.buffer.empty() and not s.closed:
-        if not s.fillBuffer(timeoutMs):
-            wasMoved(buffer)
-            return
+    if not s.fillBuffer(timeoutMs):
+        wasMoved(buffer)
+        return
     s.buffer.read(buffer, size)
 
 method readAvailable*(s: GoBufferStream, size: Positive, timeoutMs = -1): string =
     readAvailable(s, result, size, timeoutMs)
 
 method readChunk*(s: GoBufferStream, buffer: var string, timeoutMs = -1) =
-    if s.buffer.empty() and not s.closed:
-        if not s.fillBuffer(timeoutMs):
-            wasMoved(buffer)
-            return
+    if not s.fillBuffer(timeoutMs):
+        wasMoved(buffer)
+        return
     s.buffer.readChunk(buffer)
 
 method readChunk*(s: GoBufferStream, timeoutMs = -1): string =
@@ -182,3 +185,4 @@ method write*(s: GoBufferStream, data: sink string, timeoutMs = -1): int {.disca
         s.wakeupSignal = true
     else:
         resumeSoon(s.waitersQueue.popFirst().consumeAndGet())
+    
