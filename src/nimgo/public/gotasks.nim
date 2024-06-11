@@ -152,7 +152,7 @@ proc wait*(gotask: GoTask[void], timeoutMs: Positive): bool =
 proc wait*(gotask: GoTask[void]) =
     discard waitAnyImpl(getCurrentCoroutine(), @[gotask], -1)
 
-proc waitAllImpl[T](gotasks: seq[GoTask[T]], timeoutMs: Positive): bool =
+proc waitAllImpl[T](gotasks: seq[GoTask[T]], timeoutMs: int): bool =
     let currentCoro = getCurrentCoroutine()
     if timeoutMs == -1:
         for task in gotasks:

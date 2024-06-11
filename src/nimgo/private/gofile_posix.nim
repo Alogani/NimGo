@@ -7,14 +7,15 @@ type
     FileState = enum
         FsOpen, FsClosed, FsEof, FsError
 
-    GoFile* = object
+    GoFile* = ref object
         pollFd = InvalidFd
         fd: cint
         state: FileState
         errorCode: OSErrorCode
         pollable: bool
         buffer: Buffer
-        
+        buffered: bool
+
 func syncioModeToEvent(mode: FileMode): set[Event] =
     case mode:
     of fmRead:
@@ -37,7 +38,7 @@ func syncioModeToPosix(mode: FileMode): cint =
     of fmAppend:
         bitor(O_WRONLY, O_APPEND, O_CREAT)
 
-proc close*(f: var GoFile) =
+proc close*(f: GoFile) =
     if f.state != FsClosed and f.pollFd != InvalidFd:
         f.pollFd.unregister()
         if posix.close(f.fd) == -1:
@@ -80,7 +81,8 @@ proc newGoFile*(fd: FileHandle, mode: FileMode, buffered = true): GoFile =
         pollFd: if pollable: registerHandle(fd, events) else: PollFd(-1),
         state: FsOpen,
         pollable: pollable,
-        buffer: if buffered: newBuffer() else: nil
+        buffer: newBuffer(),
+        buffered: buffered
     )
 
 proc createGoPipe*(buffered = true): tuple[reader, writer: GoFile] =
@@ -101,10 +103,11 @@ proc openGoFile*(filename: string, mode = fmRead, buffered = true): GoFile =
         pollFd: if pollable: registerHandle(fd, events) else: PollFd(-1),
         state: FsOpen,
         pollable: pollable,
-        buffer: if buffered: newBuffer() else: nil
+        buffer: newBuffer(),
+        buffered: buffered
     )
 
-proc readBufferImpl(f: var GoFile, buf: pointer, size: Positive, timeoutMs: int, noAsync: bool): int {.used.} =
+proc readBufferImpl(f: GoFile, buf: pointer, size: Positive, timeoutMs: int, noAsync: bool): int {.used.} =
     ## Bypass the buffer
     if f.pollable and not noAsync:
         if not suspendUntilRead(f.pollFd, timeoutMs):
@@ -117,7 +120,7 @@ proc readBufferImpl(f: var GoFile, buf: pointer, size: Positive, timeoutMs: int,
         f.errorCode = osLastError()
     return bytesCount
 
-proc readImpl(f: var GoFile, size: Positive, timeoutMs: int, noAsync: bool): string {.used.} =
+proc readImpl(f: GoFile, size: Positive, timeoutMs: int, noAsync: bool): string {.used.} =
     result = newStringOfCap(size)
     result.setLen(1)
     let bytesCount = f.readBufferImpl(addr(result[0]), size, timeoutMs, noAsync)
@@ -125,7 +128,7 @@ proc readImpl(f: var GoFile, size: Positive, timeoutMs: int, noAsync: bool): str
         return ""
     result.setLen(bytesCount)
 
-proc write*(f: var GoFile, data: sink string, timeoutMs = -1): int {.discardable, used.} =
+proc write*(f: GoFile, data: sink string, timeoutMs = -1): int {.discardable, used.} =
     ## Bypass the buffer
     if data.len() == 0:
         return 0

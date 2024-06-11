@@ -12,6 +12,7 @@ type
         pollFd: PollFd
         socket: Socket
         buffer: Buffer
+        buffered: bool
         closed: bool
 
 
@@ -22,7 +23,8 @@ proc newGoSocket*(domain: Domain = AF_INET; sockType: SockType = SOCK_STREAM;
     GoSocket(
         socket: socket,
         pollFd: registerHandle(socket.getFd(), {Event.Read, Event.Write}),
-        buffer: if buffered: newBuffer() else: nil,
+        buffer: newBuffer(),
+        buffered: buffered
     )
 
 
@@ -51,7 +53,8 @@ proc accept*(gosocket: GoSocket, flags = {SafeDisconn};
     return GoSocket(
         socket: client,
         pollFd: registerHandle(client.getFd(), {Event.Read, Event.Write}),
-        buffer: if gosocket.buffer != nil: newBuffer() else: nil,
+        buffer: newBuffer(),
+        buffered: gosocket.buffered
     )
 
 proc acceptAddr*(gosocket: GoSocket; flags = {SafeDisconn};
@@ -63,7 +66,11 @@ proc acceptAddr*(gosocket: GoSocket; flags = {SafeDisconn};
     acceptAddr(gosocket.socket, client, address, flags, inheritable)
     return (
         address,
-        GoSocket(socket: client, pollFd: registerHandle(client.getFd(), {Event.Read, Event.Write}))
+        GoSocket(socket: client,
+            pollFd: registerHandle(client.getFd(), {Event.Read, Event.Write}),
+            buffer: newBuffer(),
+            buffered: gosocket.buffered
+        )
     )
 
 proc bindAddr*(gosocket: GoSocket; port = Port(0); address = "") =
@@ -171,7 +178,7 @@ proc getSockOpt*(gosocket: GoSocket; opt: SOBool; level = SOL_SOCKET): bool =
     getSockOpt(gosocket.socket, opt, level)
 
 proc hasDataBuffered*(gosocket: GoSocket): bool =
-    gosocket.buffer != nil and not gosocket.buffer.empty()
+    gosocket.buffered and not gosocket.buffer.empty()
 
 proc isClosed*(gosocket: GoSocket): bool =
     gosocket.closed
@@ -198,7 +205,7 @@ proc recvImpl(s: GoSocket, size: Positive, timeoutMs: int): string =
     result.setLen(bytesCount)
 
 proc recv*(s: GoSocket; size: int, timeoutMs = -1): string =
-    if s.buffer != nil:
+    if s.buffered:
         if s.buffer.len() < size:
             let data = s.recvImpl(max(size, DefaultBufferSize), timeoutMs)
             if data != "":
@@ -219,7 +226,7 @@ proc recvFrom*[T: string | IpAddress](s: GoSocket; data: var string;
 proc recvLine*(s: GoSocket; keepNewLine = false,
               timeoutMs = -1): string =
     var timeout = initTimeOutWatcher(timeoutMs)
-    if s.buffer != nil:
+    if s.buffered:
         while true:
             let line = s.buffer.readLine(keepNewLine)
             if line.len() != 0:

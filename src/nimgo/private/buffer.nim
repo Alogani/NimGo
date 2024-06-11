@@ -1,6 +1,6 @@
 import deques
 
-type Buffer* = ref object
+type Buffer* = object
     ## A buffer with no async component
     # Could be implemented with string buffer (faster sometimes)
     # But big penalties on some operations
@@ -9,21 +9,24 @@ type Buffer* = ref object
 
 const DefaultBufferSize* = 1024
 
+
+proc `=copy`*(dest: var Buffer, src: Buffer) {.error.}
+
 proc newBuffer*(): Buffer =
     Buffer()
 
-proc clear*(self: Buffer) =
+proc clear*(self: var Buffer) =
     self.queue.clear()
 
-proc empty*(self: Buffer): bool =
+func empty*(self: Buffer): bool =
     ## More efficient than len
     self.queue.len() == 0
 
-proc len*(self: Buffer): int =
+func len*(self: Buffer): int =
     for i in self.queue.items():
         result += i.len()
 
-proc read*(self: Buffer, count: int): string =
+proc read*(self: var Buffer, count: int): string =
     if count <= 0:
         return
     var count = count
@@ -47,7 +50,7 @@ proc read*(self: Buffer, count: int): string =
             break
     self.searchNLPos = max(0, self.searchNLPos - lenBefore + self.queue.len())
 
-proc readLine*(self: Buffer, keepNewLine = false): string =
+proc readLine*(self: var Buffer, keepNewLine = false): string =
     ## Don't return if newline not found
     while self.searchNLPos < self.queue.len():
         let index = find(self.queue[self.searchNLPos], '\n')
@@ -62,15 +65,15 @@ proc readLine*(self: Buffer, keepNewLine = false): string =
             break
         self.searchNLPos += 1
 
-proc readChunk*(self: Buffer): string =
+proc readChunk*(self: var Buffer): string =
     ## More efficient but unknown size output
     if self.queue.len() > 0:
         result = self.queue.popFirst()
 
-proc readAll*(self: Buffer): string =
+proc readAll*(self: var Buffer): string =
     result = newStringOfCap(self.len())
     for _ in 0 ..< self.queue.len():
         result.add(self.queue.popFirst())
 
-proc write*(self: Buffer, data: sink string) =
+proc write*(self: var Buffer, data: sink string) =
     self.queue.addLast(data)

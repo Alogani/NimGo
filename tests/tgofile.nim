@@ -3,8 +3,9 @@ import nimgo, nimgo/gofile
 import std/unittest
 
 
-test "Producer/consumer":
-    var (reader, writer) = createGoPipe()
+template ProducerConsumerCode(UseBuffer: bool) =
+    ## Careful, sometime templates mess with tests
+    var (reader, writer) = createGoPipe(buffered = UseBuffer)
     proc producer() =
         for i in 0..10:
             sleepAsync(10)
@@ -22,3 +23,9 @@ test "Producer/consumer":
         goAsync consumer()
     check reader.closed()
     check writer.closed()
+
+test "Producer/consumer - unbuffered pipe":
+    ProducerConsumerCode(false)
+
+test "Producer/consumer - buffered pipe":
+    ProducerConsumerCode(true)

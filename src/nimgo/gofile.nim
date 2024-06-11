@@ -31,8 +31,8 @@ func getOsFileHandle*(f: GoFile): FileHandle =
 func getSelectorFileHandle*(f: GoFile): PollFd =
     f.pollFd
 
-proc readAvailable*(f: var Gofile, size: Positive, timeoutMs = -1, noAsync = false): string =
-    if f.buffer != nil:
+proc readAvailable*(f: GoFile, size: Positive, timeoutMs = -1, noAsync = false): string =
+    if f.buffered:
         if f.buffer.len() < size:
             let data = f.readImpl(max(size, DefaultBufferSize), timeoutMs, noAsync)
             if data != "":
@@ -41,17 +41,17 @@ proc readAvailable*(f: var Gofile, size: Positive, timeoutMs = -1, noAsync = fal
     else:
         return f.readImpl(size, timeoutMs, noAsync)
 
-proc readChunk*(f: var Gofile, timeoutMs = -1, noAsync = false): string =
+proc readChunk*(f: GoFile, timeoutMs = -1, noAsync = false): string =
     ## More efficient, especially when file is buffered
     ## The returned read size is not predictable, but less than `buffer.DefaultBufferSize`
-    if f.buffer != nil:
+    if f.buffered:
         if f.buffer.empty():
             return f.readImpl(DefaultBufferSize, timeoutMs, noAsync)
         return f.buffer.readChunk()
     else:
         return f.readImpl(DefaultBufferSize, timeoutMs, noAsync)
 
-proc read*(f: var Gofile, size: Positive, timeoutMs = -1): string =
+proc read*(f: GoFile, size: Positive, timeoutMs = -1): string =
     result = newStringOfCap(size)
     var timeout = initTimeOutWatcher(timeoutMs)
     while result.len() < size:
@@ -60,10 +60,10 @@ proc read*(f: var Gofile, size: Positive, timeoutMs = -1): string =
             break
         result.add(data)
 
-proc readAll*(f: var Gofile, timeoutMs = -1): string =
+proc readAll*(f: GoFile, timeoutMs = -1): string =
     ## Might return a string even if EOF has not been reached
     var timeout = initTimeOutWatcher(timeoutMs)
-    if f.buffer != nil:
+    if f.buffered:
         result = f.buffer.readAll()
     while true:
         let data = f.readChunk(timeout.getRemainingMs())
@@ -71,10 +71,10 @@ proc readAll*(f: var Gofile, timeoutMs = -1): string =
             break
         result.add data
 
-proc readLine*(f: var GoFile, timeoutMs = -1, keepNewLine = false): string =
+proc readLine*(f: GoFile, timeoutMs = -1, keepNewLine = false): string =
     ## Newline is not kept. To distinguish between EOF, you can use `endOfFile`
     var timeout = initTimeOutWatcher(timeoutMs)
-    if f.buffer != nil:
+    if f.buffered:
         while true:
             let line = f.buffer.readLine(keepNewLine)
             if line.len() != 0:
