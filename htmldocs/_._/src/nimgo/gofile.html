@@ -64,8 +64,8 @@
     <summary><a class="reference reference-toplevel" href="#8" id="58">Vars</a></summary>
     <ul class="simple simple-toc-section">
       <li><a class="reference" href="#goStderr" title="goStderr {.threadvar.}: GoFile">goStderr</a></li>
-<li><a class="reference" href="#goStdin" title="goStdin: GoFile">goStdin</a></li>
-<li><a class="reference" href="#goStdout" title="goStdout: GoFile">goStdout</a></li>
+<li><a class="reference" href="#goStdin" title="goStdin {.threadvar.}: GoFile">goStdin</a></li>
+<li><a class="reference" href="#goStdout" title="goStdout {.threadvar.}: GoFile">goStdout</a></li>
 
     </ul>
   </details>
@@ -123,25 +123,30 @@
 
 </ul>
 <ul class="simple nested-toc-section">read
-  <li><a class="reference" href="#read%2CGoFile%2CPositive%2CGoTask" title="read(f: GoFile; size: Positive; canceller: GoTaskUntyped = nil): string">read(f: GoFile; size: Positive; canceller: GoTaskUntyped = nil): string</a></li>
+  <li><a class="reference" href="#read%2CGoFile%2Cstring%2CPositive%2Cint" title="read(f: GoFile; buffer: var string; size: Positive; timeoutMs = -1)">read(f: GoFile; buffer: var string; size: Positive; timeoutMs = -1)</a></li>
+<li><a class="reference" href="#read%2CGoFile%2CPositive%2Cint" title="read(f: GoFile; size: Positive; timeoutMs = -1): string">read(f: GoFile; size: Positive; timeoutMs = -1): string</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">readAll
-  <li><a class="reference" href="#readAll%2CGoFile%2CGoTask" title="readAll(f: GoFile; canceller: GoTaskUntyped = nil): string">readAll(f: GoFile; canceller: GoTaskUntyped = nil): string</a></li>
+  <li><a class="reference" href="#readAll%2CGoFile%2Cstring%2Cint" title="readAll(f: GoFile; buffer: var string; timeoutMs = -1)">readAll(f: GoFile; buffer: var string; timeoutMs = -1)</a></li>
+<li><a class="reference" href="#readAll%2CGoFile%2Cint" title="readAll(f: GoFile; timeoutMs = -1): string">readAll(f: GoFile; timeoutMs = -1): string</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">readAvailable
-  <li><a class="reference" href="#readAvailable%2CGoFile%2CPositive%2CGoTask" title="readAvailable(f: GoFile; size: Positive; canceller: GoTaskUntyped = nil;
-              noAsync = false): string">readAvailable(f: GoFile; size: Positive; canceller: GoTaskUntyped = nil;
-              noAsync = false): string</a></li>
+  <li><a class="reference" href="#readAvailable%2CGoFile%2Cstring%2CPositive%2Cint" title="readAvailable(f: GoFile; buffer: var string; size: Positive; timeoutMs = -1;
+              noAsync = false)">readAvailable(f: GoFile; buffer: var string; size: Positive; timeoutMs = -1;
+              noAsync = false)</a></li>
+<li><a class="reference" href="#readAvailable%2CGoFile%2CPositive%2Cint" title="readAvailable(f: GoFile; size: Positive; timeoutMs = -1; noAsync = false): string">readAvailable(f: GoFile; size: Positive; timeoutMs = -1; noAsync = false): string</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">readChunk
-  <li><a class="reference" href="#readChunk%2CGoFile%2CGoTask" title="readChunk(f: GoFile; canceller: GoTaskUntyped = nil; noAsync = false): string">readChunk(f: GoFile; canceller: GoTaskUntyped = nil; noAsync = false): string</a></li>
+  <li><a class="reference" href="#readChunk%2CGoFile%2Cstring%2Cint" title="readChunk(f: GoFile; buffer: var string; timeoutMs = -1; noAsync = false)">readChunk(f: GoFile; buffer: var string; timeoutMs = -1; noAsync = false)</a></li>
+<li><a class="reference" href="#readChunk%2CGoFile%2Cint" title="readChunk(f: GoFile; timeoutMs = -1; noAsync = false): string">readChunk(f: GoFile; timeoutMs = -1; noAsync = false): string</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">readLine
-  <li><a class="reference" href="#readLine%2CGoFile%2CGoTask" title="readLine(f: GoFile; canceller: GoTaskUntyped = nil; keepNewLine = false): string">readLine(f: GoFile; canceller: GoTaskUntyped = nil; keepNewLine = false): string</a></li>
+  <li><a class="reference" href="#readLine%2CGoFile%2Cstring%2Cint" title="readLine(f: GoFile; buffer: var string; timeoutMs = -1; keepNewLine = false)">readLine(f: GoFile; buffer: var string; timeoutMs = -1; keepNewLine = false)</a></li>
+<li><a class="reference" href="#readLine%2CGoFile%2Cint" title="readLine(f: GoFile; timeoutMs = -1; keepNewLine = false): string">readLine(f: GoFile; timeoutMs = -1; keepNewLine = false): string</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">setFilePos
@@ -149,7 +154,7 @@
 
 </ul>
 <ul class="simple nested-toc-section">write
-  <li><a class="reference" href="#write%2CGoFile%2Csinkstring%2CGoTask" title="write(f: GoFile; data: sink string; canceller: GoTaskUntyped = nil): int">write(f: GoFile; data: sink string; canceller: GoTaskUntyped = nil): int</a></li>
+  <li><a class="reference" href="#write%2CGoFile%2Csinkstring%2Cint" title="write(f: GoFile; data: sink string; timeoutMs = -1): int">write(f: GoFile; data: sink string; timeoutMs = -1): int</a></li>
 
 </ul>
 
@@ -161,7 +166,7 @@
 
   </div>
   <div class="nine columns" id="content">
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L1" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L1" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L1" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
     <div id="tocRoot"></div>
@@ -170,7 +175,7 @@
     <div class="section" id="6">
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
-    <a class="reference external" href="eventdispatcher.html">eventdispatcher</a>, <a class="reference external" href="gotaskscomplete.html">gotaskscomplete</a>, <a class="reference external" href="private/buffer.html">private/buffer</a>
+    <a class="reference external" href="eventdispatcher.html">eventdispatcher</a>, <a class="reference external" href="private/buffer.html">private/buffer</a>, <a class="reference external" href="private/timeoutwatcher.html">private/timeoutwatcher</a>
   </dl>
 </div>
 <div class="section" id="7">
@@ -182,7 +187,7 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/private/gofile_posix.nim#L10" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/private/gofile_posix.nim#L10" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/private/gofile_posix.nim#L10" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
@@ -198,28 +203,28 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L7" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L7" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L8" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L8" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 <div id="goStdin">
-  <dt><pre><a href="gofile.html#goStdin"><span class="Identifier">goStdin</span></a><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a></pre></dt>
+  <dt><pre><a href="gofile.html#goStdin"><span class="Identifier">goStdin</span></a> {.<span class="Identifier">threadvar</span>.}<span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a></pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L7" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L7" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L8" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L8" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 <div id="goStdout">
-  <dt><pre><a href="gofile.html#goStdout"><span class="Identifier">goStdout</span></a><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a></pre></dt>
+  <dt><pre><a href="gofile.html#goStdout"><span class="Identifier">goStdout</span></a> {.<span class="Identifier">threadvar</span>.}<span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a></pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L7" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L7" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L8" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L8" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -235,8 +240,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/private/gofile_posix.nim#L40" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/private/gofile_posix.nim#L40" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/private/gofile_posix.nim#L41" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/private/gofile_posix.nim#L41" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -244,12 +249,12 @@
 </div>
 <div id="closed-procs-all">
   <div id="closed,GoFile">
-  <dt><pre><span class="Keyword">proc</span> <a href="#closed%2CGoFile"><span class="Identifier">closed</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">func</span> <a href="#closed%2CGoFile"><span class="Identifier">closed</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Only return true if file was closed using <tt class="docutils literal"><span class="pre"><span class="Identifier">gofile</span><span class="Operator">.</span><span class="Identifier">close</span><span class="Punctuation">(</span><span class="Punctuation">)</span></span></tt>. Closing directly the underlying file or file descriptor won't be detected
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L16" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L16" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L17" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L17" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -262,8 +267,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/private/gofile_posix.nim#L87" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/private/gofile_posix.nim#L87" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/private/gofile_posix.nim#L88" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/private/gofile_posix.nim#L88" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -271,12 +276,12 @@
 </div>
 <div id="endOfFile-procs-all">
   <div id="endOfFile,GoFile">
-  <dt><pre><span class="Keyword">proc</span> <a href="#endOfFile%2CGoFile"><span class="Identifier">endOfFile</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">func</span> <a href="#endOfFile%2CGoFile"><span class="Identifier">endOfFile</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L13" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L13" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L14" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L14" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -284,12 +289,12 @@
 </div>
 <div id="error-procs-all">
   <div id="error,GoFile">
-  <dt><pre><span class="Keyword">proc</span> <a href="#error%2CGoFile"><span class="Identifier">error</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">func</span> <a href="#error%2CGoFile"><span class="Identifier">error</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L21" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L21" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L22" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L22" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -297,12 +302,12 @@
 </div>
 <div id="getError-procs-all">
   <div id="getError,GoFile">
-  <dt><pre><span class="Keyword">proc</span> <a href="#getError%2CGoFile"><span class="Identifier">getError</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">OSErrorCode</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">func</span> <a href="#getError%2CGoFile"><span class="Identifier">getError</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">OSErrorCode</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L24" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L24" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L25" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L25" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -314,7 +319,7 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/private/gofile_posix.nim#L48" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/private/gofile_posix.nim#L48" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/private/gofile_posix.nim#L48" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
@@ -327,7 +332,7 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/private/gofile_posix.nim#L62" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/private/gofile_posix.nim#L62" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/private/gofile_posix.nim#L62" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
@@ -336,12 +341,12 @@
 </div>
 <div id="getOsFileHandle-procs-all">
   <div id="getOsFileHandle,GoFile">
-  <dt><pre><span class="Keyword">proc</span> <a href="#getOsFileHandle%2CGoFile"><span class="Identifier">getOsFileHandle</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">FileHandle</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">func</span> <a href="#getOsFileHandle%2CGoFile"><span class="Identifier">getOsFileHandle</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">FileHandle</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L27" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L27" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L28" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L28" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -349,13 +354,13 @@
 </div>
 <div id="getSelectorFileHandle-procs-all">
   <div id="getSelectorFileHandle,GoFile">
-  <dt><pre><span class="Keyword">proc</span> <a href="#getSelectorFileHandle%2CGoFile"><span class="Identifier">getSelectorFileHandle</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">)</span><span class="Other">:</span> <a href="eventdispatcher.html#PollFd"><span class="Identifier">PollFd</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+  <dt><pre><span class="Keyword">func</span> <a href="#getSelectorFileHandle%2CGoFile"><span class="Identifier">getSelectorFileHandle</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">)</span><span class="Other">:</span> <a href="eventdispatcher.html#PollFd"><span class="Identifier">PollFd</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L30" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L30" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L31" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L31" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -368,7 +373,7 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/private/gofile_posix.nim#L74" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/private/gofile_posix.nim#L74" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/private/gofile_posix.nim#L74" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
@@ -378,83 +383,148 @@
 <div id="openGoFile-procs-all">
   <div id="openGoFile,string">
   <dt><pre><span class="Keyword">proc</span> <a href="#openGoFile%2Cstring"><span class="Identifier">openGoFile</span></a><span class="Other">(</span><span class="Identifier">filename</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">mode</span> <span class="Other">=</span> <span class="Identifier">fmRead</span><span class="Other">;</span> <span class="Identifier">buffered</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">)</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/private/gofile_posix.nim#L96" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/private/gofile_posix.nim#L96" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/private/gofile_posix.nim#L97" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/private/gofile_posix.nim#L97" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="read-procs-all">
-  <div id="read,GoFile,Positive,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#read%2CGoFile%2CPositive%2CGoTask"><span class="Identifier">read</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">;</span> <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <div id="read,GoFile,string,Positive,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#read%2CGoFile%2Cstring%2CPositive%2Cint"><span class="Identifier">read</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">buffer</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L53" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L53" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L61" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L61" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="read,GoFile,Positive,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#read%2CGoFile%2CPositive%2Cint"><span class="Identifier">read</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L70" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L70" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="readAll-procs-all">
-  <div id="readAll,GoFile,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#readAll%2CGoFile%2CGoTask"><span class="Identifier">readAll</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <div id="readAll,GoFile,string,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#readAll%2CGoFile%2Cstring%2Cint"><span class="Identifier">readAll</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">buffer</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Might return a string even if EOF has not been reached
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L61" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L61" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L73" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L73" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="readAll,GoFile,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#readAll%2CGoFile%2Cint"><span class="Identifier">readAll</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L84" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L84" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="readAvailable-procs-all">
-  <div id="readAvailable,GoFile,Positive,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#readAvailable%2CGoFile%2CPositive%2CGoTask"><span class="Identifier">readAvailable</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">;</span> <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span>
-                   <span class="Identifier">noAsync</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <div id="readAvailable,GoFile,string,Positive,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#readAvailable%2CGoFile%2Cstring%2CPositive%2Cint"><span class="Identifier">readAvailable</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">buffer</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">;</span>
+                   <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">;</span> <span class="Identifier">noAsync</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L33" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L33" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L34" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L34" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="readAvailable,GoFile,Positive,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#readAvailable%2CGoFile%2CPositive%2Cint"><span class="Identifier">readAvailable</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">;</span> <span class="Identifier">noAsync</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L44" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L44" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="readChunk-procs-all">
-  <div id="readChunk,GoFile,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#readChunk%2CGoFile%2CGoTask"><span class="Identifier">readChunk</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span> <span class="Identifier">noAsync</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <div id="readChunk,GoFile,string,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#readChunk%2CGoFile%2Cstring%2Cint"><span class="Identifier">readChunk</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">buffer</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">;</span> <span class="Identifier">noAsync</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     More efficient, especially when file is buffered The returned read size is not predictable, but less than <tt class="docutils literal"><span class="pre"><span class="Identifier">buffer</span><span class="Operator">.</span><span class="Identifier">DefaultBufferSize</span></span></tt>
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L43" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L43" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L47" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L47" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="readChunk,GoFile,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#readChunk%2CGoFile%2Cint"><span class="Identifier">readChunk</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">;</span> <span class="Identifier">noAsync</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L58" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L58" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="readLine-procs-all">
-  <div id="readLine,GoFile,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#readLine%2CGoFile%2CGoTask"><span class="Identifier">readLine</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">;</span> <span class="Identifier">keepNewLine</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <div id="readLine,GoFile,string,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#readLine%2CGoFile%2Cstring%2Cint"><span class="Identifier">readLine</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">buffer</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">;</span> <span class="Identifier">keepNewLine</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Newline is not kept. To distinguish between EOF, you can use <tt class="docutils literal"><span class="pre"><span class="Identifier">endOfFile</span></span></tt>
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gofile.nim#L71" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L71" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L87" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L87" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="readLine,GoFile,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#readLine%2CGoFile%2Cint"><span class="Identifier">readLine</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">;</span> <span class="Identifier">keepNewLine</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gofile.nim#L135" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gofile.nim#L135" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -467,7 +537,7 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/private/gofile_posix.nim#L51" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/private/gofile_posix.nim#L51" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/private/gofile_posix.nim#L51" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
@@ -475,13 +545,14 @@
 
 </div>
 <div id="write-procs-all">
-  <div id="write,GoFile,sinkstring,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#write%2CGoFile%2Csinkstring%2CGoTask"><span class="Identifier">write</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">sink</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> {.
-    <span class="Identifier">discardable</span><span class="Other">,</span> <span class="Identifier">used</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <div id="write,GoFile,sinkstring,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#write%2CGoFile%2Csinkstring%2Cint"><span class="Identifier">write</span></a><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <a href="gofile.html#GoFile"><span class="Identifier">GoFile</span></a><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">sink</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> {.<span class="Identifier">discardable</span><span class="Other">,</span>
+    <span class="Identifier">used</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Bypass the buffer
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/private/gofile_posix.nim#L131" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/private/gofile_posix.nim#L131" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/private/gofile_posix.nim#L131" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
@@ -498,7 +569,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-09 15:43:22 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-11 06:54:40 UTC</small>
       </div>
     </div>
   </div>

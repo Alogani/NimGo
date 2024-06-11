@@ -30,6 +30,10 @@
 <li><a class="reference external"
           data-doc-search-tag="eventdispatcher: proc `==`(a, b: PollFd): bool" href="_._/src/nimgo/eventdispatcher.html#%3D%3D%2CPollFd%2CPollFd">eventdispatcher: proc `==`(a, b: PollFd): bool</a></li>
           </ul></dd>
+<dt><a name="%60%3Dcopy%60" href="#%60%3Dcopy%60"><span>`=copy`:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="buffer: proc `=copy`(dest: var Buffer; src: Buffer)" href="_._/src/nimgo/private/buffer.html#%3Dcopy%2CBuffer%2CBuffer">buffer: proc `=copy`(dest: var Buffer; src: Buffer)</a></li>
+          </ul></dd>
 <dt><a name="%60%3Ddestroy%60" href="#%60%3Ddestroy%60"><span>`=destroy`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="coroutines: proc `=destroy`(coroObj: CoroutineObj)" href="_._/src/nimgo/coroutines.html#%3Ddestroy%2CCoroutineObj">coroutines: proc `=destroy`(coroObj: CoroutineObj)</a></li>
@@ -37,18 +41,16 @@
 <dt><a name="accept" href="#accept"><span>accept:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="gonet: proc accept(gosocket: GoSocket; flags = {SafeDisconn};
-       inheritable = defined(nimInheritHandles); canceller: GoTaskUntyped = nil): GoSocket" href="_._/src/nimgo/gonet.html#accept%2CGoSocket%2CGoTask">gonet: proc accept(gosocket: GoSocket; flags = {SafeDisconn};
-       inheritable = defined(nimInheritHandles); canceller: GoTaskUntyped = nil): GoSocket</a></li>
+       inheritable = defined(nimInheritHandles); timeoutMs = -1): GoSocket" href="_._/src/nimgo/gonet.html#accept%2CGoSocket%2Cint">gonet: proc accept(gosocket: GoSocket; flags = {SafeDisconn};
+       inheritable = defined(nimInheritHandles); timeoutMs = -1): GoSocket</a></li>
           </ul></dd>
 <dt><a name="acceptAddr" href="#acceptAddr"><span>acceptAddr:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="gonet: proc acceptAddr(gosocket: GoSocket; flags = {SafeDisconn};
-           inheritable = defined(nimInheritHandles);
-           canceller: GoTaskUntyped = nil): tuple[address: string,
-    client: GoSocket]" href="_._/src/nimgo/gonet.html#acceptAddr%2CGoSocket%2CGoTask">gonet: proc acceptAddr(gosocket: GoSocket; flags = {SafeDisconn};
-           inheritable = defined(nimInheritHandles);
-           canceller: GoTaskUntyped = nil): tuple[address: string,
-    client: GoSocket]</a></li>
+           inheritable = defined(nimInheritHandles); timeoutMs = -1): tuple[
+    address: string, client: GoSocket]" href="_._/src/nimgo/gonet.html#acceptAddr%2CGoSocket%2Cint">gonet: proc acceptAddr(gosocket: GoSocket; flags = {SafeDisconn};
+           inheritable = defined(nimInheritHandles); timeoutMs = -1): tuple[
+    address: string, client: GoSocket]</a></li>
           </ul></dd>
 <dt><a name="acquireCoro" href="#acquireCoro"><span>acquireCoro:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -59,6 +61,8 @@
 <dt><a name="addCallback" href="#addCallback"><span>addCallback:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="gotaskscomplete: proc addCallback(goTask: GoTaskUntyped; oneShotCoro: OneShotCoroutine)" href="_._/src/nimgo/gotaskscomplete.html#addCallback%2CGoTask%2COneShotCoroutine">gotaskscomplete: proc addCallback(goTask: GoTaskUntyped; oneShotCoro: OneShotCoroutine)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gotasks: proc addCallback(goTask: GoTaskUntyped; oneShotCoro: OneShotCoroutine)" href="_._/src/nimgo/public/gotasks.html#addCallback%2CGoTask%2COneShotCoroutine">gotasks: proc addCallback(goTask: GoTaskUntyped; oneShotCoro: OneShotCoroutine)</a></li>
           </ul></dd>
 <dt><a name="addInsideSelector" href="#addInsideSelector"><span>addInsideSelector:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -80,7 +84,7 @@
           </ul></dd>
 <dt><a name="Buffer" href="#Buffer"><span>Buffer:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="buffer: type Buffer" href="_._/src/nimgo/private/buffer.html#Buffer">buffer: type Buffer</a></li>
+          data-doc-search-tag="buffer: object Buffer" href="_._/src/nimgo/private/buffer.html#Buffer">buffer: object Buffer</a></li>
           </ul></dd>
 <dt><a name="ChildProc" href="#ChildProc"><span>ChildProc:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -92,7 +96,7 @@
           </ul></dd>
 <dt><a name="clear" href="#clear"><span>clear:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="buffer: proc clear(self: Buffer)" href="_._/src/nimgo/private/buffer.html#clear%2CBuffer">buffer: proc clear(self: Buffer)</a></li>
+          data-doc-search-tag="buffer: proc clear(self: var Buffer)" href="_._/src/nimgo/private/buffer.html#clear%2CBuffer">buffer: proc clear(self: var Buffer)</a></li>
           </ul></dd>
 <dt><a name="close" href="#close"><span>close:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -130,13 +134,21 @@
           </ul></dd>
 <dt><a name="connect" href="#connect"><span>connect:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gonet: proc connect(gosocket: GoSocket; address: string; port: Port;
-        canceller: GoTaskUntyped = nil)" href="_._/src/nimgo/gonet.html#connect%2CGoSocket%2Cstring%2CPort%2CGoTask">gonet: proc connect(gosocket: GoSocket; address: string; port: Port;
-        canceller: GoTaskUntyped = nil)</a></li>
+          data-doc-search-tag="gonet: proc connect(gosocket: GoSocket; address: string; port: Port)" href="_._/src/nimgo/gonet.html#connect%2CGoSocket%2Cstring%2CPort">gonet: proc connect(gosocket: GoSocket; address: string; port: Port)</a></li>
           </ul></dd>
 <dt><a name="connectUnix" href="#connectUnix"><span>connectUnix:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gonet: proc connectUnix(gosocket: GoSocket; path: string; canceller: GoTaskUntyped = nil)" href="_._/src/nimgo/gonet.html#connectUnix%2CGoSocket%2Cstring%2CGoTask">gonet: proc connectUnix(gosocket: GoSocket; path: string; canceller: GoTaskUntyped = nil)</a></li>
+          data-doc-search-tag="gonet: proc connectUnix(gosocket: GoSocket; path: string)" href="_._/src/nimgo/gonet.html#connectUnix%2CGoSocket%2Cstring">gonet: proc connectUnix(gosocket: GoSocket; path: string)</a></li>
+          </ul></dd>
+<dt><a name="connectUnixWithTimeout" href="#connectUnixWithTimeout"><span>connectUnixWithTimeout:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gonet: proc connectUnixWithTimeout(gosocket: GoSocket; path: string; timeoutMs = -1): bool" href="_._/src/nimgo/gonet.html#connectUnixWithTimeout%2CGoSocket%2Cstring%2Cint">gonet: proc connectUnixWithTimeout(gosocket: GoSocket; path: string; timeoutMs = -1): bool</a></li>
+          </ul></dd>
+<dt><a name="connectWithTimeout" href="#connectWithTimeout"><span>connectWithTimeout:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gonet: proc connectWithTimeout(gosocket: GoSocket; address: string; port: Port;
+                   timeoutMs = -1): bool" href="_._/src/nimgo/gonet.html#connectWithTimeout%2CGoSocket%2Cstring%2CPort%2Cint">gonet: proc connectWithTimeout(gosocket: GoSocket; address: string; port: Port;
+                   timeoutMs = -1): bool</a></li>
           </ul></dd>
 <dt><a name="consumeAndGet" href="#consumeAndGet"><span>consumeAndGet:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -490,79 +502,127 @@
           </ul></dd>
 <dt><a name="read" href="#read"><span>read:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gofile: proc read(f: GoFile; size: Positive; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gofile.html#read%2CGoFile%2CPositive%2CGoTask">gofile: proc read(f: GoFile; size: Positive; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gofile: proc read(f: GoFile; size: Positive; timeoutMs = -1): string" href="_._/src/nimgo/gofile.html#read%2CGoFile%2CPositive%2Cint">gofile: proc read(f: GoFile; size: Positive; timeoutMs = -1): string</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method read(s: GoBufferStream; size: Positive; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gostreams.html#read.e%2CGoBufferStream%2CPositive%2CGoTask">gostreams: method read(s: GoBufferStream; size: Positive; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gofile: proc read(f: GoFile; buffer: var string; size: Positive; timeoutMs = -1)" href="_._/src/nimgo/gofile.html#read%2CGoFile%2Cstring%2CPositive%2Cint">gofile: proc read(f: GoFile; buffer: var string; size: Positive; timeoutMs = -1)</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method read(s: GoFileStream; size: Positive; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gostreams.html#read.e%2CGoFileStream%2CPositive%2CGoTask">gostreams: method read(s: GoFileStream; size: Positive; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gostreams: method read(s: GoBufferStream; size: Positive; timeoutMs = -1): string" href="_._/src/nimgo/gostreams.html#read.e%2CGoBufferStream%2CPositive%2Cint">gostreams: method read(s: GoBufferStream; size: Positive; timeoutMs = -1): string</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method read(s: GoStream; size: Positive; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gostreams.html#read.e%2CGoStream%2CPositive%2CGoTask">gostreams: method read(s: GoStream; size: Positive; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gostreams: method read(s: GoBufferStream; buffer: var string; size: Positive; timeoutMs = -1)" href="_._/src/nimgo/gostreams.html#read.e%2CGoBufferStream%2Cstring%2CPositive%2Cint">gostreams: method read(s: GoBufferStream; buffer: var string; size: Positive; timeoutMs = -1)</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="buffer: proc read(self: Buffer; count: int): string" href="_._/src/nimgo/private/buffer.html#read%2CBuffer%2Cint">buffer: proc read(self: Buffer; count: int): string</a></li>
+          data-doc-search-tag="gostreams: method read(s: GoFileStream; size: Positive; timeoutMs = -1): string" href="_._/src/nimgo/gostreams.html#read.e%2CGoFileStream%2CPositive%2Cint">gostreams: method read(s: GoFileStream; size: Positive; timeoutMs = -1): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method read(s: GoFileStream; buffer: var string; size: Positive; timeoutMs = -1)" href="_._/src/nimgo/gostreams.html#read.e%2CGoFileStream%2Cstring%2CPositive%2Cint">gostreams: method read(s: GoFileStream; buffer: var string; size: Positive; timeoutMs = -1)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method read(s: GoStream; size: Positive; timeoutMs = -1): string" href="_._/src/nimgo/gostreams.html#read.e%2CGoStream%2CPositive%2Cint">gostreams: method read(s: GoStream; size: Positive; timeoutMs = -1): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method read(s: GoStream; buffer: var string; size: Positive; timeoutMs = -1)" href="_._/src/nimgo/gostreams.html#read.e%2CGoStream%2Cstring%2CPositive%2Cint">gostreams: method read(s: GoStream; buffer: var string; size: Positive; timeoutMs = -1)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="buffer: proc read(self: var Buffer; outBuffer: var string; count: int)" href="_._/src/nimgo/private/buffer.html#read%2CBuffer%2Cstring%2Cint">buffer: proc read(self: var Buffer; outBuffer: var string; count: int)</a></li>
           </ul></dd>
 <dt><a name="readAll" href="#readAll"><span>readAll:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gofile: proc readAll(f: GoFile; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gofile.html#readAll%2CGoFile%2CGoTask">gofile: proc readAll(f: GoFile; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gofile: proc readAll(f: GoFile; timeoutMs = -1): string" href="_._/src/nimgo/gofile.html#readAll%2CGoFile%2Cint">gofile: proc readAll(f: GoFile; timeoutMs = -1): string</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method readAll(s: GoBufferStream; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gostreams.html#readAll.e%2CGoBufferStream%2CGoTask">gostreams: method readAll(s: GoBufferStream; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gofile: proc readAll(f: GoFile; buffer: var string; timeoutMs = -1)" href="_._/src/nimgo/gofile.html#readAll%2CGoFile%2Cstring%2Cint">gofile: proc readAll(f: GoFile; buffer: var string; timeoutMs = -1)</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method readAll(s: GoFileStream; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gostreams.html#readAll.e%2CGoFileStream%2CGoTask">gostreams: method readAll(s: GoFileStream; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gostreams: method readAll(s: GoBufferStream; timeoutMs = -1): string" href="_._/src/nimgo/gostreams.html#readAll.e%2CGoBufferStream%2Cint">gostreams: method readAll(s: GoBufferStream; timeoutMs = -1): string</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method readAll(s: GoStream; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gostreams.html#readAll.e%2CGoStream%2CGoTask">gostreams: method readAll(s: GoStream; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gostreams: method readAll(s: GoBufferStream; buffer: var string; timeoutMs = -1)" href="_._/src/nimgo/gostreams.html#readAll.e%2CGoBufferStream%2Cstring%2Cint">gostreams: method readAll(s: GoBufferStream; buffer: var string; timeoutMs = -1)</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="buffer: proc readAll(self: Buffer): string" href="_._/src/nimgo/private/buffer.html#readAll%2CBuffer">buffer: proc readAll(self: Buffer): string</a></li>
+          data-doc-search-tag="gostreams: method readAll(s: GoFileStream; timeoutMs = -1): string" href="_._/src/nimgo/gostreams.html#readAll.e%2CGoFileStream%2Cint">gostreams: method readAll(s: GoFileStream; timeoutMs = -1): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readAll(s: GoFileStream; buffer: var string; timeoutMs = -1)" href="_._/src/nimgo/gostreams.html#readAll.e%2CGoFileStream%2Cstring%2Cint">gostreams: method readAll(s: GoFileStream; buffer: var string; timeoutMs = -1)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readAll(s: GoStream; timeoutMs = -1): string" href="_._/src/nimgo/gostreams.html#readAll.e%2CGoStream%2Cint">gostreams: method readAll(s: GoStream; timeoutMs = -1): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readAll(s: GoStream; buffer: var string; timeoutMs = -1)" href="_._/src/nimgo/gostreams.html#readAll.e%2CGoStream%2Cstring%2Cint">gostreams: method readAll(s: GoStream; buffer: var string; timeoutMs = -1)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="buffer: proc readAll(self: var Buffer; outBuffer: var string)" href="_._/src/nimgo/private/buffer.html#readAll%2CBuffer%2Cstring">buffer: proc readAll(self: var Buffer; outBuffer: var string)</a></li>
           </ul></dd>
 <dt><a name="readAvailable" href="#readAvailable"><span>readAvailable:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gofile: proc readAvailable(f: GoFile; size: Positive; canceller: GoTaskUntyped = nil;
-              noAsync = false): string" href="_._/src/nimgo/gofile.html#readAvailable%2CGoFile%2CPositive%2CGoTask">gofile: proc readAvailable(f: GoFile; size: Positive; canceller: GoTaskUntyped = nil;
-              noAsync = false): string</a></li>
+          data-doc-search-tag="gofile: proc readAvailable(f: GoFile; size: Positive; timeoutMs = -1; noAsync = false): string" href="_._/src/nimgo/gofile.html#readAvailable%2CGoFile%2CPositive%2Cint">gofile: proc readAvailable(f: GoFile; size: Positive; timeoutMs = -1; noAsync = false): string</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method readAvailable(s: GoBufferStream; size: Positive; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gostreams.html#readAvailable.e%2CGoBufferStream%2CPositive%2CGoTask">gostreams: method readAvailable(s: GoBufferStream; size: Positive; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gofile: proc readAvailable(f: GoFile; buffer: var string; size: Positive; timeoutMs = -1;
+              noAsync = false)" href="_._/src/nimgo/gofile.html#readAvailable%2CGoFile%2Cstring%2CPositive%2Cint">gofile: proc readAvailable(f: GoFile; buffer: var string; size: Positive; timeoutMs = -1;
+              noAsync = false)</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method readAvailable(s: GoFileStream; size: Positive; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gostreams.html#readAvailable.e%2CGoFileStream%2CPositive%2CGoTask">gostreams: method readAvailable(s: GoFileStream; size: Positive; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gostreams: method readAvailable(s: GoBufferStream; size: Positive; timeoutMs = -1): string" href="_._/src/nimgo/gostreams.html#readAvailable.e%2CGoBufferStream%2CPositive%2Cint">gostreams: method readAvailable(s: GoBufferStream; size: Positive; timeoutMs = -1): string</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method readAvailable(s: GoStream; size: Positive; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gostreams.html#readAvailable.e%2CGoStream%2CPositive%2CGoTask">gostreams: method readAvailable(s: GoStream; size: Positive; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gostreams: method readAvailable(s: GoBufferStream; buffer: var string; size: Positive;
+              timeoutMs = -1)" href="_._/src/nimgo/gostreams.html#readAvailable.e%2CGoBufferStream%2Cstring%2CPositive%2Cint">gostreams: method readAvailable(s: GoBufferStream; buffer: var string; size: Positive;
+              timeoutMs = -1)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readAvailable(s: GoFileStream; size: Positive; timeoutMs = -1): string" href="_._/src/nimgo/gostreams.html#readAvailable.e%2CGoFileStream%2CPositive%2Cint">gostreams: method readAvailable(s: GoFileStream; size: Positive; timeoutMs = -1): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readAvailable(s: GoFileStream; buffer: var string; size: Positive;
+              timeoutMs = -1)" href="_._/src/nimgo/gostreams.html#readAvailable.e%2CGoFileStream%2Cstring%2CPositive%2Cint">gostreams: method readAvailable(s: GoFileStream; buffer: var string; size: Positive;
+              timeoutMs = -1)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readAvailable(s: GoStream; size: Positive; timeoutMs = -1): string" href="_._/src/nimgo/gostreams.html#readAvailable.e%2CGoStream%2CPositive%2Cint">gostreams: method readAvailable(s: GoStream; size: Positive; timeoutMs = -1): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readAvailable(s: GoStream; buffer: var string; size: Positive; timeoutMs = -1)" href="_._/src/nimgo/gostreams.html#readAvailable.e%2CGoStream%2Cstring%2CPositive%2Cint">gostreams: method readAvailable(s: GoStream; buffer: var string; size: Positive; timeoutMs = -1)</a></li>
           </ul></dd>
 <dt><a name="readChunk" href="#readChunk"><span>readChunk:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gofile: proc readChunk(f: GoFile; canceller: GoTaskUntyped = nil; noAsync = false): string" href="_._/src/nimgo/gofile.html#readChunk%2CGoFile%2CGoTask">gofile: proc readChunk(f: GoFile; canceller: GoTaskUntyped = nil; noAsync = false): string</a></li>
+          data-doc-search-tag="gofile: proc readChunk(f: GoFile; timeoutMs = -1; noAsync = false): string" href="_._/src/nimgo/gofile.html#readChunk%2CGoFile%2Cint">gofile: proc readChunk(f: GoFile; timeoutMs = -1; noAsync = false): string</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method readChunk(s: GoBufferStream; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gostreams.html#readChunk.e%2CGoBufferStream%2CGoTask">gostreams: method readChunk(s: GoBufferStream; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gofile: proc readChunk(f: GoFile; buffer: var string; timeoutMs = -1; noAsync = false)" href="_._/src/nimgo/gofile.html#readChunk%2CGoFile%2Cstring%2Cint">gofile: proc readChunk(f: GoFile; buffer: var string; timeoutMs = -1; noAsync = false)</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method readChunk(s: GoFileStream; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gostreams.html#readChunk.e%2CGoFileStream%2CGoTask">gostreams: method readChunk(s: GoFileStream; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gostreams: method readChunk(s: GoBufferStream; timeoutMs = -1): string" href="_._/src/nimgo/gostreams.html#readChunk.e%2CGoBufferStream%2Cint">gostreams: method readChunk(s: GoBufferStream; timeoutMs = -1): string</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method readChunk(s: GoStream; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gostreams.html#readChunk.e%2CGoStream%2CGoTask">gostreams: method readChunk(s: GoStream; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gostreams: method readChunk(s: GoBufferStream; buffer: var string; timeoutMs = -1)" href="_._/src/nimgo/gostreams.html#readChunk.e%2CGoBufferStream%2Cstring%2Cint">gostreams: method readChunk(s: GoBufferStream; buffer: var string; timeoutMs = -1)</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="buffer: proc readChunk(self: Buffer): string" href="_._/src/nimgo/private/buffer.html#readChunk%2CBuffer">buffer: proc readChunk(self: Buffer): string</a></li>
+          data-doc-search-tag="gostreams: method readChunk(s: GoFileStream; timeoutMs = -1): string" href="_._/src/nimgo/gostreams.html#readChunk.e%2CGoFileStream%2Cint">gostreams: method readChunk(s: GoFileStream; timeoutMs = -1): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readChunk(s: GoFileStream; buffer: var string; timeoutMs = -1)" href="_._/src/nimgo/gostreams.html#readChunk.e%2CGoFileStream%2Cstring%2Cint">gostreams: method readChunk(s: GoFileStream; buffer: var string; timeoutMs = -1)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readChunk(s: GoStream; timeoutMs = -1): string" href="_._/src/nimgo/gostreams.html#readChunk.e%2CGoStream%2Cint">gostreams: method readChunk(s: GoStream; timeoutMs = -1): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readChunk(s: GoStream; buffer: var string; timeoutMs = -1)" href="_._/src/nimgo/gostreams.html#readChunk.e%2CGoStream%2Cstring%2Cint">gostreams: method readChunk(s: GoStream; buffer: var string; timeoutMs = -1)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="buffer: proc readChunk(self: var Buffer; outBuffer: var string)" href="_._/src/nimgo/private/buffer.html#readChunk%2CBuffer%2Cstring">buffer: proc readChunk(self: var Buffer; outBuffer: var string)</a></li>
           </ul></dd>
 <dt><a name="readLine" href="#readLine"><span>readLine:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gofile: proc readLine(f: GoFile; canceller: GoTaskUntyped = nil; keepNewLine = false): string" href="_._/src/nimgo/gofile.html#readLine%2CGoFile%2CGoTask">gofile: proc readLine(f: GoFile; canceller: GoTaskUntyped = nil; keepNewLine = false): string</a></li>
+          data-doc-search-tag="gofile: proc readLine(f: GoFile; timeoutMs = -1; keepNewLine = false): string" href="_._/src/nimgo/gofile.html#readLine%2CGoFile%2Cint">gofile: proc readLine(f: GoFile; timeoutMs = -1; keepNewLine = false): string</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method readLine(s: GoBufferStream; canceller: GoTaskUntyped = nil; keepNewLine = false): string" href="_._/src/nimgo/gostreams.html#readLine.e%2CGoBufferStream%2CGoTask">gostreams: method readLine(s: GoBufferStream; canceller: GoTaskUntyped = nil; keepNewLine = false): string</a></li>
+          data-doc-search-tag="gofile: proc readLine(f: GoFile; buffer: var string; timeoutMs = -1; keepNewLine = false)" href="_._/src/nimgo/gofile.html#readLine%2CGoFile%2Cstring%2Cint">gofile: proc readLine(f: GoFile; buffer: var string; timeoutMs = -1; keepNewLine = false)</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method readLine(s: GoFileStream; canceller: GoTaskUntyped = nil; keepNewLine = false): string" href="_._/src/nimgo/gostreams.html#readLine.e%2CGoFileStream%2CGoTask">gostreams: method readLine(s: GoFileStream; canceller: GoTaskUntyped = nil; keepNewLine = false): string</a></li>
+          data-doc-search-tag="gostreams: method readLine(s: GoBufferStream; timeoutMs = -1; keepNewLine = false): string" href="_._/src/nimgo/gostreams.html#readLine.e%2CGoBufferStream%2Cint">gostreams: method readLine(s: GoBufferStream; timeoutMs = -1; keepNewLine = false): string</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method readLine(s: GoStream; canceller: GoTaskUntyped = nil; keepNewLine = false): string" href="_._/src/nimgo/gostreams.html#readLine.e%2CGoStream%2CGoTask">gostreams: method readLine(s: GoStream; canceller: GoTaskUntyped = nil; keepNewLine = false): string</a></li>
+          data-doc-search-tag="gostreams: method readLine(s: GoBufferStream; buffer: var string; timeoutMs = -1;
+         keepNewLine = false)" href="_._/src/nimgo/gostreams.html#readLine.e%2CGoBufferStream%2Cstring%2Cint">gostreams: method readLine(s: GoBufferStream; buffer: var string; timeoutMs = -1;
+         keepNewLine = false)</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="buffer: proc readLine(self: Buffer; keepNewLine = false): string" href="_._/src/nimgo/private/buffer.html#readLine%2CBuffer">buffer: proc readLine(self: Buffer; keepNewLine = false): string</a></li>
+          data-doc-search-tag="gostreams: method readLine(s: GoFileStream; timeoutMs = -1; keepNewLine = false): string" href="_._/src/nimgo/gostreams.html#readLine.e%2CGoFileStream%2Cint">gostreams: method readLine(s: GoFileStream; timeoutMs = -1; keepNewLine = false): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readLine(s: GoFileStream; buffer: var string; timeoutMs = -1;
+         keepNewLine = false)" href="_._/src/nimgo/gostreams.html#readLine.e%2CGoFileStream%2Cstring%2Cint">gostreams: method readLine(s: GoFileStream; buffer: var string; timeoutMs = -1;
+         keepNewLine = false)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readLine(s: GoStream; timeoutMs = -1; keepNewLine = false): string" href="_._/src/nimgo/gostreams.html#readLine.e%2CGoStream%2Cint">gostreams: method readLine(s: GoStream; timeoutMs = -1; keepNewLine = false): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gostreams: method readLine(s: GoStream; buffer: var string; timeoutMs = -1; keepNewLine = false)" href="_._/src/nimgo/gostreams.html#readLine.e%2CGoStream%2Cstring%2Cint">gostreams: method readLine(s: GoStream; buffer: var string; timeoutMs = -1; keepNewLine = false)</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="buffer: proc readLine(self: var Buffer; outBuffer: var string; keepNewLine = false)" href="_._/src/nimgo/private/buffer.html#readLine%2CBuffer%2Cstring">buffer: proc readLine(self: var Buffer; outBuffer: var string; keepNewLine = false)</a></li>
           </ul></dd>
 <dt><a name="recv" href="#recv"><span>recv:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gonet: proc recv(s: GoSocket; size: int; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gonet.html#recv%2CGoSocket%2Cint%2CGoTask">gonet: proc recv(s: GoSocket; size: int; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gonet: proc recv(s: GoSocket; size: int; timeoutMs = -1): string" href="_._/src/nimgo/gonet.html#recv%2CGoSocket%2Cint%2Cint">gonet: proc recv(s: GoSocket; size: int; timeoutMs = -1): string</a></li>
           </ul></dd>
 <dt><a name="recvFrom" href="#recvFrom"><span>recvFrom:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="gonet: proc recvFrom[T: string | IpAddress](s: GoSocket; data: var string; length: int;
                                 address: var T; port: var Port; flags = 0'i32;
-                                canceller: GoTaskUntyped = nil): int" href="_._/src/nimgo/gonet.html#recvFrom%2CGoSocket%2Cstring%2Cint%2CT%2CPort%2Cint32%2CGoTask">gonet: proc recvFrom[T: string | IpAddress](s: GoSocket; data: var string; length: int;
+                                timeoutMs = -1): int" href="_._/src/nimgo/gonet.html#recvFrom%2CGoSocket%2Cstring%2Cint%2CT%2CPort%2Cint32%2Cint">gonet: proc recvFrom[T: string | IpAddress](s: GoSocket; data: var string; length: int;
                                 address: var T; port: var Port; flags = 0'i32;
-                                canceller: GoTaskUntyped = nil): int</a></li>
+                                timeoutMs = -1): int</a></li>
           </ul></dd>
 <dt><a name="recvLine" href="#recvLine"><span>recvLine:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gonet: proc recvLine(s: GoSocket; keepNewLine = false; canceller: GoTaskUntyped = nil): string" href="_._/src/nimgo/gonet.html#recvLine%2CGoSocket%2CGoTask">gonet: proc recvLine(s: GoSocket; keepNewLine = false; canceller: GoTaskUntyped = nil): string</a></li>
+          data-doc-search-tag="gonet: proc recvLine(s: GoSocket; keepNewLine = false; timeoutMs = -1): string" href="_._/src/nimgo/gonet.html#recvLine%2CGoSocket%2Cint">gonet: proc recvLine(s: GoSocket; keepNewLine = false; timeoutMs = -1): string</a></li>
           </ul></dd>
 <dt><a name="registerEvent" href="#registerEvent"><span>registerEvent:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -599,6 +659,10 @@
           data-doc-search-tag="coroutines: proc resume(coro: Coroutine)" href="_._/src/nimgo/coroutines.html#resume%2CCoroutine">coroutines: proc resume(coro: Coroutine)</a></li>
           <li><a class="reference external"
           data-doc-search-tag="childproc_posix: proc resume(p: ChildProc)" href="_._/src/nimgo/private/childproc_posix.html#resume%2CChildProc">childproc_posix: proc resume(p: ChildProc)</a></li>
+          </ul></dd>
+<dt><a name="resumeAfter" href="#resumeAfter"><span>resumeAfter:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gotasks: proc resumeAfter(goTask: GoTaskUntyped)" href="_._/src/nimgo/public/gotasks.html#resumeAfter%2CGoTask">gotasks: proc resumeAfter(goTask: GoTaskUntyped)</a></li>
           </ul></dd>
 <dt><a name="resumeImmediatly" href="#resumeImmediatly"><span>resumeImmediatly:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -642,13 +706,13 @@
           </ul></dd>
 <dt><a name="send" href="#send"><span>send:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gonet: proc send(s: GoSocket; data: string; canceller: GoTaskUntyped = nil): int" href="_._/src/nimgo/gonet.html#send%2CGoSocket%2Cstring%2CGoTask">gonet: proc send(s: GoSocket; data: string; canceller: GoTaskUntyped = nil): int</a></li>
+          data-doc-search-tag="gonet: proc send(s: GoSocket; data: string; timeoutMs = -1): int" href="_._/src/nimgo/gonet.html#send%2CGoSocket%2Cstring%2Cint">gonet: proc send(s: GoSocket; data: string; timeoutMs = -1): int</a></li>
           </ul></dd>
 <dt><a name="sendTo" href="#sendTo"><span>sendTo:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="gonet: proc sendTo(s: GoSocket; address: IpAddress; port: Port; data: string; flags = 0'i32;
-       canceller: GoTaskUntyped = nil): int" href="_._/src/nimgo/gonet.html#sendTo%2CGoSocket%2CIpAddress%2CPort%2Cstring%2Cint32%2CGoTask">gonet: proc sendTo(s: GoSocket; address: IpAddress; port: Port; data: string; flags = 0'i32;
-       canceller: GoTaskUntyped = nil): int</a></li>
+       timeoutMs = -1): int" href="_._/src/nimgo/gonet.html#sendTo%2CGoSocket%2CIpAddress%2CPort%2Cstring%2Cint32%2Cint">gonet: proc sendTo(s: GoSocket; address: IpAddress; port: Port; data: string; flags = 0'i32;
+       timeoutMs = -1): int</a></li>
           </ul></dd>
 <dt><a name="setCurrentThreadDispatcher" href="#setCurrentThreadDispatcher"><span>setCurrentThreadDispatcher:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -665,10 +729,6 @@
 <dt><a name="sleepAsync" href="#sleepAsync"><span>sleepAsync:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="eventdispatcher: proc sleepAsync(timeoutMs: int)" href="_._/src/nimgo/eventdispatcher.html#sleepAsync%2Cint">eventdispatcher: proc sleepAsync(timeoutMs: int)</a></li>
-          </ul></dd>
-<dt><a name="sleepTask" href="#sleepTask"><span>sleepTask:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="gotasks: proc sleepTask(timeoutMs: int): GoTask[void]" href="_._/src/nimgo/public/gotasks.html#sleepTask%2Cint">gotasks: proc sleepTask(timeoutMs: int): GoTask[void]</a></li>
           </ul></dd>
 <dt><a name="startProcess" href="#startProcess"><span>startProcess:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -736,6 +796,10 @@
           <li><a class="reference external"
           data-doc-search-tag="childproc_posix: proc suspend(p: ChildProc)" href="_._/src/nimgo/private/childproc_posix.html#suspend%2CChildProc">childproc_posix: proc suspend(p: ChildProc)</a></li>
           </ul></dd>
+<dt><a name="suspendUntilAny" href="#suspendUntilAny"><span>suspendUntilAny:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="eventdispatcher: proc suspendUntilAny(readFd: seq[PollFd]; writefd: seq[PollFd]; timeoutMs = -1): WakeUpInfo" href="_._/src/nimgo/eventdispatcher.html#suspendUntilAny%2Cseq%5BPollFd%5D%2Cseq%5BPollFd%5D%2Cint">eventdispatcher: proc suspendUntilAny(readFd: seq[PollFd]; writefd: seq[PollFd]; timeoutMs = -1): WakeUpInfo</a></li>
+          </ul></dd>
 <dt><a name="suspendUntilImmediatly" href="#suspendUntilImmediatly"><span>suspendUntilImmediatly:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="eventdispatcher: proc suspendUntilImmediatly(coro: Coroutine = nil)" href="_._/src/nimgo/eventdispatcher.html#suspendUntilImmediatly%2CCoroutine">eventdispatcher: proc suspendUntilImmediatly(coro: Coroutine = nil)</a></li>
@@ -746,6 +810,8 @@
           </ul></dd>
 <dt><a name="suspendUntilRead" href="#suspendUntilRead"><span>suspendUntilRead:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="eventdispatcher: proc suspendUntilRead(fd: PollFd; timeoutMs = -1; consumeEvent = true): bool" href="_._/src/nimgo/eventdispatcher.html#suspendUntilRead%2CPollFd%2Cint">eventdispatcher: proc suspendUntilRead(fd: PollFd; timeoutMs = -1; consumeEvent = true): bool</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="gotaskscomplete: proc suspendUntilRead(fd: PollFd; canceller: GoTaskUntyped = nil; consumeEvent: bool): bool" href="_._/src/nimgo/gotaskscomplete.html#suspendUntilRead%2CPollFd%2CGoTask%2Cbool">gotaskscomplete: proc suspendUntilRead(fd: PollFd; canceller: GoTaskUntyped = nil; consumeEvent: bool): bool</a></li>
           </ul></dd>
 <dt><a name="suspendUntilSoon" href="#suspendUntilSoon"><span>suspendUntilSoon:</span></a></dt><dd><ul class="simple">
@@ -760,6 +826,8 @@
           </ul></dd>
 <dt><a name="suspendUntilWrite" href="#suspendUntilWrite"><span>suspendUntilWrite:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="eventdispatcher: proc suspendUntilWrite(fd: PollFd; timeoutMs = -1; consumeEvent = true): bool" href="_._/src/nimgo/eventdispatcher.html#suspendUntilWrite%2CPollFd%2Cint">eventdispatcher: proc suspendUntilWrite(fd: PollFd; timeoutMs = -1; consumeEvent = true): bool</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="gotaskscomplete: proc suspendUntilWrite(fd: PollFd; canceller: GoTaskUntyped = nil; consumeEvent: bool): bool" href="_._/src/nimgo/gotaskscomplete.html#suspendUntilWrite%2CPollFd%2CGoTask%2Cbool">gotaskscomplete: proc suspendUntilWrite(fd: PollFd; canceller: GoTaskUntyped = nil; consumeEvent: bool): bool</a></li>
           </ul></dd>
 <dt><a name="terminate" href="#terminate"><span>terminate:</span></a></dt><dd><ul class="simple">
@@ -794,25 +862,25 @@
           <li><a class="reference external"
           data-doc-search-tag="gotasks: proc wait[T](gotask: GoTask[T]): T" href="_._/src/nimgo/public/gotasks.html#wait%2CGoTask%5BT%5D">gotasks: proc wait[T](gotask: GoTask[T]): T</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gotasks: proc wait[T](gotask: GoTask[T]; canceller: GoTaskUntyped): Option[T]" href="_._/src/nimgo/public/gotasks.html#wait%2CGoTask%5BT%5D%2CGoTask">gotasks: proc wait[T](gotask: GoTask[T]; canceller: GoTaskUntyped): Option[T]</a></li>
+          data-doc-search-tag="gotasks: proc wait[T](gotask: GoTask[T]; timeoutMs: Positive): Option[T]" href="_._/src/nimgo/public/gotasks.html#wait%2CGoTask%5BT%5D%2CPositive">gotasks: proc wait[T](gotask: GoTask[T]; timeoutMs: Positive): Option[T]</a></li>
           <li><a class="reference external"
           data-doc-search-tag="gotasks: proc wait(gotask: GoTask[void])" href="_._/src/nimgo/public/gotasks.html#wait%2CGoTask%5Bvoid%5D">gotasks: proc wait(gotask: GoTask[void])</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gotasks: proc wait(gotask: GoTask[void]; canceller: GoTaskUntyped): bool" href="_._/src/nimgo/public/gotasks.html#wait%2CGoTask%5Bvoid%5D%2CGoTask">gotasks: proc wait(gotask: GoTask[void]; canceller: GoTaskUntyped): bool</a></li>
+          data-doc-search-tag="gotasks: proc wait(gotask: GoTask[void]; timeoutMs: Positive): bool" href="_._/src/nimgo/public/gotasks.html#wait%2CGoTask%5Bvoid%5D%2CPositive">gotasks: proc wait(gotask: GoTask[void]; timeoutMs: Positive): bool</a></li>
           </ul></dd>
 <dt><a name="waitAll" href="#waitAll"><span>waitAll:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gotasks: proc waitAll[T](gotasks: seq[GoTask[T]]; canceller: GoTaskUntyped): seq[T]" href="_._/src/nimgo/public/gotasks.html#waitAll%2Cseq%5BGoTask%5BT%5D%5D%2CGoTask">gotasks: proc waitAll[T](gotasks: seq[GoTask[T]]; canceller: GoTaskUntyped): seq[T]</a></li>
+          data-doc-search-tag="gotasks: proc waitAll[T](gotasks: seq[GoTask[T]]; timeoutMs = -1): seq[T]" href="_._/src/nimgo/public/gotasks.html#waitAll%2Cseq%5BGoTask%5BT%5D%5D%2Cint">gotasks: proc waitAll[T](gotasks: seq[GoTask[T]]; timeoutMs = -1): seq[T]</a></li>
           <li><a class="reference external"
           data-doc-search-tag="gotasks: proc waitAll(gotasks: seq[GoTask[void]])" href="_._/src/nimgo/public/gotasks.html#waitAll%2Cseq%5BGoTask%5Bvoid%5D%5D">gotasks: proc waitAll(gotasks: seq[GoTask[void]])</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gotasks: proc waitAll(gotasks: seq[GoTask[void]]; canceller: GoTaskUntyped): bool" href="_._/src/nimgo/public/gotasks.html#waitAll%2Cseq%5BGoTask%5Bvoid%5D%5D%2CGoTask">gotasks: proc waitAll(gotasks: seq[GoTask[void]]; canceller: GoTaskUntyped): bool</a></li>
+          data-doc-search-tag="gotasks: proc waitAll(gotasks: seq[GoTask[void]]; timeoutMs: Positive): bool" href="_._/src/nimgo/public/gotasks.html#waitAll%2Cseq%5BGoTask%5Bvoid%5D%5D%2CPositive">gotasks: proc waitAll(gotasks: seq[GoTask[void]]; timeoutMs: Positive): bool</a></li>
           </ul></dd>
 <dt><a name="waitAny" href="#waitAny"><span>waitAny:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="gotasks: proc waitAny[T](gotasks: seq[GoTask[T]])" href="_._/src/nimgo/public/gotasks.html#waitAny%2Cseq%5BGoTask%5BT%5D%5D">gotasks: proc waitAny[T](gotasks: seq[GoTask[T]])</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gotasks: proc waitAny[T](gotasks: seq[GoTask[T]]; canceller: GoTaskUntyped): bool" href="_._/src/nimgo/public/gotasks.html#waitAny%2Cseq%5BGoTask%5BT%5D%5D%2CGoTask">gotasks: proc waitAny[T](gotasks: seq[GoTask[T]]; canceller: GoTaskUntyped): bool</a></li>
+          data-doc-search-tag="gotasks: proc waitAny[T](gotasks: seq[GoTask[T]]; timeoutMs: Positive): bool" href="_._/src/nimgo/public/gotasks.html#waitAny%2Cseq%5BGoTask%5BT%5D%5D%2CPositive">gotasks: proc waitAny[T](gotasks: seq[GoTask[T]]; timeoutMs: Positive): bool</a></li>
           </ul></dd>
 <dt><a name="waitForExit" href="#waitForExit"><span>waitForExit:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -824,21 +892,21 @@
           </ul></dd>
 <dt><a name="write" href="#write"><span>write:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gofile: proc write(f: GoFile; data: sink string; canceller: GoTaskUntyped = nil): int" href="_._/src/nimgo/gofile.html#write%2CGoFile%2Csinkstring%2CGoTask">gofile: proc write(f: GoFile; data: sink string; canceller: GoTaskUntyped = nil): int</a></li>
+          data-doc-search-tag="gofile: proc write(f: GoFile; data: sink string; timeoutMs = -1): int" href="_._/src/nimgo/gofile.html#write%2CGoFile%2Csinkstring%2Cint">gofile: proc write(f: GoFile; data: sink string; timeoutMs = -1): int</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method write(s: GoBufferStream; data: sink string; canceller: GoTaskUntyped = nil): int" href="_._/src/nimgo/gostreams.html#write.e%2CGoBufferStream%2Csinkstring%2CGoTask">gostreams: method write(s: GoBufferStream; data: sink string; canceller: GoTaskUntyped = nil): int</a></li>
+          data-doc-search-tag="gostreams: method write(s: GoBufferStream; data: sink string; timeoutMs = -1): int" href="_._/src/nimgo/gostreams.html#write.e%2CGoBufferStream%2Csinkstring%2Cint">gostreams: method write(s: GoBufferStream; data: sink string; timeoutMs = -1): int</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method write(s: GoFileStream; data: sink string; canceller: GoTaskUntyped = nil): int" href="_._/src/nimgo/gostreams.html#write.e%2CGoFileStream%2Csinkstring%2CGoTask">gostreams: method write(s: GoFileStream; data: sink string; canceller: GoTaskUntyped = nil): int</a></li>
+          data-doc-search-tag="gostreams: method write(s: GoFileStream; data: sink string; timeoutMs = -1): int" href="_._/src/nimgo/gostreams.html#write.e%2CGoFileStream%2Csinkstring%2Cint">gostreams: method write(s: GoFileStream; data: sink string; timeoutMs = -1): int</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gostreams: method write(s: GoStream; data: sink string; canceller: GoTaskUntyped = nil): int" href="_._/src/nimgo/gostreams.html#write.e%2CGoStream%2Csinkstring%2CGoTask">gostreams: method write(s: GoStream; data: sink string; canceller: GoTaskUntyped = nil): int</a></li>
+          data-doc-search-tag="gostreams: method write(s: GoStream; data: sink string; timeoutMs = -1): int" href="_._/src/nimgo/gostreams.html#write.e%2CGoStream%2Csinkstring%2Cint">gostreams: method write(s: GoStream; data: sink string; timeoutMs = -1): int</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="buffer: proc write(self: Buffer; data: sink string)" href="_._/src/nimgo/private/buffer.html#write%2CBuffer%2Csinkstring">buffer: proc write(self: Buffer; data: sink string)</a></li>
+          data-doc-search-tag="buffer: proc write(self: var Buffer; data: sink string)" href="_._/src/nimgo/private/buffer.html#write%2CBuffer%2Csinkstring">buffer: proc write(self: var Buffer; data: sink string)</a></li>
           </ul></dd>
 </dl>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-09 15:43:22 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-11 06:54:41 UTC</small>
       </div>
     </div>
   </div>

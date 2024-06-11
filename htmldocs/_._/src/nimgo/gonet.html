@@ -64,19 +64,17 @@
     <summary><a class="reference reference-toplevel" href="#12" id="62">Procs</a></summary>
     <ul class="simple simple-toc-section">
       <ul class="simple nested-toc-section">accept
-  <li><a class="reference" href="#accept%2CGoSocket%2CGoTask" title="accept(gosocket: GoSocket; flags = {SafeDisconn};
-       inheritable = defined(nimInheritHandles); canceller: GoTaskUntyped = nil): GoSocket">accept(gosocket: GoSocket; flags = {SafeDisconn};
-       inheritable = defined(nimInheritHandles); canceller: GoTaskUntyped = nil): GoSocket</a></li>
+  <li><a class="reference" href="#accept%2CGoSocket%2Cint" title="accept(gosocket: GoSocket; flags = {SafeDisconn};
+       inheritable = defined(nimInheritHandles); timeoutMs = -1): GoSocket">accept(gosocket: GoSocket; flags = {SafeDisconn};
+       inheritable = defined(nimInheritHandles); timeoutMs = -1): GoSocket</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">acceptAddr
-  <li><a class="reference" href="#acceptAddr%2CGoSocket%2CGoTask" title="acceptAddr(gosocket: GoSocket; flags = {SafeDisconn};
-           inheritable = defined(nimInheritHandles);
-           canceller: GoTaskUntyped = nil): tuple[address: string,
-    client: GoSocket]">acceptAddr(gosocket: GoSocket; flags = {SafeDisconn};
-           inheritable = defined(nimInheritHandles);
-           canceller: GoTaskUntyped = nil): tuple[address: string,
-    client: GoSocket]</a></li>
+  <li><a class="reference" href="#acceptAddr%2CGoSocket%2Cint" title="acceptAddr(gosocket: GoSocket; flags = {SafeDisconn};
+           inheritable = defined(nimInheritHandles); timeoutMs = -1): tuple[
+    address: string, client: GoSocket]">acceptAddr(gosocket: GoSocket; flags = {SafeDisconn};
+           inheritable = defined(nimInheritHandles); timeoutMs = -1): tuple[
+    address: string, client: GoSocket]</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">bindAddr
@@ -92,13 +90,21 @@
 
 </ul>
 <ul class="simple nested-toc-section">connect
-  <li><a class="reference" href="#connect%2CGoSocket%2Cstring%2CPort%2CGoTask" title="connect(gosocket: GoSocket; address: string; port: Port;
-        canceller: GoTaskUntyped = nil)">connect(gosocket: GoSocket; address: string; port: Port;
-        canceller: GoTaskUntyped = nil)</a></li>
+  <li><a class="reference" href="#connect%2CGoSocket%2Cstring%2CPort" title="connect(gosocket: GoSocket; address: string; port: Port)">connect(gosocket: GoSocket; address: string; port: Port)</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">connectUnix
-  <li><a class="reference" href="#connectUnix%2CGoSocket%2Cstring%2CGoTask" title="connectUnix(gosocket: GoSocket; path: string; canceller: GoTaskUntyped = nil)">connectUnix(gosocket: GoSocket; path: string; canceller: GoTaskUntyped = nil)</a></li>
+  <li><a class="reference" href="#connectUnix%2CGoSocket%2Cstring" title="connectUnix(gosocket: GoSocket; path: string)">connectUnix(gosocket: GoSocket; path: string)</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">connectUnixWithTimeout
+  <li><a class="reference" href="#connectUnixWithTimeout%2CGoSocket%2Cstring%2Cint" title="connectUnixWithTimeout(gosocket: GoSocket; path: string; timeoutMs = -1): bool">connectUnixWithTimeout(gosocket: GoSocket; path: string; timeoutMs = -1): bool</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">connectWithTimeout
+  <li><a class="reference" href="#connectWithTimeout%2CGoSocket%2Cstring%2CPort%2Cint" title="connectWithTimeout(gosocket: GoSocket; address: string; port: Port;
+                   timeoutMs = -1): bool">connectWithTimeout(gosocket: GoSocket; address: string; port: Port;
+                   timeoutMs = -1): bool</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">dial
@@ -150,29 +156,29 @@
 
 </ul>
 <ul class="simple nested-toc-section">recv
-  <li><a class="reference" href="#recv%2CGoSocket%2Cint%2CGoTask" title="recv(s: GoSocket; size: int; canceller: GoTaskUntyped = nil): string">recv(s: GoSocket; size: int; canceller: GoTaskUntyped = nil): string</a></li>
+  <li><a class="reference" href="#recv%2CGoSocket%2Cint%2Cint" title="recv(s: GoSocket; size: int; timeoutMs = -1): string">recv(s: GoSocket; size: int; timeoutMs = -1): string</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">recvFrom
-  <li><a class="reference" href="#recvFrom%2CGoSocket%2Cstring%2Cint%2CT%2CPort%2Cint32%2CGoTask" title="recvFrom[T: string | IpAddress](s: GoSocket; data: var string; length: int;
+  <li><a class="reference" href="#recvFrom%2CGoSocket%2Cstring%2Cint%2CT%2CPort%2Cint32%2Cint" title="recvFrom[T: string | IpAddress](s: GoSocket; data: var string; length: int;
                                 address: var T; port: var Port; flags = 0'i32;
-                                canceller: GoTaskUntyped = nil): int">recvFrom[T: string | IpAddress](s: GoSocket; data: var string; length: int;
+                                timeoutMs = -1): int">recvFrom[T: string | IpAddress](s: GoSocket; data: var string; length: int;
                                 address: var T; port: var Port; flags = 0'i32;
-                                canceller: GoTaskUntyped = nil): int</a></li>
+                                timeoutMs = -1): int</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">recvLine
-  <li><a class="reference" href="#recvLine%2CGoSocket%2CGoTask" title="recvLine(s: GoSocket; keepNewLine = false; canceller: GoTaskUntyped = nil): string">recvLine(s: GoSocket; keepNewLine = false; canceller: GoTaskUntyped = nil): string</a></li>
+  <li><a class="reference" href="#recvLine%2CGoSocket%2Cint" title="recvLine(s: GoSocket; keepNewLine = false; timeoutMs = -1): string">recvLine(s: GoSocket; keepNewLine = false; timeoutMs = -1): string</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">send
-  <li><a class="reference" href="#send%2CGoSocket%2Cstring%2CGoTask" title="send(s: GoSocket; data: string; canceller: GoTaskUntyped = nil): int">send(s: GoSocket; data: string; canceller: GoTaskUntyped = nil): int</a></li>
+  <li><a class="reference" href="#send%2CGoSocket%2Cstring%2Cint" title="send(s: GoSocket; data: string; timeoutMs = -1): int">send(s: GoSocket; data: string; timeoutMs = -1): int</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">sendTo
-  <li><a class="reference" href="#sendTo%2CGoSocket%2CIpAddress%2CPort%2Cstring%2Cint32%2CGoTask" title="sendTo(s: GoSocket; address: IpAddress; port: Port; data: string; flags = 0'i32;
-       canceller: GoTaskUntyped = nil): int">sendTo(s: GoSocket; address: IpAddress; port: Port; data: string; flags = 0'i32;
-       canceller: GoTaskUntyped = nil): int</a></li>
+  <li><a class="reference" href="#sendTo%2CGoSocket%2CIpAddress%2CPort%2Cstring%2Cint32%2Cint" title="sendTo(s: GoSocket; address: IpAddress; port: Port; data: string; flags = 0'i32;
+       timeoutMs = -1): int">sendTo(s: GoSocket; address: IpAddress; port: Port; data: string; flags = 0'i32;
+       timeoutMs = -1): int</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">setSockOpt
@@ -188,16 +194,16 @@
 
   </div>
   <div class="nine columns" id="content">
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L1" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L1" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L1" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
     <div id="tocRoot"></div>
     
-    <p class="module-desc">This is a simple wrapper the socket defined std/net, with our own buffer component and added async features So all operations are not guaranteed to has been asyncified</p>
+    <p class="module-desc"></p>
     <div class="section" id="6">
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
-    <a class="reference external" href="eventdispatcher.html">eventdispatcher</a>, <a class="reference external" href="gotaskscomplete.html">gotaskscomplete</a>, <a class="reference external" href="private/buffer.html">private/buffer</a>
+    <a class="reference external" href="eventdispatcher.html">eventdispatcher</a>, <a class="reference external" href="private/buffer.html">private/buffer</a>, <a class="reference external" href="private/timeoutwatcher.html">private/timeoutwatcher</a>
   </dl>
 </div>
 <div class="section" id="7">
@@ -209,8 +215,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L13" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L13" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L11" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L11" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -221,16 +227,15 @@
   <h1><a class="toc-backref" href="#12">Procs</a></h1>
   <dl class="item">
     <div id="accept-procs-all">
-  <div id="accept,GoSocket,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#accept%2CGoSocket%2CGoTask"><span class="Identifier">accept</span></a><span class="Other">(</span><span class="Identifier">gosocket</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">flags</span> <span class="Other">=</span> <span class="Other">{</span><span class="Identifier">SafeDisconn</span><span class="Other">}</span><span class="Other">;</span>
-            <span class="Identifier">inheritable</span> <span class="Other">=</span> <span class="Identifier">defined</span><span class="Other">(</span><span class="Identifier">nimInheritHandles</span><span class="Other">)</span><span class="Other">;</span>
-            <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">SslError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <div id="accept,GoSocket,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#accept%2CGoSocket%2Cint"><span class="Identifier">accept</span></a><span class="Other">(</span><span class="Identifier">gosocket</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">flags</span> <span class="Other">=</span> <span class="Other">{</span><span class="Identifier">SafeDisconn</span><span class="Other">}</span><span class="Other">;</span>
+            <span class="Identifier">inheritable</span> <span class="Other">=</span> <span class="Identifier">defined</span><span class="Other">(</span><span class="Identifier">nimInheritHandles</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span>
+    <span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">SslError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L47" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L47" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L47" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
@@ -238,17 +243,17 @@
 
 </div>
 <div id="acceptAddr-procs-all">
-  <div id="acceptAddr,GoSocket,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#acceptAddr%2CGoSocket%2CGoTask"><span class="Identifier">acceptAddr</span></a><span class="Other">(</span><span class="Identifier">gosocket</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">flags</span> <span class="Other">=</span> <span class="Other">{</span><span class="Identifier">SafeDisconn</span><span class="Other">}</span><span class="Other">;</span>
-                <span class="Identifier">inheritable</span> <span class="Other">=</span> <span class="Identifier">defined</span><span class="Other">(</span><span class="Identifier">nimInheritHandles</span><span class="Other">)</span><span class="Other">;</span>
-                <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">address</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">,</span>
-    <span class="Identifier">client</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span>
-                                 <span class="Identifier">SslError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <div id="acceptAddr,GoSocket,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#acceptAddr%2CGoSocket%2Cint"><span class="Identifier">acceptAddr</span></a><span class="Other">(</span><span class="Identifier">gosocket</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">flags</span> <span class="Other">=</span> <span class="Other">{</span><span class="Identifier">SafeDisconn</span><span class="Other">}</span><span class="Other">;</span>
+                <span class="Identifier">inheritable</span> <span class="Other">=</span> <span class="Identifier">defined</span><span class="Other">(</span><span class="Identifier">nimInheritHandles</span><span class="Other">)</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span>
+    <span class="Identifier">address</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">,</span> <span class="Identifier">client</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span>
+    <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">SslError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L59" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L59" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L60" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L60" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -261,8 +266,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L71" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L71" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L76" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L76" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -275,8 +280,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L74" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L74" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L79" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L79" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -289,39 +294,69 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L77" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L77" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
-
-  </dd>
-</div>
-
-</div>
-<div id="connect-procs-all">
-  <div id="connect,GoSocket,string,Port,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#connect%2CGoSocket%2Cstring%2CPort%2CGoTask"><span class="Identifier">connect</span></a><span class="Other">(</span><span class="Identifier">gosocket</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">address</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">port</span><span class="Other">:</span> <span class="Identifier">Port</span><span class="Other">;</span>
-             <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">SslError</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
-  <dd>
-    
-    
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L82" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L82" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L82" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
-<div id="connectUnix-procs-all">
-  <div id="connectUnix,GoSocket,string,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#connectUnix%2CGoSocket%2Cstring%2CGoTask"><span class="Identifier">connectUnix</span></a><span class="Other">(</span><span class="Identifier">gosocket</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span>
-                 <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+<div id="connect-procs-all">
+  <div id="connect,GoSocket,string,Port">
+  <dt><pre><span class="Keyword">proc</span> <a href="#connect%2CGoSocket%2Cstring%2CPort"><span class="Identifier">connect</span></a><span class="Other">(</span><span class="Identifier">gosocket</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">address</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">port</span><span class="Other">:</span> <span class="Identifier">Port</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">SslError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L87" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L87" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L87" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="connectUnix-procs-all">
+  <div id="connectUnix,GoSocket,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#connectUnix%2CGoSocket%2Cstring"><span class="Identifier">connectUnix</span></a><span class="Other">(</span><span class="Identifier">gosocket</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L97" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L97" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="connectUnixWithTimeout-procs-all">
+  <div id="connectUnixWithTimeout,GoSocket,string,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#connectUnixWithTimeout%2CGoSocket%2Cstring%2Cint"><span class="Identifier">connectUnixWithTimeout</span></a><span class="Other">(</span><span class="Identifier">gosocket</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L101" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L101" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="connectWithTimeout-procs-all">
+  <div id="connectWithTimeout,GoSocket,string,Port,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#connectWithTimeout%2CGoSocket%2Cstring%2CPort%2Cint"><span class="Identifier">connectWithTimeout</span></a><span class="Other">(</span><span class="Identifier">gosocket</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">address</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">port</span><span class="Other">:</span> <span class="Identifier">Port</span><span class="Other">;</span>
+                        <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">SslError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">,</span> <span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L91" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L91" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -330,13 +365,13 @@
 <div id="dial-procs-all">
   <div id="dial,string,Port">
   <dt><pre><span class="Keyword">proc</span> <a href="#dial%2Cstring%2CPort"><span class="Identifier">dial</span></a><span class="Other">(</span><span class="Identifier">address</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">port</span><span class="Other">:</span> <span class="Identifier">Port</span><span class="Other">;</span> <span class="Identifier">protocol</span> <span class="Other">=</span> <span class="Identifier">IPPROTO_TCP</span><span class="Other">;</span> <span class="Identifier">buffered</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">)</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L92" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L92" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L107" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L107" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -348,8 +383,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L150" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L150" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L165" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L165" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -362,8 +397,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L153" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L153" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L168" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L168" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -376,8 +411,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L156" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L156" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L171" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L171" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -390,8 +425,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L159" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L159" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L174" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L174" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -404,8 +439,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L162" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L162" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L177" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L177" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -418,8 +453,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L165" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L165" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L180" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L180" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -431,8 +466,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L168" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L168" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L183" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L183" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -444,8 +479,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L171" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L171" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L186" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L186" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -458,8 +493,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L174" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L174" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L189" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L189" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -474,81 +509,84 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L20" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L20" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L19" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L19" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="recv-procs-all">
-  <div id="recv,GoSocket,int,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#recv%2CGoSocket%2Cint%2CGoTask"><span class="Identifier">recv</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <div id="recv,GoSocket,int,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#recv%2CGoSocket%2Cint%2Cint"><span class="Identifier">recv</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L193" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L193" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L207" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L207" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="recvFrom-procs-all">
-  <div id="recvFrom,GoSocket,string,int,T,Port,int32,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#recvFrom%2CGoSocket%2Cstring%2Cint%2CT%2CPort%2Cint32%2CGoTask"><span class="Identifier">recvFrom</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Operator">|</span> <span class="Identifier">IpAddress</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">length</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span>
+  <div id="recvFrom,GoSocket,string,int,T,Port,int32,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#recvFrom%2CGoSocket%2Cstring%2Cint%2CT%2CPort%2Cint32%2Cint"><span class="Identifier">recvFrom</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">:</span> <span class="Identifier">string</span> <span class="Operator">|</span> <span class="Identifier">IpAddress</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">length</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span>
                                      <span class="Identifier">address</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">port</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">Port</span><span class="Other">;</span>
-                                     <span class="Identifier">flags</span> <span class="Other">=</span> <span class="DecNumber">0'i32</span><span class="Other">;</span>
-                                     <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span></pre></dt>
+                                     <span class="Identifier">flags</span> <span class="Other">=</span> <span class="DecNumber">0'i32</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span></pre></dt>
   <dd>
     
     Always unbuffered, ignore if data is already in buffer Can raise exception
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L203" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L203" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L218" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L218" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="recvLine-procs-all">
-  <div id="recvLine,GoSocket,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#recvLine%2CGoSocket%2CGoTask"><span class="Identifier">recvLine</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">keepNewLine</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">;</span> <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <div id="recvLine,GoSocket,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#recvLine%2CGoSocket%2Cint"><span class="Identifier">recvLine</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">keepNewLine</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">,</span> <span class="Identifier">ReadIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L212" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L212" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L227" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L227" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="send-procs-all">
-  <div id="send,GoSocket,string,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#send%2CGoSocket%2Cstring%2CGoTask"><span class="Identifier">send</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <div id="send,GoSocket,string,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#send%2CGoSocket%2Cstring%2Cint"><span class="Identifier">send</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Send is unbuffered
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L262" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L262" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L280" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L280" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
 
 </div>
 <div id="sendTo-procs-all">
-  <div id="sendTo,GoSocket,IpAddress,Port,string,int32,GoTask">
-  <dt><pre><span class="Keyword">proc</span> <a href="#sendTo%2CGoSocket%2CIpAddress%2CPort%2Cstring%2Cint32%2CGoTask"><span class="Identifier">sendTo</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">address</span><span class="Other">:</span> <span class="Identifier">IpAddress</span><span class="Other">;</span> <span class="Identifier">port</span><span class="Other">:</span> <span class="Identifier">Port</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span>
-            <span class="Identifier">flags</span> <span class="Other">=</span> <span class="DecNumber">0'i32</span><span class="Other">;</span> <span class="Identifier">canceller</span><span class="Other">:</span> <a href="public/gotasks.html#GoTaskUntyped"><span class="Identifier">GoTaskUntyped</span></a> <span class="Other">=</span> <span class="Keyword">nil</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> {.<span class="Identifier">discardable</span><span class="Other">,</span>
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <div id="sendTo,GoSocket,IpAddress,Port,string,int32,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sendTo%2CGoSocket%2CIpAddress%2CPort%2Cstring%2Cint32%2Cint"><span class="Identifier">sendTo</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="gonet.html#GoSocket"><span class="Identifier">GoSocket</span></a><span class="Other">;</span> <span class="Identifier">address</span><span class="Other">:</span> <span class="Identifier">IpAddress</span><span class="Other">;</span> <span class="Identifier">port</span><span class="Other">:</span> <span class="Identifier">Port</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span>
+            <span class="Identifier">flags</span> <span class="Other">=</span> <span class="DecNumber">0'i32</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> {.<span class="Identifier">discardable</span><span class="Other">,</span>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Always unbuffered Can raise exception
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L266" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L266" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L284" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L284" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -561,8 +599,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.1/src/nimgo/gonet.nim#L276" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L276" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/gonet.nim#L294" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/gonet.nim#L294" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -578,7 +616,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-09 15:43:22 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-11 06:54:41 UTC</small>
       </div>
     </div>
   </div>

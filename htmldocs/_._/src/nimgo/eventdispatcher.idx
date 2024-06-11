@@ -41,6 +41,9 @@ nim	addInsideSelector	_._/src/nimgo/eventdispatcher.html#addInsideSelector,PollF
 nim	updatePollFd	_._/src/nimgo/eventdispatcher.html#updatePollFd,PollFd,set[Event]	proc updatePollFd(fd: PollFd; events: set[Event])		458
 nim	sleepAsync	_._/src/nimgo/eventdispatcher.html#sleepAsync,int	proc sleepAsync(timeoutMs: int)		462
 nim	pollOnce	_._/src/nimgo/eventdispatcher.html#pollOnce	proc pollOnce()		468
+nim	suspendUntilAny	_._/src/nimgo/eventdispatcher.html#suspendUntilAny,seq[PollFd],seq[PollFd],int	proc suspendUntilAny(readFd: seq[PollFd]; writefd: seq[PollFd]; timeoutMs = -1): WakeUpInfo		477
+nim	suspendUntilRead	_._/src/nimgo/eventdispatcher.html#suspendUntilRead,PollFd,int	proc suspendUntilRead(fd: PollFd; timeoutMs = -1; consumeEvent = true): bool		490
+nim	suspendUntilWrite	_._/src/nimgo/eventdispatcher.html#suspendUntilWrite,PollFd,int	proc suspendUntilWrite(fd: PollFd; timeoutMs = -1; consumeEvent = true): bool		506
 nimgrp	resumeontimer	_._/src/nimgo/eventdispatcher.html#resumeOnTimer-procs-all	proc		156
 nimgrp	suspenduntiltimer	_._/src/nimgo/eventdispatcher.html#suspendUntilTimer-procs-all	proc		175
 nimgrp	addinsideselector	_._/src/nimgo/eventdispatcher.html#addInsideSelector-procs-all	proc		436
