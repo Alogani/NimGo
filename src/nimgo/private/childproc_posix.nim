@@ -1,4 +1,4 @@
-import std/[posix, os, oserrors]
+import std/[posix, termios, os, oserrors, bitops, exitprocs]
 import std/[strtabs, strutils]
 
 type
@@ -9,8 +9,11 @@ type
 
 var PR_SET_PDEATHSIG {.importc, header: "<sys/prctl.h>".}: cint
 proc prctl(option, argc2: cint): cint {.varargs, header: "<sys/prctl.h>".}
+proc openpty(master, slave: var cint; slave_name: cstring; arg1,
+        arg2: pointer): cint {.importc, header: "<pty.h>".}
 
 
+#[ *** Child process *** ]#
 
 proc waitImpl(p: var ChildProc; hang: bool) =
     if p.hasExited:
@@ -163,3 +166,63 @@ proc startProcessPosix*(command: string, args: seq[string],
     discard close(errorPipes[0])
     if errorMsg.len() != 0: raise newException(OSError, errorMsg)
     return ChildProc(pid: pid, hasExited: false)
+
+
+proc newPtyPair*(): tuple[master, slave: FileHandle] =
+    var master, slave: cint
+    # default termios param shall be ok
+    if openpty(master, slave, nil, nil, nil) == -1: raiseOSError(osLastError())
+    return (FileHandle(master), FileHandle(slave))
+
+
+#[ *** Terminal settings handling *** ]#
+
+type
+    TerminalSettings = ref object
+        stdinFd: cint = -1
+        backupTermios: Termios
+        rawModeCount: int
+        hasExitProc: bool
+
+var ParentTerminalSettings: TerminalSettings
+
+proc newTerminalSettings*(stdin: cint): TerminalSettings =
+    var termios: Termios
+    if tcGetAttr(stdin, addr termios) == -1:
+        raiseOSError(osLastError())
+    TerminalSettings(
+        stdinFd: stdin,
+        backupTermios: move(termios),
+        rawModeCount: 0,
+    )
+
+proc restoreTerminal*(settings = ParentTerminalSettings, ignoreRawCount = false) =
+    assert(settings != nil)
+    if ignoreRawCount:
+        settings.rawModeCount = 0
+    else:
+        settings.rawModeCount.dec()
+    if settings.rawModeCount == 0:
+        if tcsetattr(settings.stdinFd, TCSANOW, addr settings.backupTermios) == -1:
+            raiseOSError(osLastError())
+
+proc makeTerminalRaw*(settings: TerminalSettings) =
+    assert(settings != nil)
+    if settings.rawModeCount == 0:
+        settings.rawModeCount.inc()
+        var newTermios: Termios
+        newTermios = settings.backupTermios # Based on original value, generally good start
+        newTermios.c_lflag.clearMask(ICANON)
+        newTermios.c_lflag.clearMask(ISIG)
+        newTermios.c_lflag.clearMask(ECHO)
+        newTermios.c_cc[VMIN] = 1.char
+        newTermios.c_cc[VTIME] = 0.char
+        if tcsetattr(settings.stdinFd, TCSANOW, addr newTermios) == -1:
+            raiseOSError(osLastError())
+
+proc makeParentTerminalRaw*() =
+    ## This function will automatically add an exit proc for restoration on exit
+    if ParentTerminalSettings == nil:
+        ParentTerminalSettings= newTerminalSettings(STDIN_FILENO)
+        addExitProc(proc() = restoreTerminal(ParentTerminalSettings, true))
+    makeTerminalRaw(ParentTerminalSettings)

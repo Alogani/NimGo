@@ -92,12 +92,10 @@ proc StreamCaptureParent*(): GoProcStreamArg =
 
 #[ *** GoProc *** ]#
 
-proc startProcessInPseudoTerminal*(command: CommandObj, mergeStderr = true): GoProc =
-    ## Not available in windows
-    discard
-
 proc startProcess*(command: CommandObj; stdin: GoFile = nil, stdout: GoFile = nil, stderr: GoFile = nil): GoProc =
     ## Files won't be closed when process ends
+    when defined(windows):
+        raise newException(LibraryError, "Not implemented")
     var childProc = startProcessPosix(command.args[0], command.args[1..^1],
         (
             if stdin == nil:
@@ -127,6 +125,49 @@ proc startProcess*(command: CommandObj; stdin: GoFile = nil, stdout: GoFile = ni
         umask = (if command.daemon: 0 else: -1)
     )
     return GoProc(childproc: childproc, pollFd: registerProcess(childproc.getPid()))
+
+
+proc startProcessInPseudoTerminal*(command: CommandObj, mergeStderr = true): GoProc =
+    ## Not available in windows. Some commands with UI will only work weel inside a pseudo terminal
+    ## mergeStderr to false will induce pipe creation and indirection, because pseudo terminal has only two file descriptors originally
+    ## It can help implements reverse shell.
+    when defined(windows):
+        raise newException(LibraryError, "This proc is not available under windows")
+    else:
+        #[
+            Flow of data in posix pseudo terminal:
+                - writing raw to master -> reading canonical in slave
+                - write raw in slave -> reading canonical in master
+                - slaves serves as both input and output of child process
+                - master serves both to send input/receive output from/to child process
+        ]#
+        var ptyPairs = newPtyPair()
+        var master = newGoProcStream(newGoFile(ptyPairs[0], fmReadWrite))
+        var slave = newGoFile(ptyPairs[1], fmRead)
+        if mergeStderr:
+            result = startProcess(command, slave, slave, slave)
+            slave.close()
+            result.stdin = master
+            result.stdout = master
+        else:
+            var (stdoutReader, stdoutWriter) = createGoPipe()
+            var (stderrReader, stderrWriter) = createGoPipe()
+            result = startProcess(command, slave, stdoutWriter, stderrWriter)
+            result.stdin = master
+            var goprocFd = result.pollFd
+            #[
+               And then ?
+               - we should ensure stdoutWriter+stderrWriter is written to slave before reading master
+               - also meaning we can't read from master without having written to slave
+               - we should ensure slave will close
+               So we need a file stream that induce:
+                - when we read master, both stdoutReader and stderrReader are tee to slave
+                - when we read stdoutReader/stderrReader, output is tee to master
+               Could it really be done without keeping an internal buffer ?
+            ]#
+            
+            
+
 
 proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNone(), stderr = StreamNone()): GoProc =
     ## Only StreamPipe will be closed when process ends. They can also be closed by user
@@ -166,7 +207,7 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
                 pipes.writer.close()
                 capturedInput.close()
             (pipes.reader, nil)
-        of CaptureParent:
+        else:
             raise newException(ValueError, "")
     )
     let (stdoutChild, stdoutParent) = (
