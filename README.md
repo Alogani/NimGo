@@ -15,6 +15,7 @@ Only one word to remember : **goAsync** (and optionaly **wait**, but seriously w
 
 With Araq, we have decided to extend the model to make in multithreaded like Go. This will slow done the release of a production ready version and will likely break the actual API. The roadmap specific to this change has been put here: https://github.com/Alogani/NimGo/discussions/17
 
+I will make new releases regularly for users to have a working version.
 
 - [ ] *Finish the implementation of goproc*
 - [ ] Add goproc support for windows (certainly by doing a wrapper around osproc)
