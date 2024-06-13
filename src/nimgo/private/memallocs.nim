@@ -6,7 +6,7 @@ when not defined(gcArc) and not defined(gcOrc):
   {.warning: "Coroutines only works with --mm:orc or --mm:arc".}
 
 import ./compiletimeflags
-import std/[bitops, tables, exitprocs, macros]
+import std/[tables, macros]
 
 #[ ********* Protection policy ********* ]#
 
@@ -52,6 +52,7 @@ when defined(windows):
     return VirtualProtect(getFirstAlignedAddr(p), 0x1000, PAGE_READWRITE, oldProtect)
 else:
   import std/posix
+  import std/[bitops, exitprocs]
 
   proc protectPointerBegin(p: pointer): bool =
     return mprotect(getFirstAlignedAddr(p), PageSize, PROT_NONE) == 0
