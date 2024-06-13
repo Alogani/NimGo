@@ -1,0 +1,23 @@
+name: Nim CI ubuntu
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Nim
+      uses: iffy/install-nim@v3
+      with:
+        nim-version: stable
+    - name: Install dependencies
+      run: nimble install -y
+    - name: Run tests
+      run: nimble test
