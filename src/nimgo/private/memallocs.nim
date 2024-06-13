@@ -65,16 +65,16 @@ else:
 
 when defined(windows) and not NimGoNoDebug:
   type ExceptionRecord {.importc: "EXCEPTION_RECORD", header: "winnt.h".} = object 
-    exceptionCode: int32
-    exceptionFlags: int32
-    exceptionRecord: ptr ExceptionRecord
-    exceptionAddress: pointer
-    numberOfParameters: int32
-    exceptionInformation: pointer
+    ExceptionCode: int32
+    ExceptionFlags: int32
+    ExceptionRecord: ptr ExceptionRecord
+    ExceptionAddress: pointer
+    NumberParameters: int32
+    ExceptionInformation: pointer
 
   type ExceptionPointers {.importc: "EXCEPTION_POINTERS", header: "winnt.h".} = object 
-    exceptionRecord: ptr ExceptionRecord
-    contextRecord: pointer
+    ExceptionRecord: ptr ExceptionRecord
+    ContextRecord: pointer
   
   const EXCEPTION_CONTINUE_SEARCH {.used.}: int64 = 0x0
   const EXCEPTION_EXECUTE_HANDLER: int64 = 0x1
@@ -86,7 +86,7 @@ when defined(windows) and not NimGoNoDebug:
     let segvHandler = genSym(nskProc)
     return quote do:
       proc `segvHandler`(exceptionInfo: ptr ExceptionPointers): int64 {.cdecl.} =
-        let `segvAddr` = exceptionInfo[].exceptionRecord[].exceptionAddress
+        let `segvAddr` = exceptionInfo[].ExceptionRecord[].ExceptionAddress
         `body`
         return EXCEPTION_EXECUTE_HANDLER
 
