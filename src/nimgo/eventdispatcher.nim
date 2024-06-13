@@ -397,47 +397,51 @@ proc registerHandle*(
     ## std/selectors will raise here when trying to register twice
     ActiveDispatcher.selector.registerHandle(fd, events, AsyncData())
 
-proc registerProcess*(
-    pid: int,
-    coros: seq[OneShotCoroutine] = @[],
-): PollFd =
-    for oneShotCoro in coros:
-        oneShotCoro.notifyRegistration(ActiveDispatcher, true)
-    result = PollFd(ActiveDispatcher.selector.registerProcess(pid, AsyncData(
+when not defined(windows):
+    proc registerProcess*(
+        pid: int,
+        coros: seq[OneShotCoroutine] = @[],
+    ): PollFd =
+        ## This is not available on windows
+        for oneShotCoro in coros:
+            oneShotCoro.notifyRegistration(ActiveDispatcher, true)
+        result = PollFd(ActiveDispatcher.selector.registerProcess(pid, AsyncData(
+                readList: toDeque(coros),
+            )))
+
+    proc registerSignal*(
+        signal: int,
+        coros: seq[OneShotCoroutine] = @[],
+    ): PollFd =
+        ## This is not available on windows
+        for oneShotCoro in coros:
+            oneShotCoro.notifyRegistration(ActiveDispatcher, true)
+        result = PollFd(ActiveDispatcher.selector.registerSignal(signal, AsyncData(
             readList: toDeque(coros),
         )))
 
-proc registerSignal*(
-    signal: int,
-    coros: seq[OneShotCoroutine] = @[],
-): PollFd =
-    for oneShotCoro in coros:
-        oneShotCoro.notifyRegistration(ActiveDispatcher, true)
-    result = PollFd(ActiveDispatcher.selector.registerSignal(signal, AsyncData(
-        readList: toDeque(coros),
-    )))
-
-proc registerTimer*(
-    timeoutMs: int,
-    coros: seq[OneShotCoroutine] = @[],
-    oneshot: bool = true,
-): PollFd =
-    ## Timer is registered inside the poll, not inside the event loop.
-    ## Use another function to sleep inside the event loop (more reactive, less overhead for short sleep)
-    ## Coroutines will only be resumed once, even if timer is not oneshot. You need to associate them to the fd each time for a periodic action
-    for oneShotCoro in coros:
-        oneShotCoro.notifyRegistration(ActiveDispatcher, true)
-    result = PollFd(ActiveDispatcher.selector.registerTimer(timeoutMs, oneshot, AsyncData(
-        readList: toDeque(coros),
-    )))
+    proc registerTimer*(
+        timeoutMs: int,
+        coros: seq[OneShotCoroutine] = @[],
+        oneshot: bool = true,
+    ): PollFd =
+        ## This is not available on windows
+        ## Timer is registered inside the poll, not inside the event loop.
+        ## Use another function to sleep inside the event loop (more reactive, less overhead for short sleep)
+        ## Coroutines will only be resumed once, even if timer is not oneshot. You need to associate them to the fd each time for a periodic action
+        for oneShotCoro in coros:
+            oneShotCoro.notifyRegistration(ActiveDispatcher, true)
+        result = PollFd(ActiveDispatcher.selector.registerTimer(timeoutMs, oneshot, AsyncData(
+            readList: toDeque(coros),
+        )))
 
 proc unregister*(fd: PollFd) =
     ## It will also consume all coroutines registered inside it
     when not defined(release):
-        if not ActiveDispatcher.selector.contains(fd.int):
-            raise newException(ValueError, "Can't unregister file descriptor " & $fd.int & " twice")
-    var asyncData = ActiveDispatcher.selector.getData(fd.int)
-    ActiveDispatcher.selector.unregister(fd.int)
+        if not ActiveDispatcher.selector.contains(FileHandle(fd)):
+            raise newException(ValueError, "Can't unregister file descriptor " & $FileHandle(fd) & " twice")
+    var asyncData = ActiveDispatcher.selector.getData(FileHandle(fd))
+    ActiveDispatcher.selector.unregister(FileHandle(fd))
     for coro in asyncData.readList:
         coro.removeFromSelector(false)
     for coro in asyncData.writeList:
@@ -447,27 +451,27 @@ proc addInsideSelector*(fd: PollFd, oneShotCoro: OneShotCoroutine, event: Event)
     ## Will not update the type event listening
     oneShotCoro.notifyRegistration(ActiveDispatcher, true)
     if event == Event.Write:
-        ActiveDispatcher.selector.getData(fd.int).writeList.addLast(oneShotCoro)
+        ActiveDispatcher.selector.getData(FileHandle(fd)).writeList.addLast(oneShotCoro)
     else:
-        ActiveDispatcher.selector.getData(fd.int).readList.addLast(oneShotCoro)
+        ActiveDispatcher.selector.getData(FileHandle(fd)).readList.addLast(oneShotCoro)
 
 proc addInsideSelector*(fd: PollFd, coros: seq[OneShotCoroutine], event: Event) =
     ## Will not update the type event listening
     for oneShotCoro in coros:
         oneShotCoro.notifyRegistration(ActiveDispatcher, true)
     when not defined(release):
-        if not ActiveDispatcher.selector.contains(fd.int):
-            raise newException(ValueError, "The file handle " & $fd.int & " is not registered with the event selector.")
+        if not ActiveDispatcher.selector.contains(FileHandle(fd)):
+            raise newException(ValueError, "The file handle " & $FileHandle(fd) & " is not registered with the event selector.")
     if event == Event.Write:
         for coro in coros:
-            ActiveDispatcher.selector.getData(fd.int).writeList.addLast(coro)
+            ActiveDispatcher.selector.getData(FileHandle(fd)).writeList.addLast(coro)
     else:
         for coro in coros:
-            ActiveDispatcher.selector.getData(fd.int).readList.addLast(coro)
+            ActiveDispatcher.selector.getData(FileHandle(fd)).readList.addLast(coro)
 
 proc updatePollFd*(fd: PollFd, events: set[Event]) =
     ## std/selector raise here if fd is not registered
-    ActiveDispatcher.selector.updateHandle(fd.int, events)
+    ActiveDispatcher.selector.updateHandle(FileHandle(fd), events)
 
 proc sleepAsync*(timeoutMs: int) =
     if timeoutMs == 0:
