@@ -397,39 +397,43 @@ proc registerHandle*(
     ## std/selectors will raise here when trying to register twice
     ActiveDispatcher.selector.registerHandle(fd, events, AsyncData())
 
-proc registerProcess*(
-    pid: int,
-    coros: seq[OneShotCoroutine] = @[],
-): PollFd =
-    for oneShotCoro in coros:
-        oneShotCoro.notifyRegistration(ActiveDispatcher, true)
-    result = PollFd(ActiveDispatcher.selector.registerProcess(pid, AsyncData(
+when not defined(windows):
+    proc registerProcess*(
+        pid: int,
+        coros: seq[OneShotCoroutine] = @[],
+    ): PollFd =
+        ## This is not available on windows
+        for oneShotCoro in coros:
+            oneShotCoro.notifyRegistration(ActiveDispatcher, true)
+        result = PollFd(ActiveDispatcher.selector.registerProcess(pid, AsyncData(
+                readList: toDeque(coros),
+            )))
+
+    proc registerSignal*(
+        signal: int,
+        coros: seq[OneShotCoroutine] = @[],
+    ): PollFd =
+        ## This is not available on windows
+        for oneShotCoro in coros:
+            oneShotCoro.notifyRegistration(ActiveDispatcher, true)
+        result = PollFd(ActiveDispatcher.selector.registerSignal(signal, AsyncData(
             readList: toDeque(coros),
         )))
 
-proc registerSignal*(
-    signal: int,
-    coros: seq[OneShotCoroutine] = @[],
-): PollFd =
-    for oneShotCoro in coros:
-        oneShotCoro.notifyRegistration(ActiveDispatcher, true)
-    result = PollFd(ActiveDispatcher.selector.registerSignal(signal, AsyncData(
-        readList: toDeque(coros),
-    )))
-
-proc registerTimer*(
-    timeoutMs: int,
-    coros: seq[OneShotCoroutine] = @[],
-    oneshot: bool = true,
-): PollFd =
-    ## Timer is registered inside the poll, not inside the event loop.
-    ## Use another function to sleep inside the event loop (more reactive, less overhead for short sleep)
-    ## Coroutines will only be resumed once, even if timer is not oneshot. You need to associate them to the fd each time for a periodic action
-    for oneShotCoro in coros:
-        oneShotCoro.notifyRegistration(ActiveDispatcher, true)
-    result = PollFd(ActiveDispatcher.selector.registerTimer(timeoutMs, oneshot, AsyncData(
-        readList: toDeque(coros),
-    )))
+    proc registerTimer*(
+        timeoutMs: int,
+        coros: seq[OneShotCoroutine] = @[],
+        oneshot: bool = true,
+    ): PollFd =
+        ## This is not available on windows
+        ## Timer is registered inside the poll, not inside the event loop.
+        ## Use another function to sleep inside the event loop (more reactive, less overhead for short sleep)
+        ## Coroutines will only be resumed once, even if timer is not oneshot. You need to associate them to the fd each time for a periodic action
+        for oneShotCoro in coros:
+            oneShotCoro.notifyRegistration(ActiveDispatcher, true)
+        result = PollFd(ActiveDispatcher.selector.registerTimer(timeoutMs, oneshot, AsyncData(
+            readList: toDeque(coros),
+        )))
 
 proc unregister*(fd: PollFd) =
     ## It will also consume all coroutines registered inside it
