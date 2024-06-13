@@ -90,9 +90,7 @@ when defined(windows) and not NimGoNoDebug:
         `body`
         return EXCEPTION_EXECUTE_HANDLER
 
-      if not setUnhandledExceptionFilter(`segvHandler`):
-        stderr.write("Warning: couldn't set SigSegv handler")
-        stderr.flushFile()
+      setUnhandledExceptionFilter(`segvHandler`)
 
 when not(defined(windows) or NimGoNoDebug):
   # We redefine, because stackB can be nilable
