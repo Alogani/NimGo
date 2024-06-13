@@ -8,8 +8,6 @@ when not defined(gcArc) and not defined(gcOrc):
 import ./compiletimeflags
 import std/[bitops, tables, exitprocs, macros]
 
-const windows = true
-
 #[ ********* Protection policy ********* ]#
 
 # lib/system/bitmasks
@@ -101,7 +99,7 @@ when not(defined(windows) or NimGoNoDebug):
 
   var SegvStackSize = MINSIGSTKSZ * 2
 
-  proc addSegvHandlerHelper(handler: proc(signum: cint, info: ptr SigInfo, data: pointer) {.noconv.}) =
+  proc addSegvHandlerHelper(handler: proc(signum: cint, info: ptr SigInfo, data: pointer) {.cdecl.}) =
     ## Even if stacktrace or SegvWatcherMap were huge, they won't grow handler stack, so it should be safe
     var segvStackPtr = alloc0(SegvStackSize)
     var segvStack = Stack(
@@ -125,7 +123,7 @@ when not(defined(windows) or NimGoNoDebug):
     ## To use at top level
     let segvHandler = genSym(nskProc)
     quote do:
-      proc `segvHandler`(signum: cint, info: ptr SigInfo, data: pointer) {.noconv.} =
+      proc `segvHandler`(signum: cint, info: ptr SigInfo, data: pointer) {.cdecl.} =
         let `segvAddr` = info[].si_addr
         `body`
         exitnow(1)
