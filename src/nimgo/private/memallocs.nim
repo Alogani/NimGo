@@ -72,7 +72,7 @@ when defined(windows) and not NimGoNoDebug:
     numberOfParameters: int32
     exceptionInformation: pointer
 
-  type ExceptionPointers {.importc: "PEXCEPTION_POINTERS", header: "winnt.h".} = object 
+  type ExceptionPointers {.importc: "EXCEPTION_POINTERS", header: "winnt.h".} = object 
     exceptionRecord: ptr ExceptionRecord
     contextRecord: pointer
   
