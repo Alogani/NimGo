@@ -14,8 +14,6 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-    - name: Check commit SHA
-      run: echo "The current commit SHA is: ${{ github.sha }}"
     - name: Setup Nim
       uses: iffy/install-nim@v3
       with:
