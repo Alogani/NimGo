@@ -84,7 +84,7 @@ when defined(windows) and not NimGoNoDebug:
     ## To use at top level
     let segvHandler = genSym(nskProc)
     return quote do:
-      proc `segvHandler`(exceptionInfo: ptr ExceptionPointers): int64 {.noconv.} =
+      proc `segvHandler`(exceptionInfo: ptr ExceptionPointers): int64 {.cdecl.} =
         let `segvAddr` = exceptionInfo[].exceptionRecord[].exceptionAddress
         `body`
         return EXCEPTION_EXECUTE_HANDLER
@@ -99,7 +99,7 @@ when not(defined(windows) or NimGoNoDebug):
 
   var SegvStackSize = MINSIGSTKSZ * 2
 
-  proc addSegvHandlerHelper(handler: proc(signum: cint, info: ptr SigInfo, data: pointer) {.cdecl.}) =
+  proc addSegvHandlerHelper(handler: proc(signum: cint, info: ptr SigInfo, data: pointer) {.noconv.}) =
     ## Even if stacktrace or SegvWatcherMap were huge, they won't grow handler stack, so it should be safe
     var segvStackPtr = alloc0(SegvStackSize)
     var segvStack = Stack(
@@ -123,7 +123,7 @@ when not(defined(windows) or NimGoNoDebug):
     ## To use at top level
     let segvHandler = genSym(nskProc)
     quote do:
-      proc `segvHandler`(signum: cint, info: ptr SigInfo, data: pointer) {.cdecl.} =
+      proc `segvHandler`(signum: cint, info: ptr SigInfo, data: pointer) {.noconv.} =
         let `segvAddr` = info[].si_addr
         `body`
         exitnow(1)
