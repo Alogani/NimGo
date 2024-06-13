@@ -1,6 +1,7 @@
 name: Nim CI windows
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
