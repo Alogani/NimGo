@@ -4,6 +4,8 @@ _NimGo: Asynchronous Library Inspired by Go's Asyncio. Or for Purists: Stackful 
 
 This repository is currently an alpha release. You can expect bugs and inefficiencies. Do not use in production !
 
+Contributions are welcomed, you can find code of contributing [here](https://github.com/Alogani/NimGo/blob/main/CONTRIBUTING.md)
+
 ## Goal
 Provide a simple, concise and efficient library for I/O.
 
@@ -331,6 +333,3 @@ Here are what can be tweaked in NimGo (flags are case insensitive):
 - `-d:NimGoNoVMem` (only available on posix): If this flags is set, the Coroutines' stack won't be allocated using a virtual memory allocator but will use Nim's allocator (which use also generally virtual memory). The stack size of Coroutines won't be set by the internal value `VirtualStackSize`, but by the flag `PhysicalMemKib`
 - `d:PhysicalMemKib:64` (only available on posix and when NimGoNoVMem flag is set. this is the default value): Allow to tweak the stack's size of each Coroutines. Lower value augments the risk of stackoverflow. Ideally, it would be a power of 2, but any value can be used. Please note that 4 Kib are always reserved to handle stackoverflow errors.
 
-### Can I contribute
-
-With pleasure :-)
