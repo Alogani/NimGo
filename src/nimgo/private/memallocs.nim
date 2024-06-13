@@ -90,7 +90,7 @@ when defined(windows) and not NimGoNoDebug:
         `body`
         return EXCEPTION_EXECUTE_HANDLER
 
-      setUnhandledExceptionFilter(`segvHandler`)
+      discard setUnhandledExceptionFilter(`segvHandler`)
 
 when not(defined(windows) or NimGoNoDebug):
   # We redefine, because stackB can be nilable

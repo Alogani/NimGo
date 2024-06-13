@@ -25,7 +25,7 @@ func syncioModeToEvent(mode: FileMode): set[Event] =
     of fmReadWrite, fmReadWriteExisting:
         {Event.Read, Event.Write}
 
-func syncioModeToPosix(mode: FileMode): cint =
+proc syncioModeToPosix(mode: FileMode): cint =
     case mode:
     of fmRead:
         O_RDONLY
