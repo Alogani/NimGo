@@ -1,3 +1,9 @@
+when defined(windows):
+    stderr.write("The features of these files hav enot yet been implemented under windows.\n")
+    stderr.write("Skipping the test...\n")
+    stderr.flushFile()
+    quit(0)
+
 import nimgo, nimgo/[coroutines, eventdispatcher]
 import std/unittest
 
