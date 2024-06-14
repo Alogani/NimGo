@@ -16,8 +16,8 @@ var data = wait res.output
 
 # Example 4
 var res = wait goasync(proc(): string =
-    var res = run(Command(@["dd", "if=myfile"]), stdout = StreamPipe())
-    return res.output
+  var res = run(Command(@["dd", "if=myfile"]), stdout = StreamPipe())
+  return res.output
 )
 
 
