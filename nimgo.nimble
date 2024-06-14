@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.0.6"
+version       = "0.0.7"
 author        = "alogani"
 description   = "Asynchronous Library Inspired by Go's goroutines"
 license       = "MIT"

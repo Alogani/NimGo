@@ -1,0 +1,26 @@
+name: Nim CI windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - 'windows-test*'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Nim
+      uses: iffy/install-nim@v3
+      with:
+        nim-version: stable
+    - name: Install dependencies
+      run: nimble install -y
+    - name: Run tests
+      run: nimble test
