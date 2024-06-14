@@ -3,7 +3,9 @@ name: Nim CI windows
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - 'windows-test*'
   pull_request:
     branches: [ main ]
 
