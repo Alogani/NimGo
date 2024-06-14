@@ -2,7 +2,7 @@ when defined(windows):
   stderr.write("The features of these files have not yet been implemented under windows.\n")
   stderr.write("Skipping the test...\n")
   stderr.flushFile()
-elif defined(macosx)
+elif defined(macosx):
   stderr.write("This test has an unresolved bug under macos. See https://github.com/Alogani/NimGo/issues/32.\n")
   stderr.write("Skipping the test...\n")
   stderr.flushFile()
