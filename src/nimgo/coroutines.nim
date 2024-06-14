@@ -75,19 +75,17 @@ type
 
   cstring_const {.importc:"const char*", header: minicoroh.} = cstring
 
-{.push used.}
+
 proc initMcoDescriptor(entryFn: proc (coro: ptr McoCoroutine) {.cdecl.}, stackSize: uint): McoCoroDescriptor {.importc: "mco_desc_init", header: minicoroh.}
 proc initMcoCoroutine(coro: ptr McoCoroutine, descriptor: ptr McoCoroDescriptor): McoReturnCode {.importc: "mco_init", header: minicoroh.}
 proc uninitMcoCoroutine(coro: ptr McoCoroutine): McoReturnCode {.importc: "mco_uninit", header: minicoroh.}
-proc createMcoCoroutine(outCoro: ptr ptr McoCoroutine, descriptor: ptr McoCoroDescriptor): McoReturnCode {.importc: "mco_create", header: minicoroh.}
-proc destroyMco(coro: ptr McoCoroutine): McoReturnCode {.importc: "mco_destroy", header: minicoroh.}
 proc resume(coro: ptr McoCoroutine): McoReturnCode {.importc: "mco_resume", header: minicoroh.}
 proc suspend(coro: ptr McoCoroutine): McoReturnCode {.importc: "mco_yield", header: minicoroh.}
 proc getState(coro: ptr McoCoroutine): McoCoroState {.importc: "mco_status", header: minicoroh.}
 proc getUserData(coro: ptr McoCoroutine): pointer {.importc: "mco_get_user_data", header: minicoroh.}
 proc getRunningMco(): ptr McoCoroutine {.importc: "mco_running", header: minicoroh.}
 proc prettyError(returnCode: McoReturnCode): cstring_const {.importc: "mco_result_description", header: minicoroh.}
-{.pop.}
+
 
 proc checkMcoReturnCode(returnCode: McoReturnCode) =
   if returnCode != Success:
@@ -173,7 +171,7 @@ template enhanceExceptions(coroPtr: ptr CoroutineObj, body: untyped) =
   else:
     try:
       `body`
-    except:
+    except CatchableError:
       var err = getCurrentException()
       if err.trace[0].filename != StackTraceHeaderCreation:
         err.trace = (mergeStackTraceEntries(coroPtr) &
@@ -194,7 +192,8 @@ proc coroutineMain[T](mcoCoroutine: ptr McoCoroutine) {.cdecl.} =
       entryFn()
 
 proc destroyMcoCoroutine(coroObj: CoroutineObj) =
-  checkMcoReturnCode destroyMco(coroObj.mcoCoroutine)
+  checkMcoReturnCode uninitMcoCoroutine(coroObj.mcoCoroutine)
+  deallocShared(coroObj.mcoCoroutine)
 
 
 when defined(nimAllowNonVarDestructor):
@@ -222,24 +221,6 @@ else:
       deallocShared(coroObj.returnedVal)
     coroObj.entryFn.destroy()
 
-#[
-## Useful to use with a coroutine pool. However, will certainly not play nicely with virtual memory.
-## Furthermore, this code is now outdated
-proc reinitImpl[T](coro: Coroutine, entryFn: EntryFn[T]) =
-  checkMcoReturnCode uninitMcoCoroutine(coro.mcoCoroutine)
-  coro.entryFn = cast[SafeContainer[void]](entryFn.pushIntoContainer())
-  var mcoCoroDescriptor = initMcoDescriptor(coroutineMain[T], coro.mcoCoroutine[].stack_size)
-  mcoCoroDescriptor.user_data = cast[ptr CoroutineObj](coro)
-  checkMcoReturnCode initMcoCoroutine(coro.mcoCoroutine, addr mcoCoroDescriptor)
-
-proc reinit*[T](coro: Coroutine, entryFn: EntryFn[T]) =
-  reinitImpl[T](coro, entryFn)
-
-proc reinit*(coro: Coroutine, entryFn: EntryFn[void]) =
-  ## Allow to reuse an existing coroutine without reallocating it
-  ## However, please ensure it has correctly finished
-  reinitImpl[void](coro, entryFn)
-]#
 
 proc getCurrentCoroutine*(): Coroutine
 
@@ -258,7 +239,8 @@ proc newCoroutineImpl[T](entryFn: EntryFn[T]): Coroutine =
       result.parent = cast[ptr CoroutineObj](coro)
     result.creationStacktraceEntries = getStackTraceEntries()
     mcoCoroDescriptor.allocator_data = mcoCoroDescriptor.user_data
-  checkMcoReturnCode createMcoCoroutine(addr(result.mcoCoroutine), addr mcoCoroDescriptor)
+  result.mcoCoroutine = cast[ptr McoCoroutine](allocShared0(mcoCoroDescriptor.coro_size))
+  checkMcoReturnCode initMcoCoroutine(result.mcoCoroutine, addr mcoCoroDescriptor)
 
 
 proc newCoroutine*[T](entryFn: EntryFn[T]): Coroutine =
