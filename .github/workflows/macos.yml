@@ -3,7 +3,9 @@ name: Nim CI macos
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - 'macos-test*'
   pull_request:
     branches: [ main ]
 
