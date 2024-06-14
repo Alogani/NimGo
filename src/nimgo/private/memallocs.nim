@@ -6,7 +6,7 @@ when not defined(gcArc) and not defined(gcOrc):
   {.warning: "Coroutines only works with --mm:orc or --mm:arc".}
 
 import ./compiletimeflags
-import std/[tables, macros]
+import std/[tables, macros, oserrors]
 
 #[ ********* Protection policy ********* ]#
 
@@ -36,6 +36,8 @@ when defined(windows):
     MEM_TOP_DOWN = 0x100000
     PAGE_READWRITE = 0x04
 
+    PAGE_GUARD = 0x100
+
     MEM_DECOMMIT = 0x4000
     MEM_RELEASE = 0x8000
 
@@ -45,7 +47,7 @@ when defined(windows):
 
   proc protectPointerBegin(p: pointer): bool =
     var oldProtect: cint
-    return VirtualProtect(getFirstAlignedAddr(p), 0x1000, PAGE_NOACCESS, oldProtect)
+    return VirtualProtect(getFirstAlignedAddr(p), 0x1000, PAGE_READWRITE or PAGE_GUARD, oldProtect)
 
   proc unProtectPointerBegin(p: pointer): bool =
     var oldProtect: cint
@@ -181,11 +183,11 @@ proc allocStack(): pointer =
   result = allocShared(StackSize) # allocShared0 worth it ?
   if not protectPointerBegin(result):
     deallocShared(result)
-    raise newException(OsError, "Unable to set pageguard for stack end")
+    raiseOsError(osLastError())
 
 proc deallocStack(p: pointer) =
   if not unProtectPointerBegin(p):
-    raise newException(OsError, "Unable to remove pageguard for stack end")
+    raiseOsError(osLastError())
   deallocShared(p)
 
 proc mcoStackAllocator*(size: uint, allocatorData: pointer): pointer {.cdecl.} =
