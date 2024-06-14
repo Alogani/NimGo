@@ -1373,8 +1373,7 @@ static void _mco_destroy_context(mco_coro* co) {
 static MCO_FORCE_INLINE void _mco_init_desc_sizes(mco_desc* desc, size_t stack_size) {
   desc->coro_size = _mco_align_forward(sizeof(mco_coro), 16) +
                     _mco_align_forward(sizeof(_mco_context), 16) +
-                    _mco_align_forward(desc->storage_size, 16) +
-                    stack_size + 16;
+                    _mco_align_forward(desc->storage_size, 16);
   desc->stack_size = stack_size; /* This is just a hint, it won't be the real one. */
 }
 
@@ -1551,7 +1550,6 @@ static MCO_FORCE_INLINE void _mco_init_desc_sizes(mco_desc* desc, size_t stack_s
   desc->coro_size = _mco_align_forward(sizeof(mco_coro), 16) +
                     _mco_align_forward(sizeof(_mco_context), 16) +
                     _mco_align_forward(desc->storage_size, 16) +
-                    _mco_align_forward(stack_size, 16) +
                     _mco_align_forward(MCO_ASYNCFY_STACK_SIZE, 16) +
                     16;
   desc->stack_size = stack_size; /* This is just a hint, it won't be the real one. */
@@ -1651,7 +1649,6 @@ static MCO_FORCE_INLINE void _mco_init_desc_sizes(mco_desc* desc, size_t stack_s
   desc->coro_size = _mco_align_forward(sizeof(mco_coro), 16) +
                     _mco_align_forward(sizeof(_mco_context), 16) +
                     _mco_align_forward(desc->storage_size, 16) +
-                    _mco_align_forward(stack_size, 16) +
                     16;
   desc->stack_size = stack_size; /* This is just a hint, it won't be the real one. */
 }
@@ -1764,7 +1761,7 @@ mco_result mco_create(mco_coro** out_co, mco_desc* desc) {
     return MCO_INVALID_ARGUMENTS;
   }
   /* Allocate the coroutine. */
-  mco_coro* co = (mco_coro*)calloc(1, desc->coro_size - desc->stack_size);
+  mco_coro* co = (mco_coro*)calloc(1, desc->coro_size);
   if(!co) {
     MCO_LOG("coroutine allocation failed");
     *out_co = NULL;
