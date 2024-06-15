@@ -14,7 +14,7 @@ else:
     # readAndPrint will be suspended until file.readLine return
     echo "MYLINE=", file.readLine()
     # file.readAll will be registered in dispatcher. readAndPrint can continue its execution
-    var readTask: GoTask[string] = goAsync file.readAll()
+    var readTask: GoTask[string] = go file.readAll()
     # we decide finally to get its data
     # readAndPrint will be suspended until readTask is finished
     echo "UNREADLENGTH=", (wait readTask).len()
@@ -55,15 +55,15 @@ else:
 
   withEventLoop():
     echo "Batch 1"
-    goAsync printInDesorder(200)
-    goAsync printInDesorder(100)
-    goAsync printInDesorder(50)
+    go printInDesorder(200)
+    go printInDesorder(100)
+    go printInDesorder(50)
   # Or using waitAll
   echo "Batch 2"
   waitAll @[
-      goAsync printInDesorder(110),
-      goAsync printInDesorder(220),
-      goAsync printInDesorder(60),
+    go printInDesorder(110),
+    go printInDesorder(220),
+    go printInDesorder(60),
   ]
 
   ## Timeout

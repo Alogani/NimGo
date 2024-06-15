@@ -25,8 +25,8 @@ else:
       reader.close()
 
     withEventLoop:
-      goAsync producer()
-      goAsync consumer()
+      go producer()
+      go consumer()
     check reader.closed()
     check writer.closed()
 

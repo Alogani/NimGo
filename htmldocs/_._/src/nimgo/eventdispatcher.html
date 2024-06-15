@@ -141,6 +141,10 @@
   <li><a class="reference" href="#removeFromSelector%2COneShotCoroutine%2Cbool" title="removeFromSelector(oneShotCoro: OneShotCoroutine; byTimer: bool)">removeFromSelector(oneShotCoro: OneShotCoroutine; byTimer: bool)</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">resumeAfterLoop
+  <li><a class="reference" href="#resumeAfterLoop%2COneShotCoroutine" title="resumeAfterLoop(oneShotCoro: OneShotCoroutine)">resumeAfterLoop(oneShotCoro: OneShotCoroutine)</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">resumeImmediatly
   <li><a class="reference" href="#resumeImmediatly%2CCoroutine" title="resumeImmediatly(coro: Coroutine)">resumeImmediatly(coro: Coroutine)</a></li>
 
@@ -151,9 +155,7 @@
 </ul>
 <ul class="simple nested-toc-section">resumeOnTimer
   <li><a class="reference" href="#resumeOnTimer%2CCoroutine%2Cint" title="resumeOnTimer(coro: Coroutine; timeoutMs: int; willBeAwaited = true)">resumeOnTimer(coro: Coroutine; timeoutMs: int; willBeAwaited = true)</a></li>
-<li><a class="reference" href="#resumeOnTimer%2COneShotCoroutine%2Cint" title="resumeOnTimer(oneShotCoro: OneShotCoroutine; timeoutMs: int;
-              willBeAwaited = true)">resumeOnTimer(oneShotCoro: OneShotCoroutine; timeoutMs: int;
-              willBeAwaited = true)</a></li>
+<li><a class="reference" href="#resumeOnTimer%2COneShotCoroutine%2Cint%2Cbool" title="resumeOnTimer(oneShotCoro: OneShotCoroutine; timeoutMs: int; willBeAwaited: bool)">resumeOnTimer(oneShotCoro: OneShotCoroutine; timeoutMs: int; willBeAwaited: bool)</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">resumeSoon
@@ -247,7 +249,7 @@
 
   </div>
   <div class="nine columns" id="content">
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L1" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L1" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L1" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
     <div id="tocRoot"></div>
@@ -267,8 +269,8 @@
   <dd>
     
     Cannot be shared or moved around threads
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L45" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L45" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L46" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L46" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -278,7 +280,7 @@
   <dd>
     
     Coroutine that can only be resumed once inside a dispatcher
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L20" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L20" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L20" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
@@ -288,7 +290,7 @@
   <dd>
     
     Reprensents a descriptor registered in the EventDispatcher: file handle, signal, timer, etc.
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L17" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L17" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L17" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
@@ -304,8 +306,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L49" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L49" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L50" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L50" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -321,8 +323,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L364" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L364" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L374" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L374" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -335,8 +337,8 @@
   <dd>
     
     Will not update the type event listening
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L444" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L444" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L458" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L458" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -346,8 +348,8 @@
   <dd>
     
     Will not update the type event listening
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L436" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L436" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L450" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L450" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -360,8 +362,8 @@
   <dd>
     
     Eventual next coroutine will be ignored
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L81" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L81" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L82" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L82" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -373,8 +375,8 @@
   <dd>
     
     Will prevent other coroutines to resume until the next loop
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L370" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L370" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L380" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L380" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -387,8 +389,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L196" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L196" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L202" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L202" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -401,8 +403,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L78" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L78" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L79" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L79" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -415,8 +417,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L204" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L204" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L210" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L210" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -428,8 +430,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L367" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L367" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L377" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L377" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -441,8 +443,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L53" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L53" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L54" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L54" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -455,8 +457,8 @@
   <dd>
     
     Works both inside and outside dispatcher
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L468" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L468" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L482" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L482" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -469,8 +471,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L374" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L374" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L384" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L384" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -482,8 +484,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L382" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L382" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L392" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L392" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -495,9 +497,9 @@
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L390" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L390" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    This is not available on windows
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L401" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L401" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -509,9 +511,9 @@
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L400" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L400" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    This is not available on windows
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L412" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L412" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -524,9 +526,9 @@
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    Timer is registered inside the poll, not inside the event loop. Use another function to sleep inside the event loop (more reactive, less overhead for short sleep) Coroutines will only be resumed once, even if timer is not oneshot. You need to associate them to the fd each time for a periodic action
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L410" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L410" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    This is not available on windows Timer is registered inside the poll, not inside the event loop. Use another function to sleep inside the event loop (more reactive, less overhead for short sleep) Coroutines will only be resumed once, even if timer is not oneshot. You need to associate them to the fd each time for a periodic action
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L423" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L423" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -539,8 +541,22 @@
   <dd>
     
     Only consume when not referenced anymore inside dispatcher
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L93" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L93" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L94" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L94" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="resumeAfterLoop-procs-all">
+  <div id="resumeAfterLoop,OneShotCoroutine">
+  <dt><pre><span class="Keyword">proc</span> <a href="#resumeAfterLoop%2COneShotCoroutine"><span class="Identifier">resumeAfterLoop</span></a><span class="Other">(</span><span class="Identifier">oneShotCoro</span><span class="Other">:</span> <a href="eventdispatcher.html#OneShotCoroutine"><span class="Identifier">OneShotCoroutine</span></a><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Will be put in a special queue executed after all I/O events and pending coroutines
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L191" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L191" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -552,8 +568,8 @@
   <dd>
     
     Will be put at the beggining of the timers queue Can starve the event loop
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L106" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L106" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L107" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L107" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -564,9 +580,9 @@
   <dt><pre><span class="Keyword">proc</span> <a href="#resumeLater%2CCoroutine"><span class="Identifier">resumeLater</span></a><span class="Other">(</span><span class="Identifier">coro</span><span class="Other">:</span> <a href="coroutines.html#Coroutine"><span class="Identifier">Coroutine</span></a><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    Will be put at the end of the queue
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L141" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L141" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    Will be put at the end of the queue Will still be resumed after timers and event loop
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L142" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L142" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -579,20 +595,20 @@
   <dd>
     
     Equivalent to a sleep directly handled by the dispatcher
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L156" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L156" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L158" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L158" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
-<div id="resumeOnTimer,OneShotCoroutine,int">
-  <dt><pre><span class="Keyword">proc</span> <a href="#resumeOnTimer%2COneShotCoroutine%2Cint"><span class="Identifier">resumeOnTimer</span></a><span class="Other">(</span><span class="Identifier">oneShotCoro</span><span class="Other">:</span> <a href="eventdispatcher.html#OneShotCoroutine"><span class="Identifier">OneShotCoroutine</span></a><span class="Other">;</span> <span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span>
-                   <span class="Identifier">willBeAwaited</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
+<div id="resumeOnTimer,OneShotCoroutine,int,bool">
+  <dt><pre><span class="Keyword">proc</span> <a href="#resumeOnTimer%2COneShotCoroutine%2Cint%2Cbool"><span class="Identifier">resumeOnTimer</span></a><span class="Other">(</span><span class="Identifier">oneShotCoro</span><span class="Other">:</span> <a href="eventdispatcher.html#OneShotCoroutine"><span class="Identifier">OneShotCoroutine</span></a><span class="Other">;</span> <span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span>
+                   <span class="Identifier">willBeAwaited</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Equivalent to a sleep directly handled by the dispatcher
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L166" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L166" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L168" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L168" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -604,8 +620,8 @@
   <dd>
     
     Will be put at the beggining of the queue Will still be resumed after timers and event loop
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L125" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L125" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L126" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L126" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -622,8 +638,8 @@
 <li>if a coroutine never stops, or recursivly add coroutines</li>
 </ul>
 
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L304" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L304" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L314" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L314" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -636,8 +652,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L358" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L358" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L368" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L368" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -650,8 +666,8 @@
   <dd>
     
     Run the event loop. The poll phase is done only once For efficiency, timeout is only taken in account for the selector phase. Long calculations can starve the event loop. If that's the case, use resumeLast() regularly.
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L285" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L285" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L291" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L291" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -664,8 +680,8 @@
   <dd>
     
     A dispatcher cannot be shared between threads But there could be one different dispatcher by threads
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L191" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L191" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L197" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L197" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -678,8 +694,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L462" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L462" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L476" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L476" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -693,8 +709,8 @@
   <dd>
     
     This function returns the first fd responsible of a wake up
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L477" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L477" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L491" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L491" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -707,8 +723,8 @@
   <dd>
     
     See <tt class="docutils literal"><span class="pre"><span class="Identifier">resumeImmediatly</span></span></tt>
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L114" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L114" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L115" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L115" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -721,8 +737,8 @@
   <dd>
     
     See <tt class="docutils literal"><span class="pre"><span class="Identifier">resumeLater</span></span></tt>
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L145" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L145" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L147" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L147" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -736,8 +752,8 @@
   <dd>
     
     See also <tt class="docutils literal"><span class="pre"><span class="Identifier">consumeCurrentEvent</span></span></tt> to avoid a data race if multiple coros are registered for same fd If PollFd is not a file, by definition only the coros in the readList will be resumed It will not try to update the kind of event waited inside the selector. Waiting for unregistered event will deadlock
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L490" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L490" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L506" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L506" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -750,8 +766,8 @@
   <dd>
     
     See <tt class="docutils literal"><span class="pre"><span class="Identifier">resumeSoon</span></span></tt>
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L130" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L130" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L131" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L131" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -765,8 +781,8 @@
   <dd>
     
     See <tt class="docutils literal"><span class="pre"><span class="Identifier">resumeOnTimer</span></span></tt>
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L175" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L175" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L177" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L177" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -777,8 +793,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L186" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L186" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L188" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L188" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -792,8 +808,8 @@
   <dd>
     
     See also <tt class="docutils literal"><span class="pre"><span class="Identifier">consumeCurrentEvent</span></span></tt> to avoid a data race if multiple coros are registered for same fd If PollFd is not a file, by definition only the coros in the readList will be resumed It will not try to update the kind of event waited inside the selector. Waiting for unregistered event will deadlock
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L506" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L506" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L524" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L524" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -806,8 +822,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L62" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L62" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L63" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L63" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -819,8 +835,8 @@
   <dd>
     
     It will also consume all coroutines registered inside it
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L424" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L424" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L438" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L438" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -833,8 +849,8 @@
   <dd>
     
     std/selector raise here if fd is not registered
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L458" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L458" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L472" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L472" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -852,8 +868,8 @@
   <dd>
     
     Temporarly replace the current event loop. This means, you can't use any AsyncObjects defined before like <tt class="docutils literal"><span class="pre"><span class="Identifier">goStdin</span><span class="Punctuation">,</span> <span class="Punctuation">`</span><span class="Identifier">goStdout</span></span></tt>. But we can register them in the new dispatcher. And no coroutines defined before will be executed
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L346" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L346" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L356" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L356" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -862,8 +878,8 @@
   <dd>
     
     Temporarly replace the current event loop. This means, you can't use any AsyncObjects defined before like <tt class="docutils literal"><span class="pre"><span class="Identifier">goStdin</span><span class="Punctuation">,</span> <span class="Punctuation">`</span><span class="Identifier">goStdout</span></span></tt>. But we can register them in the new dispatcher. And no coroutines defined before will be executed
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L334" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L334" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L344" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L344" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -875,8 +891,8 @@
   <dd>
     
     Ensures all coroutines registered will be executed, contrary to wait
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/eventdispatcher.nim#L328" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L328" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/eventdispatcher.nim#L338" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/eventdispatcher.nim#L338" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -892,7 +908,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-11 06:54:40 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-15 10:13:08 UTC</small>
       </div>
     </div>
   </div>

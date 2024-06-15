@@ -23,8 +23,8 @@ else:
       check s.readChunk() == ""
 
     withEventLoop:
-      goAsync producer()
-      goAsync consumer()
+      go producer()
+      go consumer()
 
   test "Timeout":
     var s = newGoBufferStream()
@@ -47,7 +47,7 @@ else:
       reader.close()
 
     withEventLoop:
-      goAsync producer()
-      goAsync consumer()
+      go producer()
+      go consumer()
     check reader.closed()
     check writer.closed()

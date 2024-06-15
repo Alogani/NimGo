@@ -150,7 +150,7 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
       var pipes = createGoPipe(false)
       capturedInput = newGoProcStream(pipes.writer)
       let providedStdin = stdin.file
-      goAsync proc() =
+      go proc() =
         let goprocFd = goproc.pollFd
         let stdinFd = providedStdin.getSelectorFileHandle()
         while goproc.childproc.running():
@@ -186,7 +186,7 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
       var pipes = createGoPipe(false)
       var captureStream = newGoProcStream(pipes.reader)
       let destFile = if stdout.kind == CaptureParent: goStdout else: stdout.file
-      captureTasks.add goAsync proc() =
+      captureTasks.add go proc() =
         while true:
           let data = pipes.reader.readChunk()
           if data == "": break
@@ -212,7 +212,7 @@ proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNon
       var pipes = createGoPipe(false)
       var captureStream = newGoProcStream(pipes.reader)
       let destFile = if stderr.kind == CaptureParent: goStderr else: stderr.file
-      captureTasks.add goAsync proc() =
+      captureTasks.add go proc() =
         while true:
           let data = pipes.reader.readChunk()
           if data == "": break
@@ -276,9 +276,9 @@ proc run*(command: CommandObj; stdin = StreamNone(), stdout = StreamNone(), stde
   var p = startProcess(command, stdinPipe[0], stdoutPipe[1], stderrPipe[1])
   var capturesTasks: seq[GoTask[void]]
   if stdoutPipe[0] != nil:
-    capturesTasks.add goAsync(proc() =
+    capturesTasks.add go(proc() =
       stdoutCapture = stdoutPipe[0].readAll())
   if stderrPipe[0] != nil:
-    capturesTasks.add goAsync(proc() =
+    capturesTasks.add go(proc() =
       stderrCapture = stderrPipe[0].readAll())
 ]#

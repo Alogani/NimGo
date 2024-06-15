@@ -13,7 +13,7 @@ else:
       proc coroFn(): int =
         return 42
 
-      check wait(goasync(coroFn())) == 42
+      check wait(go(coroFn())) == 42
 
 
   test "inside coroutine":
@@ -22,9 +22,9 @@ else:
         return 42
 
       proc coroFn() =
-        check wait(goasync(innerCoroFn())) == 42
+        check wait(go(innerCoroFn())) == 42
 
-      goasync coroFn()
+      go coroFn()
 
   test "outside coroutine with timeout":
     withEventLoop():
@@ -35,7 +35,7 @@ else:
         return 42
 
       check wait(
-          goasync(coroFn()),
+          go(coroFn()),
           100
         ).isNone()
 
@@ -48,9 +48,9 @@ else:
         return 42
 
       proc coroFn() =
-        check wait(goasync(innerCoroFn()), 100).isNone()
+        check wait(go(innerCoroFn()), 100).isNone()
 
-      var task = goasync coroFn()
+      var task = go coroFn()
       wait(task)
       check task.finished()
 
@@ -63,10 +63,10 @@ else:
       return 42
 
     proc coroFn() =
-      check wait(goasync(innerCoroFn())) == 42
+      check wait(go(innerCoroFn())) == 42
 
     check wait(
-        goasync(coroFn()),
+        go(coroFn()),
         100
       ) == false
 
@@ -81,12 +81,12 @@ else:
       proc coroFn() =
         check waitall(
             @[
-                goasync(innerCoroFn()),
-                goasync(innerCoroFn())
+                go(innerCoroFn()),
+                go(innerCoroFn())
           ],
           300) == @[42, 42]
 
-      var task = goasync coroFn()
+      var task = go coroFn()
       wait(task)
       check task.finished()
 
@@ -101,12 +101,12 @@ else:
       proc coroFn() =
         check waitall(
             @[
-                goasync(innerCoroFn(100)),
-                goasync(innerCoroFn(500))
+                go(innerCoroFn(100)),
+                go(innerCoroFn(500))
           ],
           300).len() == 0
 
-      var task = goasync coroFn()
+      var task = go coroFn()
       wait(task)
       check task.finished()
 
@@ -121,12 +121,12 @@ else:
       proc coroFn() =
         check waitAny(
             @[
-                goasync(innerCoroFn(400)),
-                goasync(innerCoroFn(500))
+                go(innerCoroFn(400)),
+                go(innerCoroFn(500))
           ],
           300) == false
 
-      var task = goasync coroFn()
+      var task = go coroFn()
       wait(task)
       check task.finished()
 
@@ -141,11 +141,11 @@ else:
       proc coroFn() =
         check waitAny(
             @[
-                goasync(innerCoroFn(100)),
-                goasync(innerCoroFn(500))
+                go(innerCoroFn(100)),
+                go(innerCoroFn(500))
           ],
           300)
 
-      var task = goasync coroFn()
+      var task = go coroFn()
       wait(task)
       check task.finished()

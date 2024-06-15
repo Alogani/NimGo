@@ -40,8 +40,8 @@ when defined(nimgo):
                 discard consumerSock.receiver.readLine()
                 discard consumerSock.sender.write("Hello\n")
             
-        goAsync consummer()
-        wait goAsync producer()
+        go consummer()
+        wait go producer()
     main()
 
     echo "Total mem=", getTotalMem()

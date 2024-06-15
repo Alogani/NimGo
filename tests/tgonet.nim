@@ -43,8 +43,8 @@ else:
       server.close()
 
     withEventLoop():
-      goAsync consumer()
-      goAsync producer()
+      go consumer()
+      go producer()
 
   test "Producer/consumer - unbuffered socket":
     ProducerConsumerCode(false)

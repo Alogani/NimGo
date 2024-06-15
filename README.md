@@ -31,6 +31,8 @@ They are welcomed and any help is valuable. A code of contribution can be found 
 The following working example will give you an idea of how NimGo works and how to use it.
 
 ```nim
+# Depending on your OS, the following example might not yet work
+
 import nimgo, nimgo/gofile
 
 
@@ -38,69 +40,69 @@ let MyFilePath = currentSourcePath()
 
 ## # Basic I/O
 proc readAndPrint(file: GoFile) =
-    # readAndPrint will be suspended until file.readLine return
-    echo "MYLINE=", file.readLine()
-    # file.readAll will be registered in dispatcher. readAndPrint can continue its execution
-    var readTask: GoTask[string] = goAsync file.readAll()
-    # we decide finally to get its data
-    # readAndPrint will be suspended until readTask is finished
-    echo "UNREADLENGTH=", (wait readTask).len()
+# readAndPrint will be suspended until file.readLine return
+echo "MYLINE=", file.readLine()
+# file.readAll will be registered in dispatcher. readAndPrint can continue its execution
+var readTask: GoTask[string] = go file.readAll()
+# we decide finally to get its data
+# readAndPrint will be suspended until readTask is finished
+echo "UNREADLENGTH=", (wait readTask).len()
 
 withEventLoop():
-    var myFile = openGoFile(MyFilePath)
-    goAndWait readAndPrint(myFile)
-    echo "I'm not waiting for readAndPrint to finish !"
-    echo "But `withEventLoop` ensures all registered tasks are executed"
-    myFile.close()
+var myFile = openGoFile(MyFilePath)
+goAndWait readAndPrint(myFile)
+echo "I'm not waiting for readAndPrint to finish !"
+echo "But `withEventLoop` ensures all registered tasks are executed"
+myFile.close()
 
 ## # Coroutines communication
 
 ## ## Returning a value:
 block:
-    proc getFirstLine(f: GoFile): string =
-        f.readLine()
-    var myFile = openGoFile(MyFilePath)
-    echo "MYLINE=", goAndWait getFirstLine(myFile)
-    myFile.close()
+proc getFirstLine(f: GoFile): string =
+    f.readLine()
+var myFile = openGoFile(MyFilePath)
+echo "MYLINE=", goAndWait getFirstLine(myFile)
+myFile.close()
 
 ## ## With closures:
 proc main() =
-    # Any GC value can be shared between coroutines
-    var sharedData: string
-    ## We have to use wait, otherwise sharedData will not be updated yet
-    goAndWait proc() =
-        sharedData = "Inside the coroutine"
-    echo sharedData
+# Any GC value can be shared between coroutines
+var sharedData: string
+## We have to use wait, otherwise sharedData will not be updated yet
+goAndWait proc() =
+    sharedData = "Inside the coroutine"
+echo sharedData
 main()
 
 
 ## # Unordered execution
 
 proc printInDesorder(sleepTimeMs: int) =
-    sleepAsync(sleepTimeMs)
-    echo "> I woke up after ", sleepTimeMs, "ms"
+sleepAsync(sleepTimeMs)
+echo "> I woke up after ", sleepTimeMs, "ms"
 
 withEventLoop():
-    echo "Batch 1"
-    goAsync printInDesorder(200)
-    goAsync printInDesorder(100)
-    goAsync printInDesorder(50)
+echo "Batch 1"
+go printInDesorder(200)
+go printInDesorder(100)
+go printInDesorder(50)
 # Or using waitAll
 echo "Batch 2"
 waitAll @[
-    goAsync printInDesorder(110),
-    goAsync printInDesorder(220),
-    goAsync printInDesorder(60),
+go printInDesorder(110),
+go printInDesorder(220),
+go printInDesorder(60),
 ]
 
 ## Timeout
 goAndWait proc() =
-    echo "Please input from stdin: "
-    var data = goStdin.readChunk(timeoutMs = 500)
-    if data.len() == 0:
-        echo "> Too late"
-    else:
-        echo "> So fast, you have succesfully written: ", data
+echo "Please input from stdin: "
+var data = goStdin.readChunk(timeoutMs = 500)
+if data.len() == 0:
+    echo "> Too late"
+else:
+    echo "> So fast, you have succesfully written: ", data
 
 ```
 
