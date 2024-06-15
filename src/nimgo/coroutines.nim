@@ -9,7 +9,6 @@
 
 import ./private/[compiletimeflags, memallocs, safecontainer, utils]
 
-
 from std/os import parentDir, `/` 
 const minicoroh = currentSourcePath().parentdir() / "private/minicoro.h"
 {.compile: "./private/minicoro.c".}
@@ -104,8 +103,12 @@ type
   EntryFn*[T] = proc(): T
     ## Supports at least closure and nimcall calling convention
   
+  EntryFnContainer[T] = object
+    entryFn: EntryFn[T]
+
   CoroutineObj = object
-    entryFn: SafeContainer[void]
+    entryFnContainer: EntryFnContainer[void]
+    callBackEnv: ForeignCell
     returnedVal: pointer
     mcoCoroutine: ptr McoCoroutine
     exception: ref Exception
@@ -183,7 +186,7 @@ template enhanceExceptions(coroPtr: ptr CoroutineObj, body: untyped) =
 proc coroutineMain[T](mcoCoroutine: ptr McoCoroutine) {.cdecl.} =
   ## Start point of the coroutine.
   let coroPtr = cast[ptr CoroutineObj](mcoCoroutine.getUserData())
-  let entryFn = cast[SafeContainer[EntryFn[T]]](coroPtr[].entryFn).popFromContainer()
+  let entryFn = cast[EntryFnContainer[T]](coroPtr[].entryFnContainer).entryFn
   enhanceExceptions(coroPtr):
     when T isnot void:
       let res = entryFn()
@@ -207,7 +210,7 @@ when defined(nimAllowNonVarDestructor):
         discard
     if coroObj.returnedVal != nil:
       deallocShared(coroObj.returnedVal)
-    coroObj.entryFn.destroy()
+    dispose(coroObj.callBackEnv)
 else:
   proc `=destroy`*(coroObj: var CoroutineObj) =
     ## Unfinished coroutines clean themselves. However, it is not sure its heap memory will be cleaned up, resulting in a leakage
@@ -219,7 +222,7 @@ else:
         discard
     if coroObj.returnedVal != nil:
       deallocShared(coroObj.returnedVal)
-    coroObj.entryFn.destroy()
+    dispose(coroObj.callBackEnv)
 
 
 proc getCurrentCoroutine*(): Coroutine
@@ -227,7 +230,8 @@ proc getCurrentCoroutine*(): Coroutine
 
 proc newCoroutineImpl[T](entryFn: EntryFn[T]): Coroutine =
   result = Coroutine(
-    entryFn: cast[SafeContainer[void]](entryFn.pushIntoContainer()),
+    entryFnContainer: cast[EntryFnContainer[void]](EntryFnContainer[T](entryFn: entryFn)),
+    callBackEnv: protect(rawEnv(entryFn))
   )
   var mcoCoroDescriptor = initMcoDescriptor(coroutineMain[T], StackSize.uint)
   mcoCoroDescriptor.alloc_cb = mcoStackAllocator
