@@ -7,7 +7,8 @@
 # Inspired freely from https://git.envs.net/iacore/minicoro-nim
 
 
-import ./private/[compiletimeflags, memallocs, safecontainer, utils]
+import ./private/[compiletimeflags, memallocs, utils]
+import std/isolation
 
 from std/os import parentDir, `/` 
 const minicoroh = currentSourcePath().parentdir() / "private/minicoro.h"
@@ -109,7 +110,7 @@ type
   CoroutineObj = object
     entryFnContainer: EntryFnContainer[void]
     callBackEnv: ForeignCell
-    returnedVal: pointer
+    returnedVal: ptr Isolated[void]
     mcoCoroutine: ptr McoCoroutine
     exception: ref Exception
     when not NimGoNoDebug:
@@ -190,7 +191,7 @@ proc coroutineMain[T](mcoCoroutine: ptr McoCoroutine) {.cdecl.} =
   enhanceExceptions(coroPtr):
     when T isnot void:
       let res = entryFn()
-      coroPtr[].returnedVal = allocAndSet(res.pushIntoContainer())
+      coroPtr[].returnedVal = cast[ptr Isolated[void]](allocAndSet(isolate(res)))
     else:
       entryFn()
 
@@ -208,8 +209,6 @@ when defined(nimAllowNonVarDestructor):
         destroyMcoCoroutine(coroObj)
       except:
         discard
-    if coroObj.returnedVal != nil:
-      deallocShared(coroObj.returnedVal)
     dispose(coroObj.callBackEnv)
 else:
   proc `=destroy`*(coroObj: var CoroutineObj) =
@@ -304,8 +303,8 @@ proc getCurrentCoroutineSafe*(): Coroutine =
 proc getReturnVal*[T](coro: Coroutine): T =
   if coro.returnedVal == nil:
     raise newException(ValueError, "Coroutine don't have a return value or is not finished")
-  result = cast[ptr SafeContainer[T]](coro.returnedVal)[].popFromContainer()
-  deallocShared(coro.returnedVal)
+  result = cast[ptr Isolated[T]](coro.returnedVal)[].extract()
+  dealloc(coro.returnedVal)
   coro.returnedVal = nil
 
 proc finished*(coro: Coroutine): bool =
