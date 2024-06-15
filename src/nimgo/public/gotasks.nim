@@ -17,17 +17,17 @@ type
   GoTask*[T] = GoTaskUntyped
 
 
-proc goAsyncImpl(callbacks: Callbacks, fn: proc()): GoTask[void] =
+proc goImpl(callbacks: Callbacks, fn: proc()): GoTask[void] =
   var coro = newCoroutine(fn)
   resumeLater(coro)
   return GoTask[void](coro: coro, callbacks: callbacks)
 
-proc goAsyncImpl[T](callbacks: Callbacks, fn: proc(): T): GoTask[T] =
+proc goImpl[T](callbacks: Callbacks, fn: proc(): T): GoTask[T] =
   var coro = newCoroutine(fn)
   resumeLater(coro)
   return GoTask[T](coro: coro, callbacks: callbacks)
 
-macro goAsync*(fn: typed): untyped =
+macro go*(fn: typed): untyped =
   if fn.kind == nnkCall:
     let fnType = getType(fn)
     let closureSym = genSym(nskProc)
@@ -35,7 +35,7 @@ macro goAsync*(fn: typed): untyped =
       return quote do:
         proc `closureSym`(): GoTask[void] {.discardable.} =
           let callbacks = Callbacks()
-          result = goAsyncImpl(
+          result = goImpl(
             callbacks,
             proc() =
               `fn`
@@ -49,7 +49,7 @@ macro goAsync*(fn: typed): untyped =
       return quote do:
         proc `closureSym`(): GoTask[`fnType`] =
           let callbacks = Callbacks()
-          result = goAsyncImpl(
+          result = goImpl(
             callbacks,
             proc(): `fnType` =
               result = `fn`
@@ -69,7 +69,7 @@ macro goAsync*(fn: typed): untyped =
     return quote do:
       proc `closureSym`(): GoTask[void] {.discardable.} =
         let callbacks = Callbacks()
-        result = goAsyncImpl(
+        result = goImpl(
           callbacks,
           proc() =
             `fn`()
@@ -83,7 +83,7 @@ macro goAsync*(fn: typed): untyped =
     return quote do:
       proc `closureSym`(): GoTask[`fnType`] =
         let callbacks = Callbacks()
-        result = goAsyncImpl(
+        result = goImpl(
           callbacks,
           proc(): `fnType` =
             result = `fn`()
@@ -174,7 +174,7 @@ proc waitAnyImpl(currentCoro: Coroutine, gotasks: seq[GoTaskUntyped], timeoutMs:
           return true
       return false
 
-proc wait*[T](gotask: GoTask[T], timeoutMs: Positive): Option[T] =
+proc wait*[T](gotask: GoTask[T], timeoutMs: Natural): Option[T] =
   if not waitImpl(getCurrentCoroutine(), gotask, timeoutMs):
     return none(T)
   else:
@@ -184,7 +184,7 @@ proc wait*[T](gotask: GoTask[T]): T =
   discard waitImpl(getCurrentCoroutine(), gotask, -1)
   return getReturnVal[T](gotask.coro)
 
-proc wait*(gotask: GoTask[void], timeoutMs: Positive): bool =
+proc wait*(gotask: GoTask[void], timeoutMs: Natural): bool =
   return waitImpl(getCurrentCoroutine(), gotask, timeoutMs)
 
 proc wait*(gotask: GoTask[void]) =
@@ -211,21 +211,25 @@ proc waitAll*[T](gotasks: seq[GoTask[T]], timeoutMs = -1): seq[T] =
   for task in gotasks:
     result.add getReturnVal[T](task.coro)
 
-proc waitAll*(gotasks: seq[GoTask[void]], timeoutMs: Positive): bool =
+proc waitAll*(gotasks: seq[GoTask[void]], timeoutMs: Natural): bool =
   return waitAllImpl(gotasks, timeoutMs)
 
 proc waitAll*(gotasks: seq[GoTask[void]]) =
   discard waitAllImpl(gotasks, -1)
 
-proc waitAny*[T](gotasks: seq[GoTask[T]], timeoutMs: Positive): bool =
+proc waitAny*[T](gotasks: seq[GoTask[T]], timeoutMs: Natural): bool =
   return waitAnyImpl(getCurrentCoroutine(), gotasks, timeoutMs)
 
 proc waitAny*[T](gotasks: seq[GoTask[T]]) =
   waitAnyImpl(getCurrentCoroutine(), gotasks, -1)
 
 template goAndwait*(fn: untyped): untyped =
-  ## Shortcut for wait goAsync
-  wait(goAsync(`fn`))
+  ## Shortcut for `wait(go fn)`
+  wait(go(`fn`))
+
+template goAndwait*(fn: untyped, timeoutMs: Natural): untyped =
+  ## Shortcut for `wait(go fn)`
+  wait(go(`fn`), timeoutMs)
 
 proc addCallback*(goTask: GoTaskUntyped, oneShotCoro: OneShotCoroutine) =
   if goTask.finished():

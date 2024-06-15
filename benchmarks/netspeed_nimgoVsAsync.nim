@@ -32,7 +32,7 @@ when defined(nimgo):
         while true:
             let t0 = cpuTime()
             for i in 0..<NumberOfClients:
-                allClients[i] = goAsync proc() =
+                allClients[i] = go proc() =
                     let client = newGoSocket(buffered = UseBuffer)
                     client.connect("127.0.0.1", Port(12346))
                     discard client.send("Hello\n")
@@ -59,14 +59,14 @@ when defined(nimgo):
         server.setSockOpt(OptReuseAddr, true)
         server.bindAddr(Port(12346))
         server.listen()
-        goAsync processClients()
+        go processClients()
         while true:
             let client = server.accept()
             clients.addLast client
 
     withEventLoop():
-        goAsync serve()
-        goAsync client()
+        go serve()
+        go client()
 
 
 

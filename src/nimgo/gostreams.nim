@@ -95,7 +95,7 @@ method close*(s: GoBufferStream) =
   while s.waitersQueue.len() > 0:
     let coro = s.waitersQueue.popFirst()
     resumeSoon(coro.consumeAndGet())
-  goAsync proc() =
+  go proc() =
     s.closed = true
     s.wakeupSignal = true
 

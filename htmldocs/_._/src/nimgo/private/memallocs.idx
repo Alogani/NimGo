@@ -1,0 +1,6 @@
+nimTitle	memallocs	_._/src/nimgo/private/memallocs.html	module src/nimgo/private/memallocs		0
+nim	addSegvHandler	_._/src/nimgo/private/memallocs.html#addSegvHandler.m,untyped,untyped	macro addSegvHandler(segvAddr, body: untyped): untyped		123
+nim	StackSize	_._/src/nimgo/private/memallocs.html#StackSize	var StackSize		144
+nim	retrieveAllocatorDataFromSigsegv	_._/src/nimgo/private/memallocs.html#retrieveAllocatorDataFromSigsegv,pointer	proc retrieveAllocatorDataFromSigsegv(segvAddress: pointer): pointer		168
+nim	mcoStackAllocator	_._/src/nimgo/private/memallocs.html#mcoStackAllocator,uint,pointer	proc mcoStackAllocator(size: uint; allocatorData: pointer): pointer		193
+nim	mcoStackDeallocator	_._/src/nimgo/private/memallocs.html#mcoStackDeallocator,pointer,uint,pointer	proc mcoStackDeallocator(p: pointer; size: uint; allocatorData: pointer)		197
