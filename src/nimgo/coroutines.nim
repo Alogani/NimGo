@@ -7,8 +7,8 @@
 # Inspired freely from https://git.envs.net/iacore/minicoro-nim
 
 
-import ./private/[compiletimeflags, memallocs, safecontainer, utils]
-
+import ./private/[compiletimeflags, memallocs, utils]
+import std/isolation
 
 from std/os import parentDir, `/` 
 const minicoroh = currentSourcePath().parentdir() / "private/minicoro.h"
@@ -104,9 +104,13 @@ type
   EntryFn*[T] = proc(): T
     ## Supports at least closure and nimcall calling convention
   
+  EntryFnContainer[T] = object
+    entryFn: EntryFn[T]
+
   CoroutineObj = object
-    entryFn: SafeContainer[void]
-    returnedVal: pointer
+    entryFnContainer: EntryFnContainer[void]
+    callBackEnv: ForeignCell
+    returnedVal: ptr Isolated[void]
     mcoCoroutine: ptr McoCoroutine
     exception: ref Exception
     when not NimGoNoDebug:
@@ -183,11 +187,11 @@ template enhanceExceptions(coroPtr: ptr CoroutineObj, body: untyped) =
 proc coroutineMain[T](mcoCoroutine: ptr McoCoroutine) {.cdecl.} =
   ## Start point of the coroutine.
   let coroPtr = cast[ptr CoroutineObj](mcoCoroutine.getUserData())
-  let entryFn = cast[SafeContainer[EntryFn[T]]](coroPtr[].entryFn).popFromContainer()
+  let entryFn = cast[EntryFnContainer[T]](coroPtr[].entryFnContainer).entryFn
   enhanceExceptions(coroPtr):
     when T isnot void:
       let res = entryFn()
-      coroPtr[].returnedVal = allocAndSet(res.pushIntoContainer())
+      coroPtr[].returnedVal = cast[ptr Isolated[void]](allocAndSet(isolate(res)))
     else:
       entryFn()
 
@@ -205,9 +209,7 @@ when defined(nimAllowNonVarDestructor):
         destroyMcoCoroutine(coroObj)
       except:
         discard
-    if coroObj.returnedVal != nil:
-      deallocShared(coroObj.returnedVal)
-    coroObj.entryFn.destroy()
+    dispose(coroObj.callBackEnv)
 else:
   proc `=destroy`*(coroObj: var CoroutineObj) =
     ## Unfinished coroutines clean themselves. However, it is not sure its heap memory will be cleaned up, resulting in a leakage
@@ -219,7 +221,7 @@ else:
         discard
     if coroObj.returnedVal != nil:
       deallocShared(coroObj.returnedVal)
-    coroObj.entryFn.destroy()
+    dispose(coroObj.callBackEnv)
 
 
 proc getCurrentCoroutine*(): Coroutine
@@ -227,7 +229,8 @@ proc getCurrentCoroutine*(): Coroutine
 
 proc newCoroutineImpl[T](entryFn: EntryFn[T]): Coroutine =
   result = Coroutine(
-    entryFn: cast[SafeContainer[void]](entryFn.pushIntoContainer()),
+    entryFnContainer: cast[EntryFnContainer[void]](EntryFnContainer[T](entryFn: entryFn)),
+    callBackEnv: protect(rawEnv(entryFn))
   )
   var mcoCoroDescriptor = initMcoDescriptor(coroutineMain[T], StackSize.uint)
   mcoCoroDescriptor.alloc_cb = mcoStackAllocator
@@ -300,8 +303,8 @@ proc getCurrentCoroutineSafe*(): Coroutine =
 proc getReturnVal*[T](coro: Coroutine): T =
   if coro.returnedVal == nil:
     raise newException(ValueError, "Coroutine don't have a return value or is not finished")
-  result = cast[ptr SafeContainer[T]](coro.returnedVal)[].popFromContainer()
-  deallocShared(coro.returnedVal)
+  result = cast[ptr Isolated[T]](coro.returnedVal)[].extract()
+  dealloc(coro.returnedVal)
   coro.returnedVal = nil
 
 proc finished*(coro: Coroutine): bool =
