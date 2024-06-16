@@ -285,6 +285,7 @@ proc processSelector(timeout: var TimeOutWatcher) =
               break
     if hasResumed or remainingMs == 0:
       break
+    #sleep(SelectorBusySleepMs) The following can cause CPU 100% in some cases
     sleep(min(SelectorBusySleepMs, remainingMs))
   ActiveDispatcher.lastWakeUpInfo = (InvalidFd, {})
 
@@ -449,14 +450,20 @@ proc unregister*(fd: PollFd) =
 
 proc addInsideSelector*(fd: PollFd, oneShotCoro: OneShotCoroutine, event: Event) =
   ## Will not update the type event listening
+  if not ActiveDispatcher.selector.contains(FileHandle(fd)):
+    raise newException(ValueError, "Unregistered fd")
   oneShotCoro.notifyRegistration(ActiveDispatcher, true)
   if event == Event.Write:
-    ActiveDispatcher.selector.getData(FileHandle(fd)).writeList.addLast(oneShotCoro)
+    ActiveDispatcher.selector.withData(FileHandle(fd), asyncData) do:
+      asyncData.writeList.addLast(oneShotCoro)
   else:
-    ActiveDispatcher.selector.getData(FileHandle(fd)).readList.addLast(oneShotCoro)
+    ActiveDispatcher.selector.withData(FileHandle(fd), asyncData) do:
+      asyncData.readList.addLast(oneShotCoro)
 
 proc addInsideSelector*(fd: PollFd, coros: seq[OneShotCoroutine], event: Event) =
   ## Will not update the type event listening
+  if not ActiveDispatcher.selector.contains(FileHandle(fd)):
+    raise newException(ValueError, "Unregistered fd")
   for oneShotCoro in coros:
     oneShotCoro.notifyRegistration(ActiveDispatcher, true)
   when not defined(release):

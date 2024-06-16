@@ -141,9 +141,11 @@ proc startProcessInPseudoTerminal*(command: CommandObj, mergeStderr = true): GoP
         - slaves serves as both input and output of child process
         - master serves both to send input/receive output from/to child process
     ]#
+    var command2 = command
+    command2.daemon = true
     var ptyPairs = newPtyPair()
-    var master = newGoProcStream(newGoFile(ptyPairs[0], fmReadWrite))
-    var slave = newGoFile(ptyPairs[1], fmRead)
+    var master = newGoFileStream(newGoFile(ptyPairs[0], fmReadWrite))
+    var slave = newGoFile(ptyPairs[1], fmReadWrite)
     if mergeStderr:
       result = startProcess(command, slave, slave, slave)
       slave.close()
@@ -152,21 +154,21 @@ proc startProcessInPseudoTerminal*(command: CommandObj, mergeStderr = true): GoP
     else:
       var (stdoutReader, stdoutWriter) = createGoPipe()
       var (stderrReader, stderrWriter) = createGoPipe()
-      result = startProcess(command, slave, stdoutWriter, stderrWriter)
+      var stdoutCapture = newGoProcStream(stdoutReader)
+      var stderrCapture = newGoProcStream(stderrReader)
+      result = startProcess(command2, slave, stdoutWriter, stderrWriter)
       result.stdin = master
       var goprocFd = result.pollFd
-      #[
-         And then ?
-         - we should ensure stdoutWriter+stderrWriter is written to slave before reading master
-         - also meaning we can't read from master without having written to slave
-         - we should ensure slave will close
-         So we need a file stream that induce:
-        - when we read master, both stdoutReader and stderrReader are tee to slave
-        - when we read stdoutReader/stderrReader, output is tee to master
-         Could it really be done without keeping an internal buffer ?
-      ]#
-      
-      
+      var stdoutReaderFd = stdoutReader.getSelectorFileHandle()
+      var stderrReaderFd = stderrReader.getSelectorFileHandle()
+      go proc() =
+        let wakeUpInfo = suspendUntilAny(@[stdoutReaderFd, stderrReaderFd, goprocFd], @[])
+        if wakeUpInfo.pollFd == goprocFd:
+          return
+        if wakeUpInfo.pollFd == stdoutReaderFd:
+          stdoutCapture.write(stdoutReader.readChunk())
+        elif wakeUpInfo.pollFd == stderrReaderFd:
+          stderrCapture.write(stderrReader.readChunk())
 
 
 proc startProcess*(command: CommandObj; stdin = StreamNone(), stdout = StreamNone(), stderr = StreamNone()): GoProc =
