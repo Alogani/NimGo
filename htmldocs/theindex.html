@@ -21,7 +21,7 @@
   <div class="document" id="documentId">
     <div class="container">
       <h1 class="title">Index</h1>
-      Modules: <a href="_._/src/nimgo.html">../src/nimgo</a>, <a href="_._/src/nimgo/coroutines.html">../src/nimgo/coroutines</a>, <a href="_._/src/nimgo/eventdispatcher.html">../src/nimgo/eventdispatcher</a>, <a href="_._/src/nimgo/gofile.html">../src/nimgo/gofile</a>, <a href="_._/src/nimgo/gonet.html">../src/nimgo/gonet</a>, <a href="_._/src/nimgo/goproc.html">../src/nimgo/goproc</a>, <a href="_._/src/nimgo/gostreams.html">../src/nimgo/gostreams</a>, <a href="_._/src/nimgo/gotaskscomplete.html">../src/nimgo/gotaskscomplete</a>, <a href="_._/src/nimgo/private/buffer.html">../src/nimgo/private/buffer</a>, <a href="_._/src/nimgo/private/childproc_posix.html">../src/nimgo/private/childproc_posix</a>, <a href="_._/src/nimgo/private/coroutinepool.html">../src/nimgo/private/coroutinepool</a>, <a href="_._/src/nimgo/private/safecontainer.html">../src/nimgo/private/safecontainer</a>, <a href="_._/src/nimgo/private/timeoutwatcher.html">../src/nimgo/private/timeoutwatcher</a>, <a href="_._/src/nimgo/private/utils.html">../src/nimgo/private/utils</a>, <a href="_._/src/nimgo/public/gotasks.html">../src/nimgo/public/gotasks</a>, <a href="nimgo.html">nimgo</a>.<br/><p /><h2>API symbols</h2>
+      Modules: <a href="_._/src/nimgo.html">../src/nimgo</a>, <a href="_._/src/nimgo/coroutines.html">../src/nimgo/coroutines</a>, <a href="_._/src/nimgo/eventdispatcher.html">../src/nimgo/eventdispatcher</a>, <a href="_._/src/nimgo/gofile.html">../src/nimgo/gofile</a>, <a href="_._/src/nimgo/gonet.html">../src/nimgo/gonet</a>, <a href="_._/src/nimgo/goproc.html">../src/nimgo/goproc</a>, <a href="_._/src/nimgo/gostreams.html">../src/nimgo/gostreams</a>, <a href="_._/src/nimgo/private/buffer.html">../src/nimgo/private/buffer</a>, <a href="_._/src/nimgo/private/childproc_posix.html">../src/nimgo/private/childproc_posix</a>, <a href="_._/src/nimgo/private/compiletimeflags.html">../src/nimgo/private/compiletimeflags</a>, <a href="_._/src/nimgo/private/memallocs.html">../src/nimgo/private/memallocs</a>, <a href="_._/src/nimgo/private/safecontainer.html">../src/nimgo/private/safecontainer</a>, <a href="_._/src/nimgo/private/timeoutwatcher.html">../src/nimgo/private/timeoutwatcher</a>, <a href="_._/src/nimgo/private/utils.html">../src/nimgo/private/utils</a>, <a href="_._/src/nimgo/public/gotasks.html">../src/nimgo/public/gotasks</a>, <a href="nimgo.html">nimgo</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="%60%26lt%3B%3D%60" href="#%60%26lt%3B%3D%60"><span>`&lt;=`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="timeoutwatcher: proc `&lt;=`(a, b: TimeOutWatcher): bool" href="_._/src/nimgo/private/timeoutwatcher.html#%3C%3D%2CTimeOutWatcher%2CTimeOutWatcher">timeoutwatcher: proc `&lt;=`(a, b: TimeOutWatcher): bool</a></li>
@@ -52,16 +52,8 @@
            inheritable = defined(nimInheritHandles); timeoutMs = -1): tuple[
     address: string, client: GoSocket]</a></li>
           </ul></dd>
-<dt><a name="acquireCoro" href="#acquireCoro"><span>acquireCoro:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="coroutinepool: proc acquireCoro[T](pool: CoroutinePool; entryFn: EntryFn[T]): Coroutine" href="_._/src/nimgo/private/coroutinepool.html#acquireCoro%2CCoroutinePool%2CEntryFn%5BT%5D">coroutinepool: proc acquireCoro[T](pool: CoroutinePool; entryFn: EntryFn[T]): Coroutine</a></li>
-          <li><a class="reference external"
-          data-doc-search-tag="coroutinepool: proc acquireCoro(pool: CoroutinePool; entryFn: EntryFn[void]): Coroutine" href="_._/src/nimgo/private/coroutinepool.html#acquireCoro%2CCoroutinePool%2CEntryFn%5Bvoid%5D">coroutinepool: proc acquireCoro(pool: CoroutinePool; entryFn: EntryFn[void]): Coroutine</a></li>
-          </ul></dd>
 <dt><a name="addCallback" href="#addCallback"><span>addCallback:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="gotaskscomplete: proc addCallback(goTask: GoTaskUntyped; oneShotCoro: OneShotCoroutine)" href="_._/src/nimgo/gotaskscomplete.html#addCallback%2CGoTask%2COneShotCoroutine">gotaskscomplete: proc addCallback(goTask: GoTaskUntyped; oneShotCoro: OneShotCoroutine)</a></li>
-          <li><a class="reference external"
           data-doc-search-tag="gotasks: proc addCallback(goTask: GoTaskUntyped; oneShotCoro: OneShotCoroutine)" href="_._/src/nimgo/public/gotasks.html#addCallback%2CGoTask%2COneShotCoroutine">gotasks: proc addCallback(goTask: GoTaskUntyped; oneShotCoro: OneShotCoroutine)</a></li>
           </ul></dd>
 <dt><a name="addInsideSelector" href="#addInsideSelector"><span>addInsideSelector:</span></a></dt><dd><ul class="simple">
@@ -69,6 +61,10 @@
           data-doc-search-tag="eventdispatcher: proc addInsideSelector(fd: PollFd; oneShotCoro: OneShotCoroutine; event: Event)" href="_._/src/nimgo/eventdispatcher.html#addInsideSelector%2CPollFd%2COneShotCoroutine%2CEvent">eventdispatcher: proc addInsideSelector(fd: PollFd; oneShotCoro: OneShotCoroutine; event: Event)</a></li>
           <li><a class="reference external"
           data-doc-search-tag="eventdispatcher: proc addInsideSelector(fd: PollFd; coros: seq[OneShotCoroutine]; event: Event)" href="_._/src/nimgo/eventdispatcher.html#addInsideSelector%2CPollFd%2Cseq%5BOneShotCoroutine%5D%2CEvent">eventdispatcher: proc addInsideSelector(fd: PollFd; coros: seq[OneShotCoroutine]; event: Event)</a></li>
+          </ul></dd>
+<dt><a name="addSegvHandler" href="#addSegvHandler"><span>addSegvHandler:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="memallocs: macro addSegvHandler(segvAddr, body: untyped): untyped" href="_._/src/nimgo/private/memallocs.html#addSegvHandler.m%2Cuntyped%2Cuntyped">memallocs: macro addSegvHandler(segvAddr, body: untyped): untyped</a></li>
           </ul></dd>
 <dt><a name="allocAndSet" href="#allocAndSet"><span>allocAndSet:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -169,10 +165,6 @@
 <dt><a name="CoroutineError" href="#CoroutineError"><span>CoroutineError:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="coroutines: object CoroutineError" href="_._/src/nimgo/coroutines.html#CoroutineError">coroutines: object CoroutineError</a></li>
-          </ul></dd>
-<dt><a name="CoroutinePool" href="#CoroutinePool"><span>CoroutinePool:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="coroutinepool: type CoroutinePool" href="_._/src/nimgo/private/coroutinepool.html#CoroutinePool">coroutinepool: type CoroutinePool</a></li>
           </ul></dd>
 <dt><a name="createGoPipe" href="#createGoPipe"><span>createGoPipe:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -306,13 +298,15 @@
 <li><a class="reference external"
           data-doc-search-tag="coroutines: proc getState(coro: Coroutine): CoroState" href="_._/src/nimgo/coroutines.html#getState%2CCoroutine">coroutines: proc getState(coro: Coroutine): CoroState</a></li>
           </ul></dd>
+<dt><a name="go" href="#go"><span>go:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gotasks: macro go(fn: typed): untyped" href="_._/src/nimgo/public/gotasks.html#go.m%2Ctyped">gotasks: macro go(fn: typed): untyped</a></li>
+          </ul></dd>
 <dt><a name="goAndwait" href="#goAndwait"><span>goAndwait:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="gotasks: template goAndwait(fn: untyped): untyped" href="_._/src/nimgo/public/gotasks.html#goAndwait.t%2Cuntyped">gotasks: template goAndwait(fn: untyped): untyped</a></li>
-          </ul></dd>
-<dt><a name="goAsync" href="#goAsync"><span>goAsync:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="gotasks: macro goAsync(fn: typed): untyped" href="_._/src/nimgo/public/gotasks.html#goAsync.m%2Ctyped">gotasks: macro goAsync(fn: typed): untyped</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="gotasks: template goAndwait(fn: untyped; timeoutMs: Natural): untyped" href="_._/src/nimgo/public/gotasks.html#goAndwait.t%2Cuntyped%2CNatural">gotasks: template goAndwait(fn: untyped; timeoutMs: Natural): untyped</a></li>
           </ul></dd>
 <dt><a name="GoBufferStream" href="#GoBufferStream"><span>GoBufferStream:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -422,17 +416,13 @@
 <li><a class="reference external"
           data-doc-search-tag="gonet: proc listen(gosocket: GoSocket; backlog = SOMAXCONN)" href="_._/src/nimgo/gonet.html#listen%2CGoSocket">gonet: proc listen(gosocket: GoSocket; backlog = SOMAXCONN)</a></li>
           </ul></dd>
-<dt><a name="mcoAllocator" href="#mcoAllocator"><span>mcoAllocator:</span></a></dt><dd><ul class="simple">
+<dt><a name="mcoStackAllocator" href="#mcoStackAllocator"><span>mcoStackAllocator:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="coroutines: proc mcoAllocator(size: uint; allocatorData: ptr CoroutineObj): pointer" href="_._/src/nimgo/coroutines.html#mcoAllocator%2Cuint%2Cptr.CoroutineObj">coroutines: proc mcoAllocator(size: uint; allocatorData: ptr CoroutineObj): pointer</a></li>
+          data-doc-search-tag="memallocs: proc mcoStackAllocator(size: uint; allocatorData: pointer): pointer" href="_._/src/nimgo/private/memallocs.html#mcoStackAllocator%2Cuint%2Cpointer">memallocs: proc mcoStackAllocator(size: uint; allocatorData: pointer): pointer</a></li>
           </ul></dd>
-<dt><a name="mcoDeallocator" href="#mcoDeallocator"><span>mcoDeallocator:</span></a></dt><dd><ul class="simple">
+<dt><a name="mcoStackDeallocator" href="#mcoStackDeallocator"><span>mcoStackDeallocator:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="coroutines: proc mcoDeallocator(p: pointer; size: uint; allocatorData: ptr CoroutineObj)" href="_._/src/nimgo/coroutines.html#mcoDeallocator%2Cpointer%2Cuint%2Cptr.CoroutineObj">coroutines: proc mcoDeallocator(p: pointer; size: uint; allocatorData: ptr CoroutineObj)</a></li>
-          </ul></dd>
-<dt><a name="McoStackSize" href="#McoStackSize"><span>McoStackSize:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="coroutines: var McoStackSize" href="_._/src/nimgo/coroutines.html#McoStackSize">coroutines: var McoStackSize</a></li>
+          data-doc-search-tag="memallocs: proc mcoStackDeallocator(p: pointer; size: uint; allocatorData: pointer)" href="_._/src/nimgo/private/memallocs.html#mcoStackDeallocator%2Cpointer%2Cuint%2Cpointer">memallocs: proc mcoStackDeallocator(p: pointer; size: uint; allocatorData: pointer)</a></li>
           </ul></dd>
 <dt><a name="newBuffer" href="#newBuffer"><span>newBuffer:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -468,9 +458,9 @@
             protocol: Protocol = IPPROTO_TCP; buffered = true;
             inheritable = defined(nimInheritHandles)): GoSocket</a></li>
           </ul></dd>
-<dt><a name="NimGoNoVMem" href="#NimGoNoVMem"><span>NimGoNoVMem:</span></a></dt><dd><ul class="simple">
+<dt><a name="NimGoNoDebug" href="#NimGoNoDebug"><span>NimGoNoDebug:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="coroutines: const NimGoNoVMem" href="_._/src/nimgo/coroutines.html#NimGoNoVMem">coroutines: const NimGoNoVMem</a></li>
+          data-doc-search-tag="compiletimeflags: const NimGoNoDebug" href="_._/src/nimgo/private/compiletimeflags.html#NimGoNoDebug">compiletimeflags: const NimGoNoDebug</a></li>
           </ul></dd>
 <dt><a name="OneShotCoroutine" href="#OneShotCoroutine"><span>OneShotCoroutine:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -646,10 +636,6 @@
               oneshot: bool = true): PollFd" href="_._/src/nimgo/eventdispatcher.html#registerTimer%2Cint%2Cseq%5BOneShotCoroutine%5D%2Cbool">eventdispatcher: proc registerTimer(timeoutMs: int; coros: seq[OneShotCoroutine] = @[];
               oneshot: bool = true): PollFd</a></li>
           </ul></dd>
-<dt><a name="releaseCoro" href="#releaseCoro"><span>releaseCoro:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="coroutinepool: proc releaseCoro(pool: CoroutinePool; coro: Coroutine)" href="_._/src/nimgo/private/coroutinepool.html#releaseCoro%2CCoroutinePool%2CCoroutine">coroutinepool: proc releaseCoro(pool: CoroutinePool; coro: Coroutine)</a></li>
-          </ul></dd>
 <dt><a name="removeFromSelector" href="#removeFromSelector"><span>removeFromSelector:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="eventdispatcher: proc removeFromSelector(oneShotCoro: OneShotCoroutine; byTimer: bool)" href="_._/src/nimgo/eventdispatcher.html#removeFromSelector%2COneShotCoroutine%2Cbool">eventdispatcher: proc removeFromSelector(oneShotCoro: OneShotCoroutine; byTimer: bool)</a></li>
@@ -664,6 +650,10 @@
 <li><a class="reference external"
           data-doc-search-tag="gotasks: proc resumeAfter(goTask: GoTaskUntyped)" href="_._/src/nimgo/public/gotasks.html#resumeAfter%2CGoTask">gotasks: proc resumeAfter(goTask: GoTaskUntyped)</a></li>
           </ul></dd>
+<dt><a name="resumeAfterLoop" href="#resumeAfterLoop"><span>resumeAfterLoop:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="eventdispatcher: proc resumeAfterLoop(oneShotCoro: OneShotCoroutine)" href="_._/src/nimgo/eventdispatcher.html#resumeAfterLoop%2COneShotCoroutine">eventdispatcher: proc resumeAfterLoop(oneShotCoro: OneShotCoroutine)</a></li>
+          </ul></dd>
 <dt><a name="resumeImmediatly" href="#resumeImmediatly"><span>resumeImmediatly:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="eventdispatcher: proc resumeImmediatly(coro: Coroutine)" href="_._/src/nimgo/eventdispatcher.html#resumeImmediatly%2CCoroutine">eventdispatcher: proc resumeImmediatly(coro: Coroutine)</a></li>
@@ -676,13 +666,15 @@
 <li><a class="reference external"
           data-doc-search-tag="eventdispatcher: proc resumeOnTimer(coro: Coroutine; timeoutMs: int; willBeAwaited = true)" href="_._/src/nimgo/eventdispatcher.html#resumeOnTimer%2CCoroutine%2Cint">eventdispatcher: proc resumeOnTimer(coro: Coroutine; timeoutMs: int; willBeAwaited = true)</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="eventdispatcher: proc resumeOnTimer(oneShotCoro: OneShotCoroutine; timeoutMs: int;
-              willBeAwaited = true)" href="_._/src/nimgo/eventdispatcher.html#resumeOnTimer%2COneShotCoroutine%2Cint">eventdispatcher: proc resumeOnTimer(oneShotCoro: OneShotCoroutine; timeoutMs: int;
-              willBeAwaited = true)</a></li>
+          data-doc-search-tag="eventdispatcher: proc resumeOnTimer(oneShotCoro: OneShotCoroutine; timeoutMs: int; willBeAwaited: bool)" href="_._/src/nimgo/eventdispatcher.html#resumeOnTimer%2COneShotCoroutine%2Cint%2Cbool">eventdispatcher: proc resumeOnTimer(oneShotCoro: OneShotCoroutine; timeoutMs: int; willBeAwaited: bool)</a></li>
           </ul></dd>
 <dt><a name="resumeSoon" href="#resumeSoon"><span>resumeSoon:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="eventdispatcher: proc resumeSoon(coro: Coroutine)" href="_._/src/nimgo/eventdispatcher.html#resumeSoon%2CCoroutine">eventdispatcher: proc resumeSoon(coro: Coroutine)</a></li>
+          </ul></dd>
+<dt><a name="retrieveAllocatorDataFromSigsegv" href="#retrieveAllocatorDataFromSigsegv"><span>retrieveAllocatorDataFromSigsegv:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="memallocs: proc retrieveAllocatorDataFromSigsegv(segvAddress: pointer): pointer" href="_._/src/nimgo/private/memallocs.html#retrieveAllocatorDataFromSigsegv%2Cpointer">memallocs: proc retrieveAllocatorDataFromSigsegv(segvAddress: pointer): pointer</a></li>
           </ul></dd>
 <dt><a name="runEventLoop" href="#runEventLoop"><span>runEventLoop:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -729,6 +721,10 @@
 <dt><a name="sleepAsync" href="#sleepAsync"><span>sleepAsync:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="eventdispatcher: proc sleepAsync(timeoutMs: int)" href="_._/src/nimgo/eventdispatcher.html#sleepAsync%2Cint">eventdispatcher: proc sleepAsync(timeoutMs: int)</a></li>
+          </ul></dd>
+<dt><a name="StackSize" href="#StackSize"><span>StackSize:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="memallocs: var StackSize" href="_._/src/nimgo/private/memallocs.html#StackSize">memallocs: var StackSize</a></li>
           </ul></dd>
 <dt><a name="startProcess" href="#startProcess"><span>startProcess:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -811,8 +807,6 @@
 <dt><a name="suspendUntilRead" href="#suspendUntilRead"><span>suspendUntilRead:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="eventdispatcher: proc suspendUntilRead(fd: PollFd; timeoutMs = -1; consumeEvent = true): bool" href="_._/src/nimgo/eventdispatcher.html#suspendUntilRead%2CPollFd%2Cint">eventdispatcher: proc suspendUntilRead(fd: PollFd; timeoutMs = -1; consumeEvent = true): bool</a></li>
-          <li><a class="reference external"
-          data-doc-search-tag="gotaskscomplete: proc suspendUntilRead(fd: PollFd; canceller: GoTaskUntyped = nil; consumeEvent: bool): bool" href="_._/src/nimgo/gotaskscomplete.html#suspendUntilRead%2CPollFd%2CGoTask%2Cbool">gotaskscomplete: proc suspendUntilRead(fd: PollFd; canceller: GoTaskUntyped = nil; consumeEvent: bool): bool</a></li>
           </ul></dd>
 <dt><a name="suspendUntilSoon" href="#suspendUntilSoon"><span>suspendUntilSoon:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -827,8 +821,6 @@
 <dt><a name="suspendUntilWrite" href="#suspendUntilWrite"><span>suspendUntilWrite:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="eventdispatcher: proc suspendUntilWrite(fd: PollFd; timeoutMs = -1; consumeEvent = true): bool" href="_._/src/nimgo/eventdispatcher.html#suspendUntilWrite%2CPollFd%2Cint">eventdispatcher: proc suspendUntilWrite(fd: PollFd; timeoutMs = -1; consumeEvent = true): bool</a></li>
-          <li><a class="reference external"
-          data-doc-search-tag="gotaskscomplete: proc suspendUntilWrite(fd: PollFd; canceller: GoTaskUntyped = nil; consumeEvent: bool): bool" href="_._/src/nimgo/gotaskscomplete.html#suspendUntilWrite%2CPollFd%2CGoTask%2Cbool">gotaskscomplete: proc suspendUntilWrite(fd: PollFd; canceller: GoTaskUntyped = nil; consumeEvent: bool): bool</a></li>
           </ul></dd>
 <dt><a name="terminate" href="#terminate"><span>terminate:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -862,11 +854,11 @@
           <li><a class="reference external"
           data-doc-search-tag="gotasks: proc wait[T](gotask: GoTask[T]): T" href="_._/src/nimgo/public/gotasks.html#wait%2CGoTask%5BT%5D">gotasks: proc wait[T](gotask: GoTask[T]): T</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gotasks: proc wait[T](gotask: GoTask[T]; timeoutMs: Positive): Option[T]" href="_._/src/nimgo/public/gotasks.html#wait%2CGoTask%5BT%5D%2CPositive">gotasks: proc wait[T](gotask: GoTask[T]; timeoutMs: Positive): Option[T]</a></li>
+          data-doc-search-tag="gotasks: proc wait[T](gotask: GoTask[T]; timeoutMs: Natural): Option[T]" href="_._/src/nimgo/public/gotasks.html#wait%2CGoTask%5BT%5D%2CNatural">gotasks: proc wait[T](gotask: GoTask[T]; timeoutMs: Natural): Option[T]</a></li>
           <li><a class="reference external"
           data-doc-search-tag="gotasks: proc wait(gotask: GoTask[void])" href="_._/src/nimgo/public/gotasks.html#wait%2CGoTask%5Bvoid%5D">gotasks: proc wait(gotask: GoTask[void])</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gotasks: proc wait(gotask: GoTask[void]; timeoutMs: Positive): bool" href="_._/src/nimgo/public/gotasks.html#wait%2CGoTask%5Bvoid%5D%2CPositive">gotasks: proc wait(gotask: GoTask[void]; timeoutMs: Positive): bool</a></li>
+          data-doc-search-tag="gotasks: proc wait(gotask: GoTask[void]; timeoutMs: Natural): bool" href="_._/src/nimgo/public/gotasks.html#wait%2CGoTask%5Bvoid%5D%2CNatural">gotasks: proc wait(gotask: GoTask[void]; timeoutMs: Natural): bool</a></li>
           </ul></dd>
 <dt><a name="waitAll" href="#waitAll"><span>waitAll:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -874,13 +866,13 @@
           <li><a class="reference external"
           data-doc-search-tag="gotasks: proc waitAll(gotasks: seq[GoTask[void]])" href="_._/src/nimgo/public/gotasks.html#waitAll%2Cseq%5BGoTask%5Bvoid%5D%5D">gotasks: proc waitAll(gotasks: seq[GoTask[void]])</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gotasks: proc waitAll(gotasks: seq[GoTask[void]]; timeoutMs: Positive): bool" href="_._/src/nimgo/public/gotasks.html#waitAll%2Cseq%5BGoTask%5Bvoid%5D%5D%2CPositive">gotasks: proc waitAll(gotasks: seq[GoTask[void]]; timeoutMs: Positive): bool</a></li>
+          data-doc-search-tag="gotasks: proc waitAll(gotasks: seq[GoTask[void]]; timeoutMs: Natural): bool" href="_._/src/nimgo/public/gotasks.html#waitAll%2Cseq%5BGoTask%5Bvoid%5D%5D%2CNatural">gotasks: proc waitAll(gotasks: seq[GoTask[void]]; timeoutMs: Natural): bool</a></li>
           </ul></dd>
 <dt><a name="waitAny" href="#waitAny"><span>waitAny:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="gotasks: proc waitAny[T](gotasks: seq[GoTask[T]])" href="_._/src/nimgo/public/gotasks.html#waitAny%2Cseq%5BGoTask%5BT%5D%5D">gotasks: proc waitAny[T](gotasks: seq[GoTask[T]])</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="gotasks: proc waitAny[T](gotasks: seq[GoTask[T]]; timeoutMs: Positive): bool" href="_._/src/nimgo/public/gotasks.html#waitAny%2Cseq%5BGoTask%5BT%5D%5D%2CPositive">gotasks: proc waitAny[T](gotasks: seq[GoTask[T]]; timeoutMs: Positive): bool</a></li>
+          data-doc-search-tag="gotasks: proc waitAny[T](gotasks: seq[GoTask[T]]; timeoutMs: Natural): bool" href="_._/src/nimgo/public/gotasks.html#waitAny%2Cseq%5BGoTask%5BT%5D%5D%2CNatural">gotasks: proc waitAny[T](gotasks: seq[GoTask[T]]; timeoutMs: Natural): bool</a></li>
           </ul></dd>
 <dt><a name="waitForExit" href="#waitForExit"><span>waitForExit:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -906,7 +898,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-11 06:54:41 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-15 10:13:08 UTC</small>
       </div>
     </div>
   </div>

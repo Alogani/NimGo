@@ -1,0 +1,2 @@
+nimTitle	compiletimeflags	_._/src/nimgo/private/compiletimeflags.html	module src/nimgo/private/compiletimeflags		0
+nim	NimGoNoDebug	_._/src/nimgo/private/compiletimeflags.html#NimGoNoDebug	const NimGoNoDebug		4

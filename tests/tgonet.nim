@@ -1,5 +1,9 @@
 when defined(windows):
-  stderr.write("The features of these files hav enot yet been implemented under windows.\n")
+  stderr.write("The features of these files have not yet been implemented under windows.\n")
+  stderr.write("Skipping the test...\n")
+  stderr.flushFile()
+elif defined(macosx):
+  stderr.write("This test has an unresolved bug under macos. See https://github.com/Alogani/NimGo/issues/32.\n")
   stderr.write("Skipping the test...\n")
   stderr.flushFile()
 else:
@@ -39,8 +43,8 @@ else:
       server.close()
 
     withEventLoop():
-      goAsync consumer()
-      goAsync producer()
+      go consumer()
+      go producer()
 
   test "Producer/consumer - unbuffered socket":
     ProducerConsumerCode(false)

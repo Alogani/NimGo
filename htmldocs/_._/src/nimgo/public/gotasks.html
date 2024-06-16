@@ -79,20 +79,20 @@
 </ul>
 <ul class="simple nested-toc-section">wait
   <li><a class="reference" href="#wait%2CGoTask%5Bvoid%5D" title="wait(gotask: GoTask[void])">wait(gotask: GoTask[void])</a></li>
-<li><a class="reference" href="#wait%2CGoTask%5Bvoid%5D%2CPositive" title="wait(gotask: GoTask[void]; timeoutMs: Positive): bool">wait(gotask: GoTask[void]; timeoutMs: Positive): bool</a></li>
+<li><a class="reference" href="#wait%2CGoTask%5Bvoid%5D%2CNatural" title="wait(gotask: GoTask[void]; timeoutMs: Natural): bool">wait(gotask: GoTask[void]; timeoutMs: Natural): bool</a></li>
 <li><a class="reference" href="#wait%2CGoTask%5BT%5D" title="wait[T](gotask: GoTask[T]): T">wait[T](gotask: GoTask[T]): T</a></li>
-<li><a class="reference" href="#wait%2CGoTask%5BT%5D%2CPositive" title="wait[T](gotask: GoTask[T]; timeoutMs: Positive): Option[T]">wait[T](gotask: GoTask[T]; timeoutMs: Positive): Option[T]</a></li>
+<li><a class="reference" href="#wait%2CGoTask%5BT%5D%2CNatural" title="wait[T](gotask: GoTask[T]; timeoutMs: Natural): Option[T]">wait[T](gotask: GoTask[T]; timeoutMs: Natural): Option[T]</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">waitAll
   <li><a class="reference" href="#waitAll%2Cseq%5BGoTask%5Bvoid%5D%5D" title="waitAll(gotasks: seq[GoTask[void]])">waitAll(gotasks: seq[GoTask[void]])</a></li>
-<li><a class="reference" href="#waitAll%2Cseq%5BGoTask%5Bvoid%5D%5D%2CPositive" title="waitAll(gotasks: seq[GoTask[void]]; timeoutMs: Positive): bool">waitAll(gotasks: seq[GoTask[void]]; timeoutMs: Positive): bool</a></li>
+<li><a class="reference" href="#waitAll%2Cseq%5BGoTask%5Bvoid%5D%5D%2CNatural" title="waitAll(gotasks: seq[GoTask[void]]; timeoutMs: Natural): bool">waitAll(gotasks: seq[GoTask[void]]; timeoutMs: Natural): bool</a></li>
 <li><a class="reference" href="#waitAll%2Cseq%5BGoTask%5BT%5D%5D%2Cint" title="waitAll[T](gotasks: seq[GoTask[T]]; timeoutMs = -1): seq[T]">waitAll[T](gotasks: seq[GoTask[T]]; timeoutMs = -1): seq[T]</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">waitAny
   <li><a class="reference" href="#waitAny%2Cseq%5BGoTask%5BT%5D%5D" title="waitAny[T](gotasks: seq[GoTask[T]])">waitAny[T](gotasks: seq[GoTask[T]])</a></li>
-<li><a class="reference" href="#waitAny%2Cseq%5BGoTask%5BT%5D%5D%2CPositive" title="waitAny[T](gotasks: seq[GoTask[T]]; timeoutMs: Positive): bool">waitAny[T](gotasks: seq[GoTask[T]]; timeoutMs: Positive): bool</a></li>
+<li><a class="reference" href="#waitAny%2Cseq%5BGoTask%5BT%5D%5D%2CNatural" title="waitAny[T](gotasks: seq[GoTask[T]]; timeoutMs: Natural): bool">waitAny[T](gotasks: seq[GoTask[T]]; timeoutMs: Natural): bool</a></li>
 
 </ul>
 
@@ -103,8 +103,8 @@
   <details open>
     <summary><a class="reference reference-toplevel" href="#17" id="67">Macros</a></summary>
     <ul class="simple simple-toc-section">
-      <ul class="simple nested-toc-section">goAsync
-  <li><a class="reference" href="#goAsync.m%2Ctyped" title="goAsync(fn: typed): untyped">goAsync(fn: typed): untyped</a></li>
+      <ul class="simple nested-toc-section">go
+  <li><a class="reference" href="#go.m%2Ctyped" title="go(fn: typed): untyped">go(fn: typed): untyped</a></li>
 
 </ul>
 
@@ -117,6 +117,7 @@
     <ul class="simple simple-toc-section">
       <ul class="simple nested-toc-section">goAndwait
   <li><a class="reference" href="#goAndwait.t%2Cuntyped" title="goAndwait(fn: untyped): untyped">goAndwait(fn: untyped): untyped</a></li>
+<li><a class="reference" href="#goAndwait.t%2Cuntyped%2CNatural" title="goAndwait(fn: untyped; timeoutMs: Natural): untyped">goAndwait(fn: untyped; timeoutMs: Natural): untyped</a></li>
 
 </ul>
 
@@ -128,7 +129,7 @@
 
   </div>
   <div class="nine columns" id="content">
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L1" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L1" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L1" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
     <div id="tocRoot"></div>
@@ -148,8 +149,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L19" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L19" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L17" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L17" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -158,8 +159,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L18" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L18" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L16" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L16" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -176,8 +177,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L192" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L192" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L234" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L234" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -189,8 +190,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L111" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L111" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L98" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L98" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -199,8 +200,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L114" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L114" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L101" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L101" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -213,8 +214,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L200" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L200" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L242" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L242" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -227,19 +228,19 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L152" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L152" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L190" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L190" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
-<div id="wait,GoTask[void],Positive">
-  <dt><pre><span class="Keyword">proc</span> <a href="#wait%2CGoTask%5Bvoid%5D%2CPositive"><span class="Identifier">wait</span></a><span class="Other">(</span><span class="Identifier">gotask</span><span class="Other">:</span> <a href="gotasks.html#GoTask"><span class="Identifier">GoTask</span></a><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.
+<div id="wait,GoTask[void],Natural">
+  <dt><pre><span class="Keyword">proc</span> <a href="#wait%2CGoTask%5Bvoid%5D%2CNatural"><span class="Identifier">wait</span></a><span class="Other">(</span><span class="Identifier">gotask</span><span class="Other">:</span> <a href="gotasks.html#GoTask"><span class="Identifier">GoTask</span></a><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L149" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L149" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L187" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L187" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -248,18 +249,18 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L145" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L145" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L183" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L183" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
-<div id="wait,GoTask[T],Positive">
-  <dt><pre><span class="Keyword">proc</span> <a href="#wait%2CGoTask%5BT%5D%2CPositive"><span class="Identifier">wait</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">gotask</span><span class="Other">:</span> <a href="gotasks.html#GoTask"><span class="Identifier">GoTask</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<div id="wait,GoTask[T],Natural">
+  <dt><pre><span class="Keyword">proc</span> <a href="#wait%2CGoTask%5BT%5D%2CNatural"><span class="Identifier">wait</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">gotask</span><span class="Other">:</span> <a href="gotasks.html#GoTask"><span class="Identifier">GoTask</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Option</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L139" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L139" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L177" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L177" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -272,19 +273,19 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L179" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L179" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L217" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L217" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
-<div id="waitAll,seq[GoTask[void]],Positive">
-  <dt><pre><span class="Keyword">proc</span> <a href="#waitAll%2Cseq%5BGoTask%5Bvoid%5D%5D%2CPositive"><span class="Identifier">waitAll</span></a><span class="Other">(</span><span class="Identifier">gotasks</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="gotasks.html#GoTask"><span class="Identifier">GoTask</span></a><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.
+<div id="waitAll,seq[GoTask[void]],Natural">
+  <dt><pre><span class="Keyword">proc</span> <a href="#waitAll%2Cseq%5BGoTask%5Bvoid%5D%5D%2CNatural"><span class="Identifier">waitAll</span></a><span class="Other">(</span><span class="Identifier">gotasks</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="gotasks.html#GoTask"><span class="Identifier">GoTask</span></a><span class="Other">[</span><span class="Identifier">void</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">CoroutineError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">TimeEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L176" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L176" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L214" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L214" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -293,8 +294,8 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L169" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L169" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L207" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L207" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -306,18 +307,18 @@
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L185" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L185" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L223" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L223" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
-<div id="waitAny,seq[GoTask[T]],Positive">
-  <dt><pre><span class="Keyword">proc</span> <a href="#waitAny%2Cseq%5BGoTask%5BT%5D%5D%2CPositive"><span class="Identifier">waitAny</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">gotasks</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="gotasks.html#GoTask"><span class="Identifier">GoTask</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">Positive</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span></pre></dt>
+<div id="waitAny,seq[GoTask[T]],Natural">
+  <dt><pre><span class="Keyword">proc</span> <a href="#waitAny%2Cseq%5BGoTask%5BT%5D%5D%2CNatural"><span class="Identifier">waitAny</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">gotasks</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><a href="gotasks.html#GoTask"><span class="Identifier">GoTask</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span></pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L182" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L182" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L220" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L220" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -329,14 +330,14 @@
 <div class="section" id="17">
   <h1><a class="toc-backref" href="#17">Macros</a></h1>
   <dl class="item">
-    <div id="goAsync-macros-all">
-  <div id="goAsync.m,typed">
-  <dt><pre><span class="Keyword">macro</span> <a href="#goAsync.m%2Ctyped"><span class="Identifier">goAsync</span></a><span class="Other">(</span><span class="Identifier">fn</span><span class="Other">:</span> <span class="Identifier">typed</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">untyped</span></pre></dt>
+    <div id="go-macros-all">
+  <div id="go.m,typed">
+  <dt><pre><span class="Keyword">macro</span> <a href="#go.m%2Ctyped"><span class="Identifier">go</span></a><span class="Other">(</span><span class="Identifier">fn</span><span class="Other">:</span> <span class="Identifier">typed</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">untyped</span></pre></dt>
   <dd>
     
     
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L43" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L43" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L30" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L30" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -353,9 +354,19 @@
   <dt><pre><span class="Keyword">template</span> <a href="#goAndwait.t%2Cuntyped"><span class="Identifier">goAndwait</span></a><span class="Other">(</span><span class="Identifier">fn</span><span class="Other">:</span> <span class="Identifier">untyped</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">untyped</span></pre></dt>
   <dd>
     
-    Shortcut for wait goAsync
-    <a href="https://github.com/Alogani/asyncio/tree/v0.0.6/src/nimgo/public/gotasks.nim#L188" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L188" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    Shortcut for <tt class="docutils literal"><span class="pre"><span class="Identifier">wait</span><span class="Punctuation">(</span><span class="Identifier">go</span> <span class="Identifier">fn</span><span class="Punctuation">)</span></span></tt>
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L226" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L226" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+<div id="goAndwait.t,untyped,Natural">
+  <dt><pre><span class="Keyword">template</span> <a href="#goAndwait.t%2Cuntyped%2CNatural"><span class="Identifier">goAndwait</span></a><span class="Other">(</span><span class="Identifier">fn</span><span class="Other">:</span> <span class="Identifier">untyped</span><span class="Other">;</span> <span class="Identifier">timeoutMs</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">untyped</span></pre></dt>
+  <dd>
+    
+    Shortcut for <tt class="docutils literal"><span class="pre"><span class="Identifier">wait</span><span class="Punctuation">(</span><span class="Identifier">go</span> <span class="Identifier">fn</span><span class="Punctuation">)</span></span></tt>
+    <a href="https://github.com/Alogani/asyncio/tree/v0.0.7/src/nimgo/public/gotasks.nim#L230" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/Alogani/asyncio/edit/devel/src/nimgo/public/gotasks.nim#L230" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -371,7 +382,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-11 06:54:40 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-06-15 10:13:08 UTC</small>
       </div>
     </div>
   </div>
