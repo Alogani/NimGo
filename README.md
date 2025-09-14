@@ -2,7 +2,10 @@
 
 _NimGo: Asynchronous Library Inspired by Go's Asyncio. Or for Purists: Stackful Coroutines library associated with an I/O Event Loop and Dispatcher_
 
+**This repository is not anymore under active development.**
+
 This repository is currently an alpha release. Breaking change and API redesign won't be avoided.
+All working features can be found [here](https://github.com/Alogani/NimGo/discussions/26).
 
 
 ## Goal
@@ -11,12 +14,6 @@ Provide a simple, concise and efficient library for I/O.
 No async/await, no pragma, no Future[T] everywhere !
 
 Only one word to remember : **goAsync** (and optionaly **wait**, but seriously who needs that ?)
-
-## Current state
-
-All working features can be found [here](https://github.com/Alogani/NimGo/discussions/26).
-
-For now, NimGo is a single-threaded library. On Araq's advice (and maybe it's help), NimGo will be transformed towards a multi-threaded library (like Golang). This specific transformation has its own roadmap that can be found [here](https://github.com/Alogani/NimGo/discussions/17).
 
 ## Documentation
 
